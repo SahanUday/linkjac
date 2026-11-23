@@ -1,0 +1,8 @@
+[project]
+name = "linkjac"
+
+[check.lint]
+ignore = ["strip-comments", "strip-docstrings"]
+
+[test]
+directories = ["."]

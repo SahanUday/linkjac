@@ -118,7 +118,7 @@ def module_docs() -> list[tuple[str, str]]:
     for path in sorted(base.rglob("*.jac")):
         parts = set(path.relative_to(base).parts)
         if parts & {".jac", "dist", "node_modules", "impl"} or path.name in ("archwire.jac",) \
-                or path.name.endswith(".impl.jac"):
+                or path.name.endswith((".impl.jac", ".test.jac")):
             continue
         text = path.read_text(encoding="utf-8")
         match = re.match(r'\s*(?:#[^\n]*\n\s*)*"""(.*?)"""', text, re.DOTALL)
