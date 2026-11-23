@@ -6,7 +6,7 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 
 | ID | Milestone | Status | Done when (something we can show) |
 |----|-----------|--------|-----------------------------------|
-| M0 | Setup and baseline | doing | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb --check` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
+| M0 | Setup and baseline | done | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb --check` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
 | M1 | Data core | todo | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
 | M2 | REST API | todo | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
 | M3 | Import, export, CLI | todo | a Netscape bookmark file round-trips; admin commands run from a CLI app |
@@ -25,4 +25,13 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 
 ## Slices
 
-_Filled in as each milestone starts._
+### M0
+
+- [x] Setup checked: neojac 0.4.0, skills in `.claude/skills`, linkding pinned at 27b7303, site workflow live
+- [x] linkding runs from `reference/linkding` (how: `journal/2026-11-23.md`)
+- [x] `parity/` API checks for bookmarks and tags, 33 of 33 pass against the original; `parity/run.sh` writes `parity/results.json`
+- [x] `neojac absorb` and `neojac port --check` run on copies in `~/.claude-scratch/linkjac/`; findings logged as GAP-001 to GAP-024
+
+### M1
+
+_Slices to be listed when M1 starts._
