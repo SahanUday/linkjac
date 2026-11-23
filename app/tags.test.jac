@@ -23,3 +23,15 @@ test "a tag is found by its id, listed oldest first and deleted with its links" 
     delete_tag(made);
     assert find_tag_by_id(root, made.id) is None;
 }
+
+test "a tag is renamed with hyphens, and not to the name of another tag" {
+    first = find_or_make_tag(root, "rename-first");
+    second = find_or_make_tag(root, "rename-second");
+    assert rename_tag(root, first, "renamed first") == True;
+    assert first.name == "renamed-first";
+    assert rename_tag(root, first, "RENAME-SECOND") == False;
+    assert first.name == "renamed-first";
+    assert rename_tag(root, second, "Rename-Second") == True;
+    assert second.name == "Rename-Second";
+    assert rename_tag(root, second, "   ") == False;
+}

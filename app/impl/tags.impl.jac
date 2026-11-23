@@ -55,6 +55,16 @@ impl list_tags(owner: Root) -> list[Tag] {
     return sorted([owner --> [?:Tag]], key=tag_id_of);
 }
 
+impl rename_tag(owner: Root, tag: Tag, called: str) -> bool {
+    clean = sanitize_tag_name(called);
+    other = find_tag(owner, clean);
+    if clean == "" or (other is not None and other.id != tag.id) {
+        return False;
+    }
+    tag.name = clean;
+    return True;
+}
+
 impl delete_tag(tag: Tag) {
     remove(tag);
 }

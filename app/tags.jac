@@ -32,5 +32,8 @@ def list_tags(owner: Root) -> list[Tag];
 """Take a tag out of the graph with its links; the bookmarks that had it stay."""
 def delete_tag(tag: Tag);
 
+"""Give a tag the sanitized name `called`; False, and no change, when that is empty or another tag has the name already."""
+def rename_tag(owner: Root, tag: Tag, called: str) -> bool;
+
 """The tag of `owner` with this name, made when there is none."""
 def find_or_make_tag(owner: Root, called: str) -> Tag;
