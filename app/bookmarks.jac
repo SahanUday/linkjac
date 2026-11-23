@@ -48,11 +48,11 @@ def create_bookmark(owner: Root, draft: BookmarkDraft) -> Bookmark;
 """Replace every field of `bookmark` the draft carries, and its tags, and stamp the change."""
 def update_bookmark(owner: Root, bookmark: Bookmark, draft: BookmarkDraft) -> Bookmark;
 
-"""Mark a bookmark archived."""
-def archive_bookmark(bookmark: Bookmark) -> Bookmark;
+"""Stamp a bookmark as changed now."""
+def touch(bookmark: Bookmark);
 
-"""Mark a bookmark not archived."""
-def unarchive_bookmark(bookmark: Bookmark) -> Bookmark;
+"""Mark a bookmark archived or not archived, and stamp the change."""
+def set_archived(bookmark: Bookmark, archived: bool) -> Bookmark;
 
 """Take a bookmark out of the graph with its links; its tags stay."""
 def delete_bookmark(bookmark: Bookmark);
@@ -62,6 +62,9 @@ def list_bookmarks(owner: Root) -> list[Bookmark];
 
 """The names of the tags of one bookmark, sorted ignoring case."""
 def tag_names_of(bookmark: Bookmark) -> list[str];
+
+"""The tag's name in the form names compare by."""
+def tag_name_key(tag: Tag) -> str;
 
 """Every tag of `owner` with the number of bookmarks that carry it, by name ignoring case."""
 def tag_counts(owner: Root) -> dict[str, int];

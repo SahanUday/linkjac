@@ -11,6 +11,9 @@ node Tag {
 """The id of a tag, for sorting."""
 def tag_id_of(tag: Tag) -> int;
 
+"""The form of a tag name that names compare by: lower case."""
+def name_key(name: str) -> str;
+
 """A tag name with outer spaces cut and inner spaces made hyphens."""
 def sanitize_tag_name(name: str) -> str;
 

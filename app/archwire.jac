@@ -1,6 +1,8 @@
 graph layers {
     """Bookmarks and tags, and the rules for keeping them."""
-    layer domain { clock | ids | urls | tags | bookmarks | search_expression | search | profiles; }
+    layer domain {
+        clock | ids | urls | tags | bookmarks | matching | search_expression | search | profiles;
+    }
 
     """The REST layer: linkding's /api/ over the domain."""
     layer rest {
@@ -22,6 +24,7 @@ graph spaces {
             | urls
             | tags
             | bookmarks
+            | matching
             | search_expression
             | search
             | profiles
@@ -46,12 +49,15 @@ graph import {
     ids ++> tags { next_tag_id }
     ids ++> bookmarks { next_bookmark_id }
     urls ++> bookmarks { normalize_url }
-    tags ++> bookmarks { Tag, find_or_make_tag, parse_tag_string }
+    tags ++> bookmarks { Tag, find_or_make_tag, parse_tag_string, name_key }
+    tags ++> matching { name_key }
+    bookmarks ++> matching { Bookmark, tag_names_of }
+    matching ++> search_expression | search { has_text, has_tag }
     bookmarks ++> search {
         Bookmark,
         BookmarkDraft,
         create_bookmark,
-        archive_bookmark,
+        set_archived,
         list_bookmarks,
         tag_names_of,
     }
@@ -64,6 +70,8 @@ graph import {
     rest_call ++> rest_bookmarks { ApiCall, body_object, id_in_path, query_value }
     rest_reply ++> rest_tags | rest_bookmarks {
         ApiReply,
+        reply_not_allowed,
+        reply_not_a_dictionary,
         reply_json,
         reply_detail,
         reply_empty,
@@ -78,8 +86,7 @@ graph import {
         Bookmark,
         BookmarkDraft,
         create_bookmark,
-        archive_bookmark,
-        unarchive_bookmark,
+        set_archived,
         update_bookmark,
         delete_bookmark,
         find_bookmark,
@@ -92,7 +99,7 @@ graph import {
     profiles ++> rest_bookmarks { profile_of, find_profile }
     clock ++> search { read_instant }
     rest_call ++> rest_user { ApiCall }
-    rest_reply ++> rest_user { ApiReply, reply_detail, reply_json }
+    rest_reply ++> rest_user { ApiReply, reply_not_allowed, reply_detail, reply_json }
     rest_forms ++> rest_user { profile_json }
     profiles ++> rest_user { profile_of }
     rest_user ++> rest { user_route }

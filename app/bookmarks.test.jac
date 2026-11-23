@@ -1,5 +1,3 @@
-glob sample_count: int = 0;
-
 def draft(url: str, tags: str = "") -> BookmarkDraft {
     return BookmarkDraft(url=url, title="T " + url, tag_string=tags);
 }
@@ -33,8 +31,8 @@ test "a tag is made once however many bookmarks carry it" {
 
 test "archive, unarchive and delete" {
     made = create_bookmark(root, draft("https://arch.example"));
-    assert archive_bookmark(made).is_archived;
-    assert not unarchive_bookmark(made).is_archived;
+    assert set_archived(made, True).is_archived;
+    assert not set_archived(made, False).is_archived;
     delete_bookmark(made);
     assert made not in list_bookmarks(root);
     assert find_existing(root, "https://arch.example") is None;

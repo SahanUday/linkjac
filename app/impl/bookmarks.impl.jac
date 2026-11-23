@@ -11,6 +11,7 @@ impl set_tags(owner: Root, bookmark: Bookmark, tag_string: str) {
 
 impl find_existing(owner: Root, url: str) -> Bookmark | None {
     wanted = normalize_url(url);
+    # A bookmark saved with no normal form (an empty one) is found by its exact URL.
     for bookmark in [owner --> [?:Bookmark]] {
         if bookmark.url_normalized == wanted
             or (bookmark.url_normalized == "" and bookmark.url == url)
@@ -53,20 +54,18 @@ impl update_bookmark(owner: Root, bookmark: Bookmark, draft: BookmarkDraft) -> B
     bookmark.unread = draft.unread;
     bookmark.shared = draft.shared;
     bookmark.is_archived = draft.is_archived;
-    bookmark.date_modified = now_utc();
+    touch(bookmark);
     set_tags(owner, bookmark, draft.tag_string);
     return bookmark;
 }
 
-impl archive_bookmark(bookmark: Bookmark) -> Bookmark {
-    bookmark.is_archived = True;
+impl touch(bookmark: Bookmark) {
     bookmark.date_modified = now_utc();
-    return bookmark;
 }
 
-impl unarchive_bookmark(bookmark: Bookmark) -> Bookmark {
-    bookmark.is_archived = False;
-    bookmark.date_modified = now_utc();
+impl set_archived(bookmark: Bookmark, archived: bool) -> Bookmark {
+    bookmark.is_archived = archived;
+    touch(bookmark);
     return bookmark;
 }
 
@@ -79,14 +78,12 @@ impl list_bookmarks(owner: Root) -> list[Bookmark] {
 }
 
 impl tag_names_of(bookmark: Bookmark) -> list[str] {
-    return sorted(
-        [t.name for t in [bookmark ->:Tagged:->]], key=lambda (n: str) -> str { n.lower() }
-    );
+    return sorted([t.name for t in [bookmark ->:Tagged:->]], key=name_key);
 }
 
 impl tag_counts(owner: Root) -> dict[str, int] {
     counts: dict[str, int] = {};
-    for tag in sorted([owner --> [?:Tag]], key=lambda (t: Tag) -> str { t.name.lower() }) {
+    for tag in sorted([owner --> [?:Tag]], key=tag_name_key) {
         counts[tag.name] = len([tag <-:Tagged:<-]);
     }
     return counts;
@@ -112,4 +109,8 @@ impl draft_of(bookmark: Bookmark) -> BookmarkDraft {
         is_archived=bookmark.is_archived,
         tag_string=",".join(tag_names_of(bookmark)),
     );
+}
+
+impl tag_name_key(tag: Tag) -> str {
+    return name_key(tag.name);
 }

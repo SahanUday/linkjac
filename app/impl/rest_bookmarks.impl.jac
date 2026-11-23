@@ -1,9 +1,5 @@
 import from stdjac { allroots }
 
-def not_allowed(call: ApiCall) -> ApiReply {
-    return reply_detail(405, f"Method \"{call.method}\" not allowed.");
-}
-
 def missing_bookmark -> ApiReply {
     return reply_detail(404, "No Bookmark matches the given query.");
 }
@@ -51,23 +47,19 @@ def sharing_owners(public_only: bool) -> list[Root] {
 
 def set_archived_reply(call: ApiCall, owner: Root, text: str, archive: bool) -> ApiReply {
     if call.method != "POST" {
-        return not_allowed(call);
+        return reply_not_allowed(call.method);
     }
     bookmark = find_bookmark(owner, id_in_path(text));
     if bookmark is None {
         return missing_bookmark();
     }
-    if archive {
-        archive_bookmark(bookmark);
-    } else {
-        unarchive_bookmark(bookmark);
-    }
+    set_archived(bookmark, archive);
     return reply_empty(204);
 }
 
 impl shared_route(call: ApiCall, public_only: bool) -> ApiReply {
     if call.method != "GET" {
-        return not_allowed(call);
+        return reply_not_allowed(call.method);
     }
     narrowing = BookmarkFilter(
         text=query_value(call, "q"),
@@ -89,7 +81,7 @@ def refused(reading: DraftReading) -> ApiReply {
 def create_reply(call: ApiCall, owner: Root) -> ApiReply {
     given = body_object(call);
     if given is None {
-        return reply_field_errors({"non_field_errors": ["Invalid data. Expected a dictionary."]});
+        return reply_not_a_dictionary();
     }
     reading = read_draft(given, BookmarkDraft(url=""), True);
     if reading.errors {
@@ -105,7 +97,7 @@ def has_other_with_url(owner: Root, bookmark: Bookmark, url: str) -> bool {
 def change_reply(call: ApiCall, owner: Root, bookmark: Bookmark) -> ApiReply {
     given = body_object(call);
     if given is None {
-        return reply_field_errors({"non_field_errors": ["Invalid data. Expected a dictionary."]});
+        return reply_not_a_dictionary();
     }
     reading = read_draft(given, draft_of(bookmark), call.method == "PUT");
     if not reading.errors and has_other_with_url(owner, bookmark, reading.draft.url) {
@@ -132,7 +124,7 @@ def one_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
         delete_bookmark(bookmark);
         return reply_empty(204);
     }
-    return not_allowed(call);
+    return reply_not_allowed(call.method);
 }
 
 impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
@@ -143,11 +135,13 @@ impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
         if call.method == "POST" {
             return create_reply(call, owner);
         }
-        return not_allowed(call);
+        return reply_not_allowed(call.method);
     }
     if len(call.segments) == 2 {
         if call.segments[1] == "archived" {
-            return list_reply(call, owner, True) if call.method == "GET" else not_allowed(call);
+            return list_reply(call, owner, True)
+                if call.method == "GET"
+                else reply_not_allowed(call.method);
         }
         if call.segments[1] == "shared" {
             return shared_route(call, False);

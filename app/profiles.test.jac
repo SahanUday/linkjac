@@ -13,3 +13,10 @@ test "custom css gets the md5 hex of its text, and none gives no hash" {
     set_custom_css(p, "");
     assert p.custom_css_hash == "";
 }
+
+test "two profiles do not share one search_preferences dict" {
+    one = UserProfile();
+    two = UserProfile();
+    one.search_preferences["sort"] = "title";
+    assert two.search_preferences == {};
+}

@@ -10,7 +10,8 @@ def run_end(text: str, start: int, stops: str) -> int {
     return at;
 }
 
-def unescaped(mark: str, quote: str) -> str {
+"""The character a backslash and `mark` stand for."""
+def unescaped(mark: str) -> str {
     if mark == "n" {
         return "\n";
     }
@@ -32,7 +33,7 @@ def read_quoted(text: str, start: int) -> tuple[str, int] {
         if text[at] == "\\" {
             at += 1;
             if at < len(text) {
-                content += unescaped(text[at], quote);
+                content += unescaped(text[at]);
                 at += 1;
             }
         } else {
@@ -43,6 +44,7 @@ def read_quoted(text: str, start: int) -> tuple[str, int] {
     return (content, at + 1 if at < len(text) else at);
 }
 
+"""The kind of a bare word: and, or and not are operators, anything else is a term."""
 def operator_kind(word: str) -> str {
     lowered = word.lower();
     return lowered if lowered in ["and", "or", "not"] else "term";
@@ -86,14 +88,17 @@ obj Reader {
         at: int = 0;
 }
 
+"""The kind of the token the reader is at, or "end" past the last one."""
 def peek_kind(reader: Reader) -> str {
     return reader.tokens[reader.at].kind if reader.at < len(reader.tokens) else "end";
 }
 
+"""Whether a token of this kind can begin an operand."""
 def starts_operand(kind: str) -> bool {
     return kind in ["term", "tag", "keyword", "open", "not"];
 }
 
+"""Read a not, a parenthesized group or a leaf."""
 def parse_not(reader: Reader) -> SearchNode {
     kind = peek_kind(reader);
     if kind == "not" {
@@ -117,6 +122,7 @@ def parse_not(reader: Reader) -> SearchNode {
     raise ValueError("unexpected " + kind);
 }
 
+"""Read operands joined by and, or by nothing at all."""
 def parse_and(reader: Reader) -> SearchNode {
     left = parse_not(reader);
     while peek_kind(reader) == "and" or starts_operand(peek_kind(reader)) {
@@ -128,6 +134,7 @@ def parse_and(reader: Reader) -> SearchNode {
     return left;
 }
 
+"""Read and-groups joined by or."""
 def parse_or(reader: Reader) -> SearchNode {
     left = parse_and(reader);
     while peek_kind(reader) == "or" {
@@ -154,18 +161,7 @@ impl parse_expression(query: str) -> ExpressionReading {
     return ExpressionReading(tree=tree);
 }
 
-def has_text(bookmark: Bookmark, term: str) -> bool {
-    needle = term.lower();
-    return any([
-        needle in f.lower()
-        for f in [bookmark.title, bookmark.description, bookmark.notes, bookmark.url]
-    ]);
-}
-
-def has_tag(bookmark: Bookmark, name: str) -> bool {
-    return name.lower() in [n.lower() for n in tag_names_of(bookmark)];
-}
-
+"""Whether a bookmark meets a `!keyword`; an unknown keyword holds for every bookmark."""
 def keyword_holds(bookmark: Bookmark, word: str) -> bool {
     if word.lower() == "unread" {
         return bookmark.unread;

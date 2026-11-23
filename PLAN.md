@@ -91,29 +91,16 @@ Where the port differs from linkding or has no proof yet. The final report (M8) 
 
 ## Refactor backlog
 
-For `/refactor-pass`. From the M1 gap-audit (a read-only subagent re-run on 2026-11-23, then spot-checked: the unused `glob` was confirmed in the source; its file:line references were partly wrong, so the notes name functions). None of these is a neojac gap. No behaviour change.
+Pass of 2026-11-23 (before M3), one commit. Behaviour identical: `neojac test` 41 before, 42 after (one added); parity 71/71 on the original and on the port before and after. Merged: 8 duplicated pieces (the archive/unarchive twins; the `date_modified` stamp in three places, now `touch`; the case-insensitive name key in four places, now `name_key`; text matching and tag matching each in two modules, now `matching.jac`; the 405 reply in three places; the 400 "Invalid data" reply in three places; the yes/no test of `unread` and `shared`). Dead code removed: the unused `glob sample_count` and the unused `quote` parameter of `unescaped`. Checked, no change needed: `clock.test.jac` uses the `datetime` that `clock.jac` imports and `neojac check` is clean; two `UserProfile` nodes do not share `search_preferences` (a test now says so); the typed `lambda` keys are replaced by named key functions. Annexes (`*.test.jac`, `impl/*.impl.jac`) are not modules, so they carry no module docstring.
 
-- `bookmarks.test.jac`: `glob sample_count` is never used; delete it.
-- `bookmarks.impl.jac`: `archive_bookmark` and `unarchive_bookmark` differ by one flag; the `date_modified = now_utc()` stamp is written in three places. Merge into one `set_archived` and one `touch`.
-- Case-insensitive name key (`lambda ... n.lower()`) and the lower-case tag compare appear in `tag_names_of`, `tag_counts`, `lacks_tag` and `find_tag`. One key function and one compare, in `tags.jac`.
-- `tag_counts` is about tags and lives in `bookmarks.jac`. Moving it to `tags.jac` makes `tags` depend on the `Tagged` edge in `bookmarks`; settle the dependency direction in `archwire.jac` first, or put it in its own module.
-- `search.impl.jac`: `lacks_term`, `lacks_tag`, `matches`, `title_key`, `added_key`, `modified_key`, `in_order` exist only in the annex, with no declaration or docstring; every other module declares in the module and implements in the annex. Declare them, with one-line docstrings.
-- `search.impl.jac`: `matches` repeats the yes/no test for `unread` and `shared`; `added_key` and `modified_key` differ only by attribute.
-- `bookmarks.impl.jac`, `find_existing`: the `url_normalized == "" and url == url` fallback has no comment saying why.
-- Tests: `draft` (bookmarks.test) and `seed` (search.test) do the same thing; keep one.
-- `clock.test.jac` calls `datetime.utcnow()`; check whether `neojac check` flags it and what `datetime` it resolves to, and prefer an explicit import.
-- To check, not assumed: `profiles.jac` has `search_preferences: dict[str, str] = {}` on a node; confirm two profiles do not share one dict (if they do, log a gap). `tag_names_of` and `tag_counts` use the typed `lambda (n: str) -> str { ... }` form; use named key functions unless the docs say the lambda is needed.
-- `tools/check_persistence.sh`: its header says what it does, not why; it assumes `capped`, port 8301 and the `/__jac/call/api/service/` path. Replaced when `service.jac` is replaced in M2.
-- Every `*.test.jac` and `impl/*.impl.jac` has no module docstring. CLAUDE.md asks for one on every module; decide whether annexes count.
-
-From the M2 gap-audit (same run as above; not neojac gaps):
-- Three copies of the 405 reply (`refuse_method` in `rest_tags`, `not_allowed` in `rest_bookmarks`, inline in `rest_user`) and three of the 400 "Invalid data" reply: move both to `rest_reply`. `find_tag_by_id` and `find_bookmark` are the same linear scan; the "id, then 404" step repeats in three routes.
-- `has_text` and `has_tag` in `search_expression.impl.jac` repeat `lacks_term` and `lacks_tag` in `search.impl.jac` with the test inverted: one module should own text and tag matching.
-- `unescaped(mark, quote)` in `search_expression.impl.jac` never uses `quote`; its helper functions have no docstring.
-- `handle` is an if-chain over the first segment and `rest_user` is a one-function module: a route table. `handle` and `handle_public` both call `make_call`. `profile_json` belongs with the profile, not in `rest_forms`.
-- `api_prefix` is set in `app/jac.toml` and assumed in two places of `app/` (`make_call` drops one segment, `link_to` writes `/api/`). Pass the prefix in, or drop the setting.
-- The JSON body is encoded twice (`ApiReply.body` is a string inside the call envelope, which the bridge decodes again); return the data and let the bridge encode once. `json_reply` in the bridge duplicates `reply_json` because a plugin cannot import the app; say so in a comment.
-- `parity/run.sh` and `tools/check_persistence.sh` both build, start and register against the binary and pick it with `ls dist/api-*-* | head -1`; share one script. `check_persistence.sh` reads JSON with `sed` patterns that depend on `json.dumps` spacing.
-- `read_tag_names` in `rest_forms.impl.jac` uses `str(n)` after `all([isinstance(n, str) ...])`; check whether `isinstance` in a comprehension narrows, and log a gap if it does not.
-- The bridge keeps its settings and the app's handler in module `glob`s because the request handler class is built by the library; check whether there is a cleaner way.
-- The guard against a reply that is not the call envelope (`rest_reply_from`) was added after the audit and has never been triggered.
+Left open, with the reason:
+- `tag_counts` is about tags and lives in `bookmarks.jac`: moving it makes `tags` depend on the `Tagged` edge; decide the direction first.
+- `find_tag_by_id` and `find_bookmark` are the same scan over two node types; the "id, then 404" step repeats in three routes. One generic helper was not attempted.
+- `added_key` and `modified_key` differ only by attribute; a keyed sort needs a closure, left as two small functions.
+- `draft` (bookmarks.test) and `seed` (search.test) are in different test modules and differ (one builds a draft, one saves); sharing one needs a test-helper module.
+- `handle` is an if-chain over the first segment and `rest_user` is a one-function module (a route table); `profile_json` belongs with the profile; `handle` and `handle_public` both call `make_call`.
+- `api_prefix` is set in `app/jac.toml` and assumed in two places of `app/`.
+- The JSON body is encoded twice (envelope, then the bridge); `json_reply` in the bridge duplicates `reply_json` because a plugin cannot import the app (GAP-037).
+- `parity/run.sh` and `tools/check_persistence.sh` both build, start and register; share one script. `check_persistence.sh` reads JSON with `sed`.
+- `read_tag_names` uses `str(n)` after `all([isinstance(n, str) ...])`; whether `isinstance` in a comprehension narrows is unchecked.
+- The bridge keeps its settings and the app's handler in module `glob`s because the handler class is built by the library.

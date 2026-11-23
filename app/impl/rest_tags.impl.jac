@@ -1,7 +1,3 @@
-def refuse_method(call: ApiCall) -> ApiReply {
-    return reply_detail(405, f"Method \"{call.method}\" not allowed.");
-}
-
 def list_tags_reply(call: ApiCall, owner: Root) -> ApiReply {
     window = window_of(call);
     everything = list_tags(owner);
@@ -12,7 +8,7 @@ def list_tags_reply(call: ApiCall, owner: Root) -> ApiReply {
 def create_tag_reply(call: ApiCall, owner: Root) -> ApiReply {
     given = body_object(call);
     if given is None {
-        return reply_field_errors({"non_field_errors": ["Invalid data. Expected a dictionary."]});
+        return reply_not_a_dictionary();
     }
     if "name" not in given {
         return reply_field_errors({"name": ["This field is required."]});
@@ -39,7 +35,7 @@ def one_tag_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
         delete_tag(tag);
         return reply_empty(204);
     }
-    return refuse_method(call);
+    return reply_not_allowed(call.method);
 }
 
 impl tags_route(call: ApiCall, owner: Root) -> ApiReply {
@@ -50,7 +46,7 @@ impl tags_route(call: ApiCall, owner: Root) -> ApiReply {
         if call.method == "POST" {
             return create_tag_reply(call, owner);
         }
-        return refuse_method(call);
+        return reply_not_allowed(call.method);
     }
     if len(call.segments) == 2 {
         return one_tag_reply(call, owner, call.segments[1]);

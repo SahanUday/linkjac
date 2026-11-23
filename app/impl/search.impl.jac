@@ -1,31 +1,14 @@
-def lacks_term(bookmark: Bookmark, term: str) -> bool {
-    needle = term.lower();
-    for field in [bookmark.title, bookmark.description, bookmark.notes, bookmark.url] {
-        if needle in field.lower() {
-            return False;
-        }
-    }
-    return True;
+impl refuses_choice(choice: str, flag: bool) -> bool {
+    return (choice == "yes" and not flag) or (choice == "no" and flag);
 }
 
-def lacks_tag(have: list[str], wanted: str) -> bool {
-    return wanted.lower() not in [n.lower() for n in have];
-}
-
-def passes_flags(bookmark: Bookmark, narrowing: BookmarkFilter) -> bool {
+impl passes_flags(bookmark: Bookmark, narrowing: BookmarkFilter) -> bool {
     if bookmark.is_archived != narrowing.archived {
         return False;
     }
-    if narrowing.unread == "yes" and not bookmark.unread {
-        return False;
-    }
-    if narrowing.unread == "no" and bookmark.unread {
-        return False;
-    }
-    if narrowing.shared == "yes" and not bookmark.shared {
-        return False;
-    }
-    if narrowing.shared == "no" and bookmark.shared {
+    if refuses_choice(narrowing.unread, bookmark.unread)
+        or refuses_choice(narrowing.shared, bookmark.shared)
+    {
         return False;
     }
     return not (
@@ -34,39 +17,38 @@ def passes_flags(bookmark: Bookmark, narrowing: BookmarkFilter) -> bool {
     );
 }
 
-def matches_legacy(bookmark: Bookmark, parsed: ParsedQuery) -> bool {
+impl matches_legacy(bookmark: Bookmark, parsed: ParsedQuery) -> bool {
     if parsed.unread and not bookmark.unread {
         return False;
     }
-    have = tag_names_of(bookmark);
-    if parsed.untagged and have {
+    if parsed.untagged and tag_names_of(bookmark) {
         return False;
     }
     return not (
-        any([lacks_term(bookmark, t) for t in parsed.terms])
-        or any([lacks_tag(have, n) for n in parsed.tag_names])
+        any([not has_text(bookmark, t) for t in parsed.terms])
+        or any([not has_tag(bookmark, n) for n in parsed.tag_names])
     );
 }
 
 # A limit that is empty or not a time excludes nothing, as linkding ignores a date it cannot read.
-def not_after(limit: str, stamp: datetime) -> bool {
+impl not_after(limit: str, stamp: datetime) -> bool {
     since = read_instant(limit) if limit else None;
     return since is not None and stamp <= since;
 }
 
-def title_key(bookmark: Bookmark) -> str {
+impl title_key(bookmark: Bookmark) -> str {
     return (bookmark.title or bookmark.url).lower();
 }
 
-def added_key(bookmark: Bookmark) -> datetime {
+impl added_key(bookmark: Bookmark) -> datetime {
     return bookmark.date_added;
 }
 
-def modified_key(bookmark: Bookmark) -> datetime {
+impl modified_key(bookmark: Bookmark) -> datetime {
     return bookmark.date_modified;
 }
 
-def in_order(found: list[Bookmark], order: str) -> list[Bookmark] {
+impl in_order(found: list[Bookmark], order: str) -> list[Bookmark] {
     if order.startswith("title") {
         return sorted(found, key=title_key, reverse=order == "title_desc");
     }

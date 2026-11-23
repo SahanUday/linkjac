@@ -16,5 +16,11 @@ def reply_detail(status: int, detail: str) -> ApiReply;
 """A 400 reply that names each field with its messages."""
 def reply_field_errors(errors: dict[str, list[str]]) -> ApiReply;
 
+"""The 405 reply for a request whose method the route does not take."""
+def reply_not_allowed(method: str) -> ApiReply;
+
+"""The 400 reply for a body that is not a JSON object."""
+def reply_not_a_dictionary -> ApiReply;
+
 """A reply with no body."""
 def reply_empty(status: int) -> ApiReply;

@@ -51,7 +51,7 @@ test "untagged, unread, shared and archived narrow the list" {
         search_bookmarks(root, BookmarkFilter(text="s6.example", unread="yes", shared="yes"))
     ) == ["https://s6.example"];
     assert search_bookmarks(root, BookmarkFilter(text="s6.example", unread="no")) == [];
-    archive_bookmark(plain);
+    set_archived(plain, True);
     assert plain not in search_bookmarks(root, BookmarkFilter(text="s5.example"));
     assert plain in search_bookmarks(root, BookmarkFilter(text="s5.example", archived=True));
 }
