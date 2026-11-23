@@ -1,0 +1,11 @@
+[project]
+name = "rest_bridge"
+kind = "plugin"
+
+[plugin]
+fills = "transport"
+interface_ver = 1
+class = "rest_bridge.bridge.RestBridge"
+
+[check.lint]
+ignore = ["strip-comments", "strip-docstrings"]

@@ -22,7 +22,7 @@ neojac docs apps/data | sed -n '/## Where it is kept/,/^They are/p'
 ```
 
 ## Expected
-`neojac docs apps/data` and `neojac docs apps/server` ("The accounts plugin") state this; documented. The `accounts` plugin has a username, an email, a password; linkding's user model has first and last name, is_staff and is_superuser, which `accounts` has no field for.
+Documented, so kind is limitation: `neojac docs apps/data`, "Where it is kept": `accounts.db` holds "Accounts and sessions", beside `graph.db`. `neojac docs apps/server`, "The accounts plugin": "keeps accounts of a username and a password"; it lists a username, an email and a password, and no other field. linkding's user model has first and last name, is_staff and is_superuser, which `accounts` has no field for.
 
 ## Workaround
 None yet. M1 stores a `UserProfile` node under each caller's `root`; accounts are M6.

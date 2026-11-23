@@ -23,3 +23,13 @@ test "outputs match the original's for odd URLs" {
     assert normalize_url("http://e.com?") == "http://e.com";
     assert normalize_url("http://e.com/;p?q=1") == "http://e.com/;p?q=1";
 }
+
+test "only http, https, ftp and ftps addresses with a host are valid" {
+    assert is_valid_url("https://example.com/a?b=1");
+    assert is_valid_url("ftp://files.example.com");
+    assert not is_valid_url("not a url");
+    assert not is_valid_url("example.com");
+    assert not is_valid_url("javascript:alert(1)");
+    assert not is_valid_url("https://");
+    assert not is_valid_url("");
+}

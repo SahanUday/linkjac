@@ -36,3 +36,15 @@ impl normalize_url(url: str) -> str {
         return text;
     }
 }
+
+impl is_valid_url(url: str) -> bool {
+    if not url or url != url.strip() or " " in url {
+        return False;
+    }
+    try {
+        parsed = urlparse(url);
+        return parsed.scheme.lower() in ["http", "https", "ftp", "ftps"] and bool(parsed.hostname);
+    } except ValueError {
+        return False;
+    }
+}

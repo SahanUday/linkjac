@@ -40,8 +40,18 @@ test "archive, unarchive and delete" {
     assert find_existing(root, "https://arch.example") is None;
 }
 
+# WORKAROUND(GAP-026): every test of a module shares one root, so this test filters to names of its own.
 test "tag counts come in name order ignoring case" {
     create_bookmark(root, draft("https://order.example", "zz-ord, AA-ord, mm-ord"));
     names = [n for n in tag_counts(root).keys() if n.endswith("-ord")];
     assert names == ["AA-ord", "mm-ord", "zz-ord"];
+}
+
+test "a bookmark is found by its id and a draft of it carries every field" {
+    made = create_bookmark(root, draft("https://by-id.example", "b-tag, a-tag"));
+    assert find_bookmark(root, made.id) is made;
+    assert find_bookmark(root, made.id + 1000000) is None;
+    again = draft_of(made);
+    assert again.url == made.url and again.title == made.title;
+    assert again.tag_string == "a-tag,b-tag";
 }

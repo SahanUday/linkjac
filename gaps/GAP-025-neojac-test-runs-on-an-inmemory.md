@@ -25,7 +25,7 @@ find . -name '*.db'        # nothing
 ```
 
 ## Expected
-`neojac docs root`, section "A native program: nothing persists": a native program's `root` is new and empty each start with no file behind it; `neojac docs apps/data`: a serving app keeps its graph. The pages are consistent, so this is documented. Recorded because M1's done-when asks for data stored through `root` and the `store` plugin and a test run, and the two cannot be one command.
+Documented, by two statements read together; no page says it of tests. `neojac docs root`, section "A native program: nothing persists": "`root` is a new, empty `Root` every time the program starts ... There is no file behind it". `neojac docs toolchain/test`, on `-o`: "The runner is an ordinary program". `neojac docs apps/data` ("Where it is kept"): a served app keeps its graph in `graph.db`. Kind is limitation on that basis. Recorded because M1's done-when asks for data stored through `root` and the `store` plugin and a test run, and the two cannot be one command.
 
 ## Workaround
 Domain logic is tested with `neojac test`; that the store keeps data is checked by serving the app, saving through an endpoint, restarting the binary and reading back (done by hand for the M1 spike; to be made a parity check in M2). No code marker: nothing in code works around it.

@@ -6,3 +6,13 @@ ignore = ["strip-comments", "strip-docstrings"]
 
 [test]
 directories = ["."]
+
+[packages]
+rest_bridge = { path = "../plugins/rest_bridge" }
+
+[transport]
+plugin = "rest_bridge"
+
+[transport.rest_bridge]
+api_prefix = "/api/"
+call_path = "/__jac/call/api/rest/handle"

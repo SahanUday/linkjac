@@ -33,6 +33,7 @@ test "terms match url, title, notes ignoring case, and all must match" {
     assert urls_of(search_bookmarks(root, BookmarkFilter(text="mango beta"))) == [];
 }
 
+# WORKAROUND(GAP-026): every test of a module shares one root, so tags here are named for this test.
 test "tag terms need every named tag, ignoring case" {
     seed("https://s3.example", "Tagged", "red, blue");
     seed("https://s4.example", "One tag", "red");
@@ -55,6 +56,7 @@ test "untagged, unread, shared and archived narrow the list" {
     assert plain in search_bookmarks(root, BookmarkFilter(text="s5.example", archived=True));
 }
 
+# WORKAROUND(GAP-026): every test of a module shares one root, so this test filters to names of its own.
 test "newest first by default, and titles sort ignoring case" {
     older = seed("https://s7.example", "b-title", "");
     newer = seed("https://s8.example", "A-title", "");

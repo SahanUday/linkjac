@@ -3,7 +3,7 @@ id: GAP-026
 title: language/tests does not say that every test of a module shares one root
 kind: docs
 severity: nit
-status: open
+status: worked-around
 area: docs
 milestone: M1
 found: 2026-11-23
@@ -26,10 +26,10 @@ neojac test     # 1 passed, 1 failed: second
 ```
 
 ## Expected
-`neojac docs language/tests` says tests run "in one process. A global one test changes is changed for the tests after it". `root` is not named there, and `neojac docs root` does not mention tests. The sentence implies this, so the behaviour is consistent with the docs; they do not say it for `root`.
+`neojac docs language/tests`, section "What a test is" (after the annex rules): "each test in the order it is written, in one process. A global one test changes is changed for the tests after it". `neojac docs toolchain/test` says the same of source order. Neither names `root`, and `neojac docs root` does not mention tests (searched "test root", "tests share root"). The docs are silent on `root` in tests; kind stays docs.
 
 ## Workaround
-Tests count relative to what exists (`before = len(...)`) or use names unique to the test.
+Tests count relative to what exists (`before = len(...)`) or use names unique to the test. Marked `WORKAROUND(GAP-026)` in `app/bookmarks.test.jac` and `app/search.test.jac`.
 
 ## Cause
 Unknown.

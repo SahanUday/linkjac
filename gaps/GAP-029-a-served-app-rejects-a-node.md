@@ -46,7 +46,9 @@ With `datetime.now()` or `datetime.utcnow()` in place of `datetime.now(timezone.
 `neojac docs library/datetime` shows aware datetimes as ordinary values (`datetime(..., tzinfo=timezone.utc)`), and `neojac docs apps/data` says a node comes with its fields and is written when the endpoint returns, with no list of field types that cannot be kept. A `datetime` field should be kept whether or not it has a `tzinfo`, or the docs should say it cannot.
 
 ## Workaround
-All timestamps are naive UTC, made in one place, `app/clock.jac` (`now_utc`), with `WORKAROUND(GAP-029)`. The REST layer in M2 must write them with a `Z` as linkding does.
+All timestamps are naive UTC, made in one place, `app/clock.jac` (`now_utc`), with `WORKAROUND(GAP-029)`. The REST layer must still emit the original's format, below.
+
+The original's format, taken from a run of linkding 1.47.0 (`USE_TZ = True`, no `DATETIME_FORMAT` override in `REST_FRAMEWORK`): `date_added` and `date_modified` of a bookmark, and `date_added` of a tag, are UTC, `YYYY-MM-DDTHH:MM:SS.ffffffZ`, six digits of microseconds and a trailing `Z`. Seen: `2026-11-23T09:56:08.051886Z`. A bookmark created with `date_added` `2020-01-02T03:04:05+02:00` read back `2020-01-02T01:04:05Z`: the offset was converted to UTC, and the fraction was absent, as the input had none (one observation of the zero-microsecond case, not a rule read from the source). So the naive-UTC workaround must still give exactly that on output: format the naive value as UTC with a `Z`, microseconds when not zero, and convert any offset on input to UTC.
 
 ## Cause
 Unknown.

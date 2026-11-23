@@ -44,4 +44,34 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 
 ### M2
 
-_Slices to be listed when M2 starts._
+How the API is served (spikes, 2026-11-23): `@restspec` cannot carry linkding's `/api/` (GAP-030 to GAP-033); the `accounts` plugin reads `Bearer` and not `Token` (GAP-034) but gives each caller their own `root`. So `/api/` goes through a `transport` plugin, `plugins/rest_bridge`, which serves HTTP, turns `Authorization: Token` into `Bearer`, hands every request under `/api/` to one `:protect` endpoint of the app (`rest.handle`) and writes back the status and body that endpoint returns. The routing, the field names and the status codes live in `app/`, in Jac. The parity checks run against the port with a token made by `POST /__jac/auth/register` (`parity/run.sh`, `PARITY_TARGET=port`).
+
+Counts are reported as two numbers: original (must stay 33 of 33 plus what is added) and port.
+
+- [x] S0 spikes: auth (Bearer yes, Token no: GAP-034); restspec limits (GAP-030..033); transport plugin serves the app as a pass-through
+- [x] S1 port target for `parity/run.sh`; bridge forwards `/api/` to `rest.handle`; auth replies as linkding's (401 bodies)
+- [x] S2 integer ids for bookmarks and tags
+- [x] S3 tags endpoints (list with pagination, create, get, delete, 405 for PUT)
+- [x] S4 bookmarks create, get, delete (URL validation, fields, `tag_names`, date format with `Z`: GAP-029)
+- [x] S5 bookmarks update (PUT, PATCH) and the 400 and 404 bodies
+- [x] S6 bookmarks list: `q` (legacy search as in M1), `limit` and `offset`, `next` and `previous`
+- [ ] S7 search expression language: and, or, not, quotes, parentheses (own slice; `search_query_parser.py` in the original)
+- [ ] S8 the rest of linkding's `/api/` that the checks do not cover yet: add parity checks against the original first, then port: `archived`, `shared`, `archive`, `unarchive`, `check`, `user/profile/` (assets and bundles wait for `files` in M5)
+- [ ] S9 close: persistence check against the served port, `neojac arch` clean, gap audit, `/close-milestone`
+
+## Refactor backlog
+
+For `/refactor-pass`. From the M1 gap-audit (a read-only subagent re-run on 2026-11-23, then spot-checked: the unused `glob` was confirmed in the source; its file:line references were partly wrong, so the notes name functions). None of these is a neojac gap. No behaviour change.
+
+- `bookmarks.test.jac`: `glob sample_count` is never used; delete it.
+- `bookmarks.impl.jac`: `archive_bookmark` and `unarchive_bookmark` differ by one flag; the `date_modified = now_utc()` stamp is written in three places. Merge into one `set_archived` and one `touch`.
+- Case-insensitive name key (`lambda ... n.lower()`) and the lower-case tag compare appear in `tag_names_of`, `tag_counts`, `lacks_tag` and `find_tag`. One key function and one compare, in `tags.jac`.
+- `tag_counts` is about tags and lives in `bookmarks.jac`. Moving it to `tags.jac` makes `tags` depend on the `Tagged` edge in `bookmarks`; settle the dependency direction in `archwire.jac` first, or put it in its own module.
+- `search.impl.jac`: `lacks_term`, `lacks_tag`, `matches`, `title_key`, `added_key`, `modified_key`, `in_order` exist only in the annex, with no declaration or docstring; every other module declares in the module and implements in the annex. Declare them, with one-line docstrings.
+- `search.impl.jac`: `matches` repeats the yes/no test for `unread` and `shared`; `added_key` and `modified_key` differ only by attribute.
+- `bookmarks.impl.jac`, `find_existing`: the `url_normalized == "" and url == url` fallback has no comment saying why.
+- Tests: `draft` (bookmarks.test) and `seed` (search.test) do the same thing; keep one.
+- `clock.test.jac` calls `datetime.utcnow()`; check whether `neojac check` flags it and what `datetime` it resolves to, and prefer an explicit import.
+- To check, not assumed: `profiles.jac` has `search_preferences: dict[str, str] = {}` on a node; confirm two profiles do not share one dict (if they do, log a gap). `tag_names_of` and `tag_counts` use the typed `lambda (n: str) -> str { ... }` form; use named key functions unless the docs say the lambda is needed.
+- `tools/check_persistence.sh`: its header says what it does, not why; it assumes `capped`, port 8301 and the `/__jac/call/api/service/` path. Replaced when `service.jac` is replaced in M2.
+- Every `*.test.jac` and `impl/*.impl.jac` has no module docstring. CLAUDE.md asks for one on every module; decide whether annexes count.

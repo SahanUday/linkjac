@@ -28,6 +28,7 @@ impl create_bookmark(owner: Root, draft: BookmarkDraft) -> Bookmark {
     }
     stamp = now_utc();
     made = owner ++> Bookmark(
+        id=next_bookmark_id(owner),
         url=draft.url,
         url_normalized=normalize_url(draft.url),
         date_added=stamp,
@@ -37,6 +38,7 @@ impl create_bookmark(owner: Root, draft: BookmarkDraft) -> Bookmark {
         notes=draft.notes,
         unread=draft.unread,
         shared=draft.shared,
+        is_archived=draft.is_archived,
     );
     set_tags(owner, made, draft.tag_string);
     return made;
@@ -50,6 +52,7 @@ impl update_bookmark(owner: Root, bookmark: Bookmark, draft: BookmarkDraft) -> B
     bookmark.notes = draft.notes;
     bookmark.unread = draft.unread;
     bookmark.shared = draft.shared;
+    bookmark.is_archived = draft.is_archived;
     bookmark.date_modified = now_utc();
     set_tags(owner, bookmark, draft.tag_string);
     return bookmark;
@@ -87,4 +90,26 @@ impl tag_counts(owner: Root) -> dict[str, int] {
         counts[tag.name] = len([tag <-:Tagged:<-]);
     }
     return counts;
+}
+
+impl find_bookmark(owner: Root, bookmark_id: int) -> Bookmark | None {
+    for bookmark in [owner --> [?:Bookmark]] {
+        if bookmark.id == bookmark_id {
+            return bookmark;
+        }
+    }
+    return None;
+}
+
+impl draft_of(bookmark: Bookmark) -> BookmarkDraft {
+    return BookmarkDraft(
+        url=bookmark.url,
+        title=bookmark.title,
+        description=bookmark.description,
+        notes=bookmark.notes,
+        unread=bookmark.unread,
+        shared=bookmark.shared,
+        is_archived=bookmark.is_archived,
+        tag_string=",".join(tag_names_of(bookmark)),
+    );
 }
