@@ -4,15 +4,11 @@
 
 ## Setup (once)
 
-Needs `git`, `curl`, `uv` and Python 3 on Linux or WSL2. linkding's frontend build also needs Node (`fnm install --lts`).
+Needs `git`, `curl` and Python 3 on Linux or WSL2. To build the app, install neojac: `curl -fsSL https://github.com/jaseci-labs/neojac/releases/latest/download/install.sh | bash`. The original linkding is cloned into `reference/linkding` at the commit in `reference/PINNED.md`.
 
-```sh
-git clone <this repo> && cd linkjac
-bash tools/setup.sh        # installs neojac, clones linkding at the pinned commit
-git add -A && git commit -m "Pin linkding"
-```
+The parity test code and the scripts that run it are development tooling kept on the author's machine, not in this repository; `parity/README.md` describes them and `parity/results.json` and `parity/results-port.json` hold the latest counts.
 
-Then enable the site: GitHub, Settings, Pages, Source: GitHub Actions. The repo must be public on a free account.
+To enable the site: GitHub, Settings, Pages, Source: GitHub Actions. The repo must be public on a free account.
 
 ## Working
 
@@ -25,7 +21,7 @@ Each day: do a slice of the current milestone in `PLAN.md`, log what neojac coul
 | `PLAN.md` | Milestones and status |
 | `gaps/` | One file per gap; `_TEMPLATE.md` and `_EXAMPLE.md` show the form |
 | `journal/` | One short file per working day |
-| `parity/` | Checks that run against the original and the port |
+| `parity/` | Description of the parity checks and their latest counts (the test code is not published) |
 | `app/` | The Jac project |
 | `reference/` | The original app, read-only |
 | `arch.svg` | Architecture picture from `neojac arch`, shown on the site |
