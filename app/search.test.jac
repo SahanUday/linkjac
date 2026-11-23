@@ -77,3 +77,10 @@ test "newest first by default, and titles sort ignoring case" {
         "https://s8.example",
     ];
 }
+
+test "legacy search reads 'or' as a plain word, and the expression search reads it as an operator" {
+    seed("https://lg1.example", "legacy-aa", "");
+    seed("https://lg2.example", "legacy-bb", "");
+    assert search_bookmarks(root, BookmarkFilter(text="legacy-aa or legacy-bb", legacy=True)) == [];
+    assert len(search_bookmarks(root, BookmarkFilter(text="legacy-aa or legacy-bb"))) == 2;
+}

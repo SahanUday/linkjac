@@ -12,7 +12,7 @@ def lacks_tag(have: list[str], wanted: str) -> bool {
     return wanted.lower() not in [n.lower() for n in have];
 }
 
-def matches(bookmark: Bookmark, parsed: ParsedQuery, narrowing: BookmarkFilter) -> bool {
+def passes_flags(bookmark: Bookmark, narrowing: BookmarkFilter) -> bool {
     if bookmark.is_archived != narrowing.archived {
         return False;
     }
@@ -25,9 +25,10 @@ def matches(bookmark: Bookmark, parsed: ParsedQuery, narrowing: BookmarkFilter) 
     if narrowing.shared == "yes" and not bookmark.shared {
         return False;
     }
-    if narrowing.shared == "no" and bookmark.shared {
-        return False;
-    }
+    return not (narrowing.shared == "no" and bookmark.shared);
+}
+
+def matches_legacy(bookmark: Bookmark, parsed: ParsedQuery) -> bool {
     if parsed.unread and not bookmark.unread {
         return False;
     }
@@ -82,7 +83,19 @@ impl parse_query_string(text: str) -> ParsedQuery {
 }
 
 impl search_bookmarks(owner: Root, narrowing: BookmarkFilter) -> list[Bookmark] {
-    parsed = parse_query_string(narrowing.text);
-    found = [b for b in list_bookmarks(owner) if matches(b, parsed, narrowing)];
+    found = [b for b in list_bookmarks(owner) if passes_flags(b, narrowing)];
+    if narrowing.legacy {
+        parsed = parse_query_string(narrowing.text);
+        found = [b for b in found if matches_legacy(b, parsed)];
+    } else {
+        reading = parse_expression(narrowing.text);
+        if not reading.valid {
+            return [];
+        }
+        tree = reading.tree;
+        if tree is not None {
+            found = [b for b in found if node_matches(tree, b, narrowing.lax)];
+        }
+    }
     return in_order(found, narrowing.sort);
 }

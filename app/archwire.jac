@@ -1,6 +1,6 @@
 graph layers {
     """Bookmarks and tags, and the rules for keeping them."""
-    layer domain { clock | ids | urls | tags | bookmarks | search | profiles; }
+    layer domain { clock | ids | urls | tags | bookmarks | search_expression | search | profiles; }
 
     """What a caller reaches: endpoints over the domain."""
     layer service { service; }
@@ -18,6 +18,7 @@ graph spaces {
             | urls
             | tags
             | bookmarks
+            | search_expression
             | search
             | profiles
             | service
@@ -84,7 +85,10 @@ graph import {
         draft_of,
         list_bookmarks,
     }
+    bookmarks ++> search_expression { Bookmark, BookmarkDraft, create_bookmark, tag_names_of }
+    search_expression ++> search { parse_expression, node_matches }
     search ++> rest_bookmarks { BookmarkFilter, search_bookmarks }
+    profiles ++> rest_bookmarks { profile_of }
     rest_call ++> rest { make_call }
     rest_reply ++> rest { ApiReply, reply_detail }
     rest_tags ++> rest { tags_route }

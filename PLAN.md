@@ -55,7 +55,7 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 - [x] S4 bookmarks create, get, delete (URL validation, fields, `tag_names`, date format with `Z`: GAP-029)
 - [x] S5 bookmarks update (PUT, PATCH) and the 400 and 404 bodies
 - [x] S6 bookmarks list: `q` (legacy search as in M1), `limit` and `offset`, `next` and `previous`
-- [ ] S7 search expression language: and, or, not, quotes, parentheses (own slice; `search_query_parser.py` in the original)
+- [x] S7 search expression language: and, or, not, quotes, parentheses (own slice; `search_query_parser.py` in the original)
 - [ ] S8 the rest of linkding's `/api/` that the checks do not cover yet: add parity checks against the original first, then port: `archived`, `shared`, `archive`, `unarchive`, `check`, `user/profile/` (assets and bundles wait for `files` in M5)
 - [ ] S9 close: persistence check against the served port, `neojac arch` clean, gap audit, `/close-milestone`
 

@@ -13,13 +13,15 @@ obj ParsedQuery {
         unread: bool = False;
 }
 
-"""What a list of bookmarks is narrowed and ordered by; `unread` and `shared` are "off", "yes" or "no"."""
+"""What a list of bookmarks is narrowed and ordered by; `unread` and `shared` are "off", "yes" or "no"; `legacy` reads the text as all-terms-must-match, `lax` lets a term match a tag name."""
 obj BookmarkFilter {
     has text: str = "",
         archived: bool = False,
         unread: str = "off",
         shared: str = "off",
-        sort: str = "added_desc";
+        sort: str = "added_desc",
+        legacy: bool = False,
+        lax: bool = False;
 }
 
 """Split a query string the way linkding's legacy search does."""

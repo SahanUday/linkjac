@@ -8,7 +8,15 @@ def missing_bookmark -> ApiReply {
 
 def list_reply(call: ApiCall, owner: Root) -> ApiReply {
     window = window_of(call);
-    found = search_bookmarks(owner, BookmarkFilter(text=query_value(call, "q")));
+    profile = profile_of(owner);
+    found = search_bookmarks(
+        owner,
+        BookmarkFilter(
+            text=query_value(call, "q"),
+            legacy=profile.legacy_search,
+            lax=profile.tag_search == "lax",
+        ),
+    );
     rows = [bookmark_json(b) for b in found[window.offset:window.offset + window.limit]];
     return reply_json(200, page_of(call, "bookmarks", window, len(found), rows));
 }
