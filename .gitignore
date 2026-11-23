@@ -1,0 +1,15 @@
+# the original app, cloned at the pinned commit (see reference/PINNED.md)
+reference/*
+!reference/PINNED.md
+# scratch space for absorb/port experiments
+scratch/
+# generated
+site/
+.jac/
+dist/
+node_modules/
+.venv/
+__pycache__/
+# Claude Code config, not pushed
+CLAUDE.md
+.claude/
