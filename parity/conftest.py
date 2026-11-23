@@ -16,7 +16,7 @@ QUIET = {"disable_scraping": "", "disable_html_snapshot": ""}
 
 def expected_gap(gap_id):
     """Marks a check that cannot pass on the port yet; it still runs and must fail."""
-    return pytest.mark.xfail(reason=gap_id, strict=True)
+    return pytest.mark.xfail(reason=gap_id, strict=True)  # gaps-ok
 
 
 @pytest.fixture(scope="session")
@@ -76,7 +76,7 @@ def pytest_sessionfinish(session, exitstatus):
     reporter = session.config.pluginmanager.get_plugin("terminalreporter")
     stats = reporter.stats if reporter else {}
     passed = len(stats.get("passed", []))
-    total = sum(len(stats.get(kind, [])) for kind in ("passed", "failed", "error", "skipped", "xfailed", "xpassed"))
+    total = sum(len(stats.get(kind, [])) for kind in ("passed", "failed", "error", "skipped", "xfailed", "xpassed"))  # gaps-ok
     with open(RESULTS_PATH, "w") as out:
         json.dump({"passed": passed, "total": total}, out)
         out.write("\n")

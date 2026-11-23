@@ -44,7 +44,7 @@ class Util:
 ```
 
 ## Expected
-`neojac docs toolchain/port` says port "translates a core of each language ... and refuses the rest", and `neojac docs E4001` says the mapping page (`neojac port --mapping python`) lists what is translated. linkding uses this construct in `models.py`, template tags, services and views, so the port tool cannot take those files; that is what this gap records.
+Documented by omission. `neojac docs interop/port-python`, section "What is refused": "Anything not in the table is refused with E4001, and nothing is written for the file". The Python mapping table in that page has no row for decorators, `@property`, `@staticmethod`, or a method whose first parameter is not `self`, and `neojac docs E4001` says the same. The page does not name this construct. linkding uses it in `models.py`, template tags, services and views; those files cannot be ported.
 
 ## Workaround
 None needed in M0. The affected units are written by hand in Jac in later milestones; each use will carry `WORKAROUND(GAP-nnn)` if this construct had to be rewritten.

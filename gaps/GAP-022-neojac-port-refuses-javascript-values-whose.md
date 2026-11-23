@@ -39,7 +39,7 @@ export function url(id) {
 ```
 
 ## Expected
-`neojac docs E4005`. Documented. Recorded because the frontend is plain JavaScript, so most of it falls here.
+Partly documented. `neojac docs interop/port-javascript`, section "What is refused" lists, as E4005: "An operator on operands TypeScript does not know the types of", "A condition that is not a boolean", "A property a method binds that the constructor does not", and "A top-level variable that functions use". It does not name a property read of an untyped value (`bookmark.title`), the largest group here (88); that one is by omission under "Anything not in the table is refused with E4001". Recorded because linkding's frontend is plain JavaScript, so most of it falls here.
 
 ## Workaround
 None needed in M0. The affected units are written by hand in Jac in later milestones; each use will carry `WORKAROUND(GAP-nnn)` if this construct had to be rewritten.

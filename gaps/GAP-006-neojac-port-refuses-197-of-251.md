@@ -25,7 +25,7 @@ grep -E 'error\[' ../port-check-bookmarks.log | sed -E 's/^[^ ]+ //' | sort | un
 ```
 
 ## Expected
-`neojac docs toolchain/port` says port refuses a file whole when one construct is outside the core, so this is documented behaviour. It means `neojac port` cannot give raw material for the data and API units; the per-construct gaps below say what blocks each.
+Documented. `neojac docs toolchain/port`, section "What is refused": "A file ports whole or not at all. Port reports every construct it refuses ... writes nothing for that file". `neojac port --check` "lists what stands between it and a port" (same section). So 197 refused files is the documented behaviour applied to linkding; the per-construct gaps (GAP-007 to GAP-023) say what blocks each.
 
 ## Workaround
 The port-unit step "port what it can" gives nothing for models, queries or the API. Those units are designed by hand in Jac in M1 and M2.

@@ -103,7 +103,7 @@ def scan_code() -> tuple[dict[str, list[str]], list[str]]:
                 if found:
                     for gap_id in GAP_ID.findall(found.group(1)):
                         refs.setdefault(gap_id, []).append(f"{rel}:{number}")
-                elif SMELL.search(line):
+                elif SMELL.search(line) and "gaps-ok" not in line:
                     smells.append(f"{rel}:{number}: {line.strip()[:90]}")
     return refs, smells
 

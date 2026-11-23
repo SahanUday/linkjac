@@ -24,7 +24,7 @@ neojac port --check bookmarks/templates 2>&1 | tail -2   # 2 sources refused
 ```
 
 ## Expected
-`neojac docs toolchain/port` says in one line that other file kinds are skipped, or `--check` lists them. The web UI is rebuilt by hand with the `ui` plugin in M4.
+Documented by the path rules. `neojac docs toolchain/port`, section "What a path names": "A directory is every source under it that port translates" and "A file is known by its extension, and one port does not translate is E4004". An `.html` or `.css` file is no source port translates, so a directory run leaves it out without a line. The page does not name templates or stylesheets or say `--check` stays silent about them. The web UI is rebuilt by hand with the `ui` plugin in M4.
 
 ## Workaround
 None. The UI is designed by hand in M4.

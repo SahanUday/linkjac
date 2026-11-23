@@ -26,7 +26,7 @@ grep -c pypi jac.toml   # 0
 ```
 
 ## Expected
-A project with a pyproject.toml has a documented route into jac.toml (`neojac docs toolchain/packages`, `neojac docs using-python-packages` skill). None was found for taking an existing pyproject.toml in.
+Documented as a limit. `neojac docs reference/commands` (section `neojac absorb`) and `neojac docs toolchain/packages` ("Taking in a manifest you already have", "Rust crates and C modules") name three inputs: `package.json` with its `package-lock.json`, `Cargo.toml`, `cmodule.toml`. `neojac docs interop/index` describes absorb as taking "a `package.json` and its lock". `pyproject.toml` is not an input. `neojac docs toolchain/build` says a Python project (`pyproject.toml`) is recognized and refused until its build is made (E5090). Python dependencies are listed with `neojac install --pypi` into `[dependencies.pypi]` (`neojac docs toolchain/packages`, table at the top).
 
 ## Workaround
 None. Python dependencies are listed by hand with `neojac install --pypi` when needed in later milestones.

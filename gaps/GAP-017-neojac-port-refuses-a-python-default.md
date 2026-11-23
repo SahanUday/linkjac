@@ -30,7 +30,7 @@ def add(x: int, seen: list[int] = []) -> list[int]:
 ```
 
 ## Expected
-`neojac docs E4005`. Documented; recorded because it is a class of refusal.
+Documented. `neojac docs interop/port-python`, section "What is refused", lists: "**A default value that is not a constant.**", and `neojac docs E4005` explains the code (the default-value example there is the one in GAP-017). It is a stated limitation of the port, not a defect; recorded because linkding hits it (17 sites in `bookmarks/`).
 
 ## Workaround
 None needed in M0. The affected units are written by hand in Jac in later milestones; each use will carry `WORKAROUND(GAP-nnn)` if this construct had to be rewritten.

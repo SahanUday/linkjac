@@ -34,7 +34,7 @@ class Counter:
 ```
 
 ## Expected
-`neojac docs E4005`. Documented; recorded because 93 sites hit it.
+Documented. `neojac docs interop/port-python`, section "What is refused", lists: "**An attribute a method binds that `__init__` does not always bind.**", and `neojac docs E4005` explains the code (the default-value example there is the one in GAP-017). It is a stated limitation of the port, not a defect; recorded because linkding hits it (93 sites in `bookmarks/`).
 
 ## Workaround
 None needed in M0. The affected units are written by hand in Jac in later milestones; each use will carry `WORKAROUND(GAP-nnn)` if this construct had to be rewritten.

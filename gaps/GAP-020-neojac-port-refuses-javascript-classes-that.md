@@ -29,7 +29,7 @@ class B extends A { }
 ```
 
 ## Expected
-`neojac docs toolchain/port` says port "translates a core of each language ... and refuses the rest", and `neojac docs E4001` says the mapping page (`neojac port --mapping javascript`) lists what is translated. linkding uses this construct in the frontend in `bookmarks/frontend/` (Lit web components, Turbo), so the port tool cannot take those files; that is what this gap records.
+Documented by omission. `neojac docs interop/port-javascript`, section "What is refused": "Anything not in the table is refused with E4001, and nothing is written for the file". The JavaScript mapping table in that page has no row for a class that extends another, and `neojac docs E4001` says the same. The page does not name this construct. linkding uses it in the frontend in `bookmarks/frontend/` (Lit web components, Turbo); those files cannot be ported.
 
 ## Workaround
 None needed in M0. The affected units are written by hand in Jac in later milestones; each use will carry `WORKAROUND(GAP-nnn)` if this construct had to be rewritten.

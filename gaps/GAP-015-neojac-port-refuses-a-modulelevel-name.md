@@ -33,7 +33,7 @@ def where() -> str:
 ```
 
 ## Expected
-`neojac docs E4005` says port refuses when the Jac would mean something else; this is documented. Recorded because `admin.py` is the first file in the log that hits it.
+Documented. `neojac docs interop/port-python`, section "What is refused", lists: "**A module-level name that functions use, bound by anything but a literal before the module's code.**", and `neojac docs E4005` explains the code (the default-value example there is the one in GAP-017). It is a stated limitation of the port, not a defect; recorded because linkding hits it (44 module-level names in `bookmarks/`).
 
 ## Workaround
 None needed in M0. The affected units are written by hand in Jac in later milestones; each use will carry `WORKAROUND(GAP-nnn)` if this construct had to be rewritten.

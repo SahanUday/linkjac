@@ -40,7 +40,7 @@ class Tag(models.Model):
 ```
 
 ## Expected
-`neojac docs toolchain/port` says port "translates a core of each language ... and refuses the rest", and `neojac docs E4001` says the mapping page (`neojac port --mapping python`) lists what is translated. linkding uses this construct in `models.py` (140 diagnostics), `admin.py` (36), `views/contexts.py` (32) and `forms.py` (29), so the port tool cannot take those files; that is what this gap records.
+Documented by omission. `neojac docs interop/port-python`, section "What is refused": "Anything not in the table is refused with E4001, and nothing is written for the file". The Python mapping table in that page has no row for a class-body assignment (only `__init__` binding `self.x` is listed), and `neojac docs E4001` says the same. The page does not name this construct. linkding uses it in `models.py` (140 diagnostics), `admin.py` (36), `views/contexts.py` (32) and `forms.py` (29); those files cannot be ported.
 
 ## Workaround
 None for the port. The data model is designed by hand with `root` and `store` in M1.
