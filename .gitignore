@@ -11,11 +11,3 @@ __pycache__/
 # Claude Code config, not pushed
 CLAUDE.md
 .claude/
-# dev-only parity tooling kept on the author's machine; README and results stay tracked
-parity/*
-!parity/README.md
-!parity/results.json
-!parity/results-port.json
-# dev-only scripts
-tools/check_persistence.sh
-tools/setup.sh

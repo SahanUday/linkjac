@@ -1,2 +1,4 @@
 # gaps.py builds the site in CI; it is tooling, not the port
 tools/gaps.py linguist-vendored
+# the parity checks are the test harness, not the port
+parity/** linguist-vendored

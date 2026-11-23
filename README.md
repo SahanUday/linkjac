@@ -4,11 +4,15 @@
 
 ## Setup (once)
 
-Needs `git`, `curl` and Python 3 on Linux or WSL2. To build the app, install neojac: `curl -fsSL https://github.com/jaseci-labs/neojac/releases/latest/download/install.sh | bash`. The original linkding is cloned into `reference/linkding` at the commit in `reference/PINNED.md`.
+Needs `git`, `curl`, `uv` and Python 3 on Linux or WSL2. linkding's frontend build also needs Node (`fnm install --lts`).
 
-The parity test code and the scripts that run it are development tooling kept on the author's machine, not in this repository; `parity/README.md` describes them and `parity/results.json` and `parity/results-port.json` hold the latest counts.
+```sh
+git clone <this repo> && cd linkjac
+bash tools/setup.sh        # installs neojac, clones linkding at the pinned commit
+git add -A && git commit -m "Pin linkding"
+```
 
-To enable the site: GitHub, Settings, Pages, Source: GitHub Actions. The repo must be public on a free account.
+Then enable the site: GitHub, Settings, Pages, Source: GitHub Actions. The repo must be public on a free account.
 
 ## Working
 
@@ -21,11 +25,22 @@ Each day: do a slice of the current milestone in `PLAN.md`, log what neojac coul
 | `PLAN.md` | Milestones and status |
 | `gaps/` | One file per gap; `_TEMPLATE.md` and `_EXAMPLE.md` show the form |
 | `journal/` | One short file per working day |
-| `parity/` | Description of the parity checks and their latest counts (the test code is not published) |
+| `parity/` | Checks that run against the original and the port |
 | `app/` | The Jac project |
 | `reference/` | The original app, read-only |
 | `arch.svg` | Architecture picture from `neojac arch`, shown on the site |
 | `tools/gaps.py` | `new`, `check`, `status`, `update`, `map`, `site` |
+
+GitHub's language bar leaves out the test harness (`parity/`) and the site tooling (`tools/gaps.py`, via `.gitattributes`), so it shows the port's own code.
+
+Bytes of source by language (2026-11-23, `.jac` and `.py` files only, no generated or dependency folders):
+
+| Folder | Jac | Python |
+|---|---|---|
+| `app/` | 122,746 | 0 |
+| `plugins/` | 9,784 | 0 |
+| `parity/` | 0 | 52,654 |
+| `tools/` | 0 | 27,910 |
 
 Preview the site: `uv run --with markdown python tools/gaps.py site` then open `site/index.html`.
 
