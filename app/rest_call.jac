@@ -15,5 +15,8 @@ def make_call(method: str, path: str, query: str, body: str, origin: str) -> Api
 """The value of a query parameter, or `fallback` when it is not there."""
 def query_value(call: ApiCall, name: str, fallback: str = "") -> str;
 
+"""The id a path segment names, or 0 for one that is not a plain number that fits; ids start at 1, so 0 finds nothing."""
+def id_in_path(text: str) -> int;
+
 """The body read as a JSON object, or None when it is not one."""
 def body_object(call: ApiCall) -> dict[str, any] | None;

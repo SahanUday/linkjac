@@ -3,7 +3,7 @@ id: GAP-032
 title: No documented way for a restspec function to read the query string, the request body or a header
 kind: gap
 severity: major
-status: open
+status: worked-around
 area: transport
 milestone: M2
 found: 2026-11-23
@@ -37,7 +37,7 @@ kill %1
 `neojac docs apps/server` ("A path of its own: @restspec") and `neojac docs apps/stdjac-server`: both say "one of no parameters" and nothing about reading the request. `neojac docs apps/stdjac` ("Transport") describes a `Request` with `method`, `path`, `query`, `headers`, `body`, but only for a transport plugin, not for a function. Searched `neojac docs search "query string"`, "request body restspec", "request headers": nothing for `@restspec`. Kind is gap (docs silent), not limitation. One more loose end: `neojac docs apps/stdjac`, "What a program imports", row "Crossings", says a program imports "the `Request` a program that answers one itself is given". No page found says how a program answers a request itself, or which function is given the `Request`; searched `neojac docs apps/crossings` and `apps/stdjac` for "request" and "itself".
 
 ## Workaround
-None yet.
+The bridge reads the query string, body and headers of the request and passes them as arguments of that one endpoint (`WORKAROUND(GAP-032)` in `plugins/rest_bridge/bridge.jac`). Cost: a transport plugin of ~200 lines that has to stand in for the standard `http` transport (no streams, no keep-alive, none of its limits: GAP-037).
 
 ## Cause
 Unknown.

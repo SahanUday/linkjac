@@ -15,7 +15,7 @@ impl Gateway.relay(method: str) {
         client=self.client_address[0],
     );
     if sent.path.startswith(prefix_now) {
-        reply = rest_reply_from(answer(rest_call_for(sent)), "authorization" in headers);
+        reply = rest_reply_from(answer(rest_call_for(sent)));
     } else {
         reply = answer(sent);
     }
@@ -71,7 +71,7 @@ impl rest_call_for(sent: Request) -> Request {
     };
     return Request(
         method="POST",
-        path=call_now,
+        path=call_now if given else public_call_now,
         query="",
         headers=headers,
         body=json.dumps({"args": arguments}).encode("utf-8"),
@@ -89,29 +89,28 @@ def json_reply(status: int, value: any) -> Response {
     );
 }
 
-impl rest_reply_from(inner: Response, had_credentials: bool) -> Response {
+impl rest_reply_from(inner: Response) -> Response {
     if inner.status == 401 {
+        return json_reply(401, {"detail": "Invalid token."});
+    }
+    try {
+        decoded = json.loads(inner.body.decode("utf-8"));
+        if inner.status == 200 and decoded["ok"] {
+            data = decoded["data"];
+            return Response(
+                status=data["status"],
+                ctype="application/json",
+                body=data["body"].encode("utf-8"),
+                headers={},
+                events=None,
+            );
+        }
+        return json_reply(inner.status, {"detail": decoded.get("detail", "")});
+    } except (ValueError, KeyError, TypeError, AttributeError) {
         return json_reply(
-            401,
-            {
-                "detail": "Invalid token."
-                    if had_credentials
-                    else "Authentication credentials were not provided.",
-            },
+            500, {"detail": "The app answered in a form the REST bridge does not know."}
         );
     }
-    decoded = json.loads(inner.body.decode("utf-8"));
-    if inner.status == 200 and decoded["ok"] {
-        data = decoded["data"];
-        return Response(
-            status=data["status"],
-            ctype="application/json",
-            body=data["body"].encode("utf-8"),
-            headers={},
-            events=None,
-        );
-    }
-    return json_reply(inner.status, {"detail": decoded.get("detail", "")});
 }
 
 impl RestBridge.open(host: dyn Host) {}
@@ -138,11 +137,17 @@ impl RestBridge.listen(
 ) {
     prefix_now = self.api_prefix;
     call_now = self.call_path;
+    public_call_now = self.public_call_path;
     handler_now = handle;
     door = claim as Door;
     if listening is not None {
         listening(door.server.server_port);
     }
+    # WORKAROUND(GAP-036): nothing else prints the line that scripts wait for.
+    print(
+        f"listening on http://{door.server.server_address[0]}:{door.server.server_port}/",
+        flush=True,
+    );
     door.server.serve_forever();
 }
 

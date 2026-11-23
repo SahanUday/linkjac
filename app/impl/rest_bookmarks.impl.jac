@@ -1,3 +1,5 @@
+import from stdjac { allroots }
+
 def not_allowed(call: ApiCall) -> ApiReply {
     return reply_detail(405, f"Method \"{call.method}\" not allowed.");
 }
@@ -6,19 +8,77 @@ def missing_bookmark -> ApiReply {
     return reply_detail(404, "No Bookmark matches the given query.");
 }
 
-def list_reply(call: ApiCall, owner: Root) -> ApiReply {
-    window = window_of(call);
+def filter_of(call: ApiCall, owner: Root, archived: bool) -> BookmarkFilter {
     profile = profile_of(owner);
-    found = search_bookmarks(
-        owner,
-        BookmarkFilter(
-            text=query_value(call, "q"),
-            legacy=profile.legacy_search,
-            lax=profile.tag_search == "lax",
-        ),
+    return BookmarkFilter(
+        text=query_value(call, "q"),
+        archived=archived,
+        unread=query_value(call, "unread", "off"),
+        shared=query_value(call, "shared", "off"),
+        sort=query_value(call, "sort", "added_desc"),
+        added_since=query_value(call, "added_since"),
+        modified_since=query_value(call, "modified_since"),
+        legacy=profile.legacy_search,
+        lax=profile.tag_search == "lax",
     );
+}
+
+def page_reply(call: ApiCall, route: str, found: list[Bookmark]) -> ApiReply {
+    window = window_of(call);
     rows = [bookmark_json(b) for b in found[window.offset:window.offset + window.limit]];
-    return reply_json(200, page_of(call, "bookmarks", window, len(found), rows));
+    return reply_json(200, page_of(call, route, window, len(found), rows));
+}
+
+def list_reply(call: ApiCall, owner: Root, archived: bool) -> ApiReply {
+    found = search_bookmarks(owner, filter_of(call, owner, archived));
+    return page_reply(call, "bookmarks/archived" if archived else "bookmarks", found);
+}
+
+def sharing_owners(public_only: bool) -> list[Root] {
+    owners: list[Root] = [];
+    for candidate in allroots() {
+        profile = find_profile(candidate);
+        if profile is not None
+            and profile.enable_sharing
+            and (profile.enable_public_sharing or not public_only)
+        {
+            owners.append(candidate);
+        }
+    }
+    return owners;
+}
+
+def set_archived_reply(call: ApiCall, owner: Root, text: str, archive: bool) -> ApiReply {
+    if call.method != "POST" {
+        return not_allowed(call);
+    }
+    bookmark = find_bookmark(owner, id_in_path(text));
+    if bookmark is None {
+        return missing_bookmark();
+    }
+    if archive {
+        archive_bookmark(bookmark);
+    } else {
+        unarchive_bookmark(bookmark);
+    }
+    return reply_empty(204);
+}
+
+impl shared_route(call: ApiCall, public_only: bool) -> ApiReply {
+    if call.method != "GET" {
+        return not_allowed(call);
+    }
+    narrowing = BookmarkFilter(
+        text=query_value(call, "q"),
+        shared="yes",
+        unread=query_value(call, "unread", "off"),
+        sort=query_value(call, "sort", "added_desc"),
+        added_since=query_value(call, "added_since"),
+        modified_since=query_value(call, "modified_since"),
+    );
+    return page_reply(
+        call, "bookmarks/shared", search_many(sharing_owners(public_only), narrowing)
+    );
 }
 
 def refused(reading: DraftReading) -> ApiReply {
@@ -57,7 +117,7 @@ def change_reply(call: ApiCall, owner: Root, bookmark: Bookmark) -> ApiReply {
 }
 
 def one_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
-    bookmark = find_bookmark(owner, int(text)) if text.isdigit() else None;
+    bookmark = find_bookmark(owner, id_in_path(text));
     if bookmark is None {
         return missing_bookmark();
     }
@@ -77,7 +137,7 @@ def one_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
 impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
     if len(call.segments) == 1 {
         if call.method == "GET" {
-            return list_reply(call, owner);
+            return list_reply(call, owner, False);
         }
         if call.method == "POST" {
             return create_reply(call, owner);
@@ -85,7 +145,16 @@ impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
         return not_allowed(call);
     }
     if len(call.segments) == 2 {
+        if call.segments[1] == "archived" {
+            return list_reply(call, owner, True) if call.method == "GET" else not_allowed(call);
+        }
+        if call.segments[1] == "shared" {
+            return shared_route(call, False);
+        }
         return one_reply(call, owner, call.segments[1]);
+    }
+    if len(call.segments) == 3 and call.segments[2] in ["archive", "unarchive"] {
+        return set_archived_reply(call, owner, call.segments[1], call.segments[2] == "archive");
     }
     return reply_detail(404, "Not found.");
 }

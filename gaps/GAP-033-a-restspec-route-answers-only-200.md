@@ -3,7 +3,7 @@ id: GAP-033
 title: A restspec route answers only 200 or 500: no way to answer 201, 204, 400 or 404 from the function
 kind: limitation
 severity: major
-status: open
+status: worked-around
 area: transport
 milestone: M2
 found: 2026-11-23
@@ -38,7 +38,7 @@ kill %1
 `neojac docs apps/server`, "Replies", status table: 200 "The call returned", 500 "The endpoint raised"; "A function that returns nothing answers ...". `@restspec` is not said to differ. Documented as it is; the parity checks need 201, 204, 400, 404.
 
 ## Workaround
-None yet.
+The endpoint returns `{status, body}` as data and the bridge answers with that status (`WORKAROUND(GAP-033)` in `plugins/rest_bridge/bridge.jac`); 401 for a refused token is the bridge's. Cost: a transport plugin of ~200 lines that has to stand in for the standard `http` transport (no streams, no keep-alive, none of its limits: GAP-037).
 
 ## Cause
 Unknown.

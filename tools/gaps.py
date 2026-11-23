@@ -18,7 +18,7 @@ ROOT = Path(__file__).resolve().parent.parent
 GAPS = ROOT / "gaps"
 JOURNAL = ROOT / "journal"
 PLAN = ROOT / "PLAN.md"
-SCAN_DIRS = ["app", "parity"]
+SCAN_DIRS = ["app", "parity", "plugins"]
 SCAN_EXT = {".jac", ".py", ".toml", ".sh", ".ts", ".tsx", ".js", ".json", ".md"}
 
 KINDS = ["bug", "gap", "limitation", "docs", "ergonomics"]

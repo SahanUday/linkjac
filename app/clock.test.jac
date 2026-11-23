@@ -3,3 +3,10 @@ test "the time has no time zone and is close to the real UTC time" {
     assert stamp.tzinfo is None;
     assert abs((stamp - datetime.utcnow()).total_seconds()) < 5.0;
 }
+
+test "an ISO time becomes naive UTC and anything else is None" {
+    assert read_instant("2026-11-23T09:56:08.051886Z") == datetime(2026, 11, 23, 9, 56, 8, 51886);
+    assert read_instant("2020-01-02T03:04:05+02:00") == datetime(2020, 1, 2, 1, 4, 5);
+    assert read_instant("2020-01-02T03:04:05") == datetime(2020, 1, 2, 3, 4, 5);
+    assert read_instant("not a date") is None;
+}

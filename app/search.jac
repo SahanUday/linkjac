@@ -20,12 +20,17 @@ obj BookmarkFilter {
         unread: str = "off",
         shared: str = "off",
         sort: str = "added_desc",
+        added_since: str = "",
+        modified_since: str = "",
         legacy: bool = False,
         lax: bool = False;
 }
 
 """Split a query string the way linkding's legacy search does."""
 def parse_query_string(text: str) -> ParsedQuery;
+
+"""The bookmarks of all `owners` that match every term and tag of the filter, in the filter's order."""
+def search_many(owners: list[Root], narrowing: BookmarkFilter) -> list[Bookmark];
 
 """The bookmarks of `owner` that match every term and tag of the filter, in the filter's order."""
 def search_bookmarks(owner: Root, narrowing: BookmarkFilter) -> list[Bookmark];

@@ -36,5 +36,8 @@ node UserProfile {
 """The profile of the caller who owns `owner`, made with linkding's defaults the first time."""
 def profile_of(owner: Root) -> UserProfile;
 
+"""The profile of the owner of `owner` if one was made, else None; nothing is made."""
+def find_profile(owner: Root) -> UserProfile | None;
+
 """Set the custom CSS and the hash of it that pages use to tell when it changed."""
 def set_custom_css(profile: UserProfile, css: str);

@@ -3,7 +3,7 @@ id: GAP-034
 title: The accounts auth plugin reads only 'Authorization: Bearer <token>'; linkding's 'Token <token>' keyword is refused with 401
 kind: limitation
 severity: minor
-status: open
+status: worked-around
 area: auth
 milestone: M2
 found: 2026-11-23

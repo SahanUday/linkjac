@@ -106,3 +106,20 @@ impl read_draft(given: dict[str, any], start: BookmarkDraft, url_required: bool)
     }
     return reading;
 }
+
+impl profile_json(profile: UserProfile) -> dict[str, any] {
+    return {
+        "theme": profile.theme,
+        "bookmark_date_display": profile.bookmark_date_display,
+        "bookmark_link_target": profile.bookmark_link_target,
+        "web_archive_integration": profile.web_archive_integration,
+        "tag_search": profile.tag_search,
+        "enable_sharing": profile.enable_sharing,
+        "enable_public_sharing": profile.enable_public_sharing,
+        "enable_favicons": profile.enable_favicons,
+        "display_url": profile.display_url,
+        "permanent_notes": profile.permanent_notes,
+        "search_preferences": profile.search_preferences,
+        "version": "1.47.0",
+    };
+}

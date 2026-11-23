@@ -8,7 +8,7 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 |----|-----------|--------|-----------------------------------|
 | M0 | Setup and baseline | done | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
 | M1 | Data core | done | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
-| M2 | REST API | doing | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
+| M2 | REST API | done | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
 | M3 | Import, export, CLI | todo | a Netscape bookmark file round-trips; admin commands run from a CLI app |
 | M4 | Web UI | todo | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
 | M5 | Background work | todo | page snapshot and favicon jobs run and a scheduled job fires |
@@ -56,8 +56,9 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 - [x] S5 bookmarks update (PUT, PATCH) and the 400 and 404 bodies
 - [x] S6 bookmarks list: `q` (legacy search as in M1), `limit` and `offset`, `next` and `previous`
 - [x] S7 search expression language: and, or, not, quotes, parentheses (own slice; `search_query_parser.py` in the original)
-- [ ] S8 the rest of linkding's `/api/` that the checks do not cover yet: add parity checks against the original first, then port: `archived`, `shared`, `archive`, `unarchive`, `check`, `user/profile/` (assets and bundles wait for `files` in M5)
-- [ ] S9 close: persistence check against the served port, `neojac arch` clean, gap audit, `/close-milestone`
+- [x] S8 the rest of linkding's `/api/` that can run without the network or files: list filters (`unread`, `shared`, `sort`, `added_since`, `modified_since`), `archived`, `archive`, `unarchive`, `shared` (anonymous too), `user/profile/`; 9 parity checks added against the original first (`parity/test_api_bookmark_views.py`)
+- Not in M2, each with a reason: `bookmarks/check/` and the web-archive/scraping on create (need the network; M5 jobs), `singlefile` and assets (need `files`; M5), bundles (M4 with the UI), the `user` query parameter of the shared list (a root has no username; M6 with `auth`), the shared list with sharing enabled (unrun: GAP-035, and no API turns sharing on until M4). Known simplifications: `favicon_url`, `preview_image_url`, `website_title` and `website_description` are always null (no scraping); `web_archive_snapshot_url` is the original's fallback built from `date_added` (the original does the same when it has no snapshot); ids are counted per user in `ids.jac`, linkding's are global (two users both get id 1); `version` in the profile is the constant `1.47.0`; `date_added` and `date_modified` sent on create are ignored
+- [x] S9 close: persistence check against the served port (`tools/check_persistence.sh`), `neojac arch` clean, gap audit done; `/close-milestone` (build the site, push) not run, waiting for the user
 
 ## Refactor backlog
 
@@ -75,3 +76,15 @@ For `/refactor-pass`. From the M1 gap-audit (a read-only subagent re-run on 2026
 - To check, not assumed: `profiles.jac` has `search_preferences: dict[str, str] = {}` on a node; confirm two profiles do not share one dict (if they do, log a gap). `tag_names_of` and `tag_counts` use the typed `lambda (n: str) -> str { ... }` form; use named key functions unless the docs say the lambda is needed.
 - `tools/check_persistence.sh`: its header says what it does, not why; it assumes `capped`, port 8301 and the `/__jac/call/api/service/` path. Replaced when `service.jac` is replaced in M2.
 - Every `*.test.jac` and `impl/*.impl.jac` has no module docstring. CLAUDE.md asks for one on every module; decide whether annexes count.
+
+From the M2 gap-audit (same run as above; not neojac gaps):
+- Three copies of the 405 reply (`refuse_method` in `rest_tags`, `not_allowed` in `rest_bookmarks`, inline in `rest_user`) and three of the 400 "Invalid data" reply: move both to `rest_reply`. `find_tag_by_id` and `find_bookmark` are the same linear scan; the "id, then 404" step repeats in three routes.
+- `has_text` and `has_tag` in `search_expression.impl.jac` repeat `lacks_term` and `lacks_tag` in `search.impl.jac` with the test inverted: one module should own text and tag matching.
+- `unescaped(mark, quote)` in `search_expression.impl.jac` never uses `quote`; its helper functions have no docstring.
+- `handle` is an if-chain over the first segment and `rest_user` is a one-function module: a route table. `handle` and `handle_public` both call `make_call`. `profile_json` belongs with the profile, not in `rest_forms`.
+- `api_prefix` is set in `app/jac.toml` and assumed in two places of `app/` (`make_call` drops one segment, `link_to` writes `/api/`). Pass the prefix in, or drop the setting.
+- The JSON body is encoded twice (`ApiReply.body` is a string inside the call envelope, which the bridge decodes again); return the data and let the bridge encode once. `json_reply` in the bridge duplicates `reply_json` because a plugin cannot import the app; say so in a comment.
+- `parity/run.sh` and `tools/check_persistence.sh` both build, start and register against the binary and pick it with `ls dist/api-*-* | head -1`; share one script. `check_persistence.sh` reads JSON with `sed` patterns that depend on `json.dumps` spacing.
+- `read_tag_names` in `rest_forms.impl.jac` uses `str(n)` after `all([isinstance(n, str) ...])`; check whether `isinstance` in a comprehension narrows, and log a gap if it does not.
+- The bridge keeps its settings and the app's handler in module `glob`s because the request handler class is built by the library; check whether there is a cleaner way.
+- The guard against a reply that is not the call envelope (`rest_reply_from`) was added after the audit and has never been triggered.

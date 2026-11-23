@@ -28,7 +28,7 @@ def create_tag_reply(call: ApiCall, owner: Root) -> ApiReply {
 }
 
 def one_tag_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
-    tag = find_tag_by_id(owner, int(text)) if text.isdigit() else None;
+    tag = find_tag_by_id(owner, id_in_path(text));
     if tag is None {
         return reply_detail(404, "No Tag matches the given query.");
     }

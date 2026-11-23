@@ -3,7 +3,7 @@ id: GAP-031
 title: restspec path is exact and the function takes no parameters: /api/tags/5/ cannot be served
 kind: limitation
 severity: major
-status: open
+status: worked-around
 area: transport
 milestone: M2
 found: 2026-11-23
@@ -37,7 +37,7 @@ kill %1
 `neojac docs apps/server`, same section: `path` is "Absolute: one that does not start with `/` does not compile"; "The function takes no parameters." Nothing there or in `neojac docs apps/stdjac-server` mentions a pattern or a path parameter. (`neojac docs apps/pages` has `*name` route parameters for pages, not for `@restspec`.) Documented as it is; linkding needs ids in the path.
 
 ## Workaround
-None yet. Searched `neojac docs search "path parameter"`: nothing for `@restspec`.
+The bridge hands the whole path to one app endpoint (`rest.handle`), which does the routing, ids included, in Jac (`WORKAROUND(GAP-031)` in `plugins/rest_bridge/bridge.jac`). Cost: a transport plugin of ~200 lines that has to stand in for the standard `http` transport (no streams, no keep-alive, none of its limits: GAP-037).
 
 ## Cause
 Unknown.

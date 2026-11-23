@@ -25,7 +25,13 @@ def passes_flags(bookmark: Bookmark, narrowing: BookmarkFilter) -> bool {
     if narrowing.shared == "yes" and not bookmark.shared {
         return False;
     }
-    return not (narrowing.shared == "no" and bookmark.shared);
+    if narrowing.shared == "no" and bookmark.shared {
+        return False;
+    }
+    return not (
+        not_after(narrowing.added_since, bookmark.date_added)
+        or not_after(narrowing.modified_since, bookmark.date_modified)
+    );
 }
 
 def matches_legacy(bookmark: Bookmark, parsed: ParsedQuery) -> bool {
@@ -40,6 +46,12 @@ def matches_legacy(bookmark: Bookmark, parsed: ParsedQuery) -> bool {
         any([lacks_term(bookmark, t) for t in parsed.terms])
         or any([lacks_tag(have, n) for n in parsed.tag_names])
     );
+}
+
+# A limit that is empty or not a time excludes nothing, as linkding ignores a date it cannot read.
+def not_after(limit: str, stamp: datetime) -> bool {
+    since = read_instant(limit) if limit else None;
+    return since is not None and stamp <= since;
 }
 
 def title_key(bookmark: Bookmark) -> str {
@@ -82,8 +94,11 @@ impl parse_query_string(text: str) -> ParsedQuery {
     );
 }
 
-impl search_bookmarks(owner: Root, narrowing: BookmarkFilter) -> list[Bookmark] {
-    found = [b for b in list_bookmarks(owner) if passes_flags(b, narrowing)];
+impl search_many(owners: list[Root], narrowing: BookmarkFilter) -> list[Bookmark] {
+    found: list[Bookmark] = [];
+    for owner in owners {
+        found += [b for b in list_bookmarks(owner) if passes_flags(b, narrowing)];
+    }
     if narrowing.legacy {
         parsed = parse_query_string(narrowing.text);
         found = [b for b in found if matches_legacy(b, parsed)];
@@ -98,4 +113,8 @@ impl search_bookmarks(owner: Root, narrowing: BookmarkFilter) -> list[Bookmark] 
         }
     }
     return in_order(found, narrowing.sort);
+}
+
+impl search_bookmarks(owner: Root, narrowing: BookmarkFilter) -> list[Bookmark] {
+    return search_many([owner], narrowing);
 }

@@ -25,3 +25,7 @@ impl body_object(call: ApiCall) -> dict[str, any] | None {
     }
     return None;
 }
+
+impl id_in_path(text: str) -> int {
+    return int(text) if text.isascii() and text.isdigit() and len(text) <= 18 else 0;
+}

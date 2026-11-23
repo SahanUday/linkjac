@@ -17,6 +17,9 @@ def archive_url_of(bookmark: Bookmark) -> str;
 """A tag as the API shows it."""
 def tag_json(tag: Tag) -> dict[str, any];
 
+"""The profile fields the API shows, and the linkding version the port answers as."""
+def profile_json(profile: UserProfile) -> dict[str, any];
+
 """A bookmark as the API shows it, fields in linkding's order."""
 def bookmark_json(bookmark: Bookmark) -> dict[str, any];
 
