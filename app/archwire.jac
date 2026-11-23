@@ -1,7 +1,18 @@
 graph layers {
     """Bookmarks and tags, and the rules for keeping them."""
     layer domain {
-        clock | ids | urls | tags | bookmarks | matching | search_expression | search | profiles;
+        clock
+            | ids
+            | urls
+            | tags
+            | bookmarks
+            | matching
+            | search_expression
+            | search
+            | profiles
+            | netscape_parse
+            | netscape_export
+            | netscape_import;
     }
 
     """The REST layer: linkding's /api/ over the domain."""
@@ -28,6 +39,9 @@ graph spaces {
             | search_expression
             | search
             | profiles
+            | netscape_parse
+            | netscape_export
+            | netscape_import
             | rest
             | rest_call
             | rest_reply
@@ -98,6 +112,31 @@ graph import {
     search ++> rest_bookmarks { BookmarkFilter, search_bookmarks, search_many }
     profiles ++> rest_bookmarks { profile_of, find_profile }
     clock ++> search { read_instant }
+    tags ++> netscape_parse { parse_tag_string }
+    urls ++> netscape_parse { normalize_url }
+    clock ++> netscape_export { epoch_of, read_epoch }
+    bookmarks ++> netscape_export {
+        Bookmark,
+        BookmarkDraft,
+        create_bookmark,
+        set_archived,
+        tag_names_of,
+    }
+    netscape_parse ++> netscape_export { archived_marker }
+    netscape_parse ++> netscape_import { NetscapeBookmark, parse_netscape }
+    urls ++> netscape_import { is_valid_url }
+    clock ++> netscape_import { read_epoch, epoch_of, now_utc }
+    tags ++> netscape_import { find_or_make_tag, find_tag, name_key }
+    bookmarks ++> netscape_import {
+        Bookmark,
+        BookmarkDraft,
+        Tagged,
+        create_bookmark,
+        find_existing,
+        delete_bookmark,
+        tag_names_of,
+    }
+    netscape_export ++> netscape_import { export_netscape }
     rest_call ++> rest_user { ApiCall }
     rest_reply ++> rest_user { ApiReply, reply_not_allowed, reply_detail, reply_json }
     rest_forms ++> rest_user { profile_json }

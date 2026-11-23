@@ -64,10 +64,10 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 
 `neojac port --check` on the original's Netscape unit (copies in `~/.claude-scratch/linkjac/m3-netscape/`): `exporter.py` is accepted (raw output typed `any`); `parser.py` is refused (class decorator, class attributes, `with`, `super()`: GAP-007, 008, 010, 011); `import_netscape.py` is refused. So the exporter's logic comes from `port`'s output as raw material, the parser and importer are designed by hand (`html.parser` is native, `neojac docs library/text`).
 
-- [ ] S1 export: an owner's bookmarks as a Netscape file, byte for byte as `exporter.py` writes it
-- [ ] S2 parser: Netscape file into bookmark records (tags, dates, `TOREAD`, `PRIVATE`, notes, archived marker)
-- [ ] S3 import: records into bookmarks (update on same normalized URL, skip duplicates in the file, dates kept, tags created, archived)
-- [ ] S4 round trip: export, import into an empty owner, same bookmarks (a `test` block, and a check)
+- [x] S1 export: an owner's bookmarks as a Netscape file, byte for byte as `exporter.py` writes it
+- [x] S2 parser: Netscape file into bookmark records (tags, dates, `TOREAD`, `PRIVATE`, notes, archived marker)
+- [x] S3 import: records into bookmarks (update on same normalized URL, skip duplicates in the file, dates kept, tags created, archived)
+- [x] S4 round trip: export, import into an empty owner, same bookmarks (a `test` block, and a check)
 - [ ] S5 entry points and CLI app: `:protect` endpoints for import and export; a `cli` app that calls them (route in `neojac docs crossings`; `JAC_REMOTE_TOKEN` for a caller's session)
 - [ ] S6 admin commands: the original's `manage.py` commands that make sense here (`import_netscape <file> <user>` first)
 - [ ] S7 check on both targets: the original's `import_netscape` command and the port's CLI import the same file; the API shows the same bookmarks
