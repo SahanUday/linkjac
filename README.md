@@ -4,11 +4,11 @@
 
 ## Setup (once)
 
-Needs `git`, `curl`, `uv` and Python 3 on Linux or WSL2.
+Needs `git`, `curl`, `uv` and Python 3 on Linux or WSL2. linkding's frontend build also needs Node (`fnm install --lts`).
 
 ```sh
 git clone <this repo> && cd linkjac
-bash tools/setup.sh        # installs neojac, its skills, clones linkding at a pinned commit
+bash tools/setup.sh        # installs neojac, clones linkding at the pinned commit
 git add -A && git commit -m "Pin linkding"
 ```
 
@@ -16,18 +16,12 @@ Then enable the site: GitHub, Settings, Pages, Source: GitHub Actions. The repo 
 
 ## Working
 
-Start Claude Code in this folder (`claude`, or the VS Code extension) and paste the first prompt from the kickoff guide. After that, each day:
-
-1. Start a session. A status summary appears on its own.
-2. Say what to do: "continue" works, or `/get-bearings` after a break.
-3. At the end, Claude writes the journal and pushes. The site updates in about a minute.
-4. `/daily-update` gives the text for the team.
+Each day: do a slice of the current milestone in `PLAN.md`, log what neojac could not do in `gaps/`, add a short `journal/YYYY-MM-DD.md`, then commit and push. The site updates in about a minute. `python3 tools/gaps.py update` prints the text for the team; `python3 tools/gaps.py check` must pass.
 
 ## Layout
 
 | Path | Holds |
 |---|---|
-| `CLAUDE.md` | Rules for Claude Code |
 | `PLAN.md` | Milestones and status |
 | `gaps/` | One file per gap; `_TEMPLATE.md` and `_EXAMPLE.md` show the form |
 | `journal/` | One short file per working day |
@@ -36,7 +30,6 @@ Start Claude Code in this folder (`claude`, or the VS Code extension) and paste 
 | `reference/` | The original app, read-only |
 | `arch.svg` | Architecture picture from `neojac arch`, shown on the site |
 | `tools/gaps.py` | `new`, `check`, `status`, `update`, `map`, `site` |
-| `.claude/` | Settings, hooks, skills, subagents |
 
 Preview the site: `uv run --with markdown python tools/gaps.py site` then open `site/index.html`.
 
