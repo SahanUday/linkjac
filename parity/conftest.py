@@ -74,10 +74,10 @@ def eventually(read, seconds=40):
 class WebNetscape:
     """The original's import form and export view, used through a signed-in browser session."""
 
-    def __init__(self):
+    def __init__(self, username="parity"):
         self.http = httpx.Client(base_url=BASE_URL, follow_redirects=False, timeout=60)
         page = self.http.get("/login/")
-        form = {"username": "parity", "password": "parity-pass", "csrfmiddlewaretoken": self.csrf(page.text)}
+        form = {"username": username, "password": "parity-pass", "csrfmiddlewaretoken": self.csrf(page.text)}
         assert self.http.post("/login/", data=form).status_code == 302
 
     @staticmethod
@@ -103,10 +103,10 @@ class WebNetscape:
 class CliNetscape:
     """The port's command-line app, which signs in with the parity user's token."""
 
-    def __init__(self, program, tmp_path):
+    def __init__(self, program, tmp_path, token=TOKEN):
         self.program = program
         self.tmp_path = tmp_path
-        self.env = {**os.environ, "JAC_REMOTE_API": BASE_URL, "JAC_REMOTE_TOKEN": TOKEN}
+        self.env = {**os.environ, "JAC_REMOTE_API": BASE_URL, "JAC_REMOTE_TOKEN": token}
 
     def run(self, *args):
         done = subprocess.run([self.program, *args], env=self.env, capture_output=True, text=True, timeout=120)
@@ -132,6 +132,18 @@ def netscape(tmp_path):
         yield CliNetscape(program, tmp_path)
     else:
         driver = WebNetscape()
+        yield driver
+        driver.http.close()
+
+
+@pytest.fixture
+def netscape_jobs(tmp_path):
+    """The same import and export, for the account whose profile wants favicons and snapshots."""
+    program = os.environ.get("PARITY_CLI", "")
+    if program:
+        yield CliNetscape(program, tmp_path, TOKEN_JOBS)
+    else:
+        driver = WebNetscape("parity3")
         yield driver
         driver.http.close()
 

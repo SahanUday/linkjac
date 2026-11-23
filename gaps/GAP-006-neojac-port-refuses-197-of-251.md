@@ -32,3 +32,6 @@ The port-unit step "port what it can" gives nothing for models, queries or the A
 
 ## Cause
 Unknown.
+
+## M5 units (2026-11-23, run after the work, on copies in `~/.claude-scratch/linkjac/m5/src`)
+`neojac port --check` on `website_loader.py`, `favicon_loader.py`, `http_client.py`, `assets.py`, `tasks.py` and `singlefile.py` of `bookmarks/services/`: 6 of 6 refused, 61 E4001 lines: `try` 18, decorator 16, a class's own attribute 9 (7 AnnAssign, 2 Assign), `with` 6, `**` argument 4, `*args`/`**kwargs`/keyword-only 4, `super()` 3, function inside a function 2, class decorator 2, a method whose first parameter is not `self` 1. All but "`**` argument" and "function inside a function" fall under GAP-007 to GAP-012 already; those two are counted here only. Nothing of these units came from `port`; the Jac was written by hand (CLAUDE.md asks for the check before the work: it was run after, for these).
