@@ -36,6 +36,7 @@ impl TagDialog(tag_id: int = 0) -> JsxElement {
             >Tag names are case-insensitive and cannot contain spaces (spaces will be replaced with hyphens).</p>
             {[<p key="problem" role="alert">{problem}</p> for _ in range(1) if problem != ""]}
             <a href="/tags">Cancel</a>
+            {" "}
             <button type="submit">Save</button>
         </div>
     </form>;

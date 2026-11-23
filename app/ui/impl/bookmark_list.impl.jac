@@ -2,13 +2,18 @@ impl BookmarkRow(item: ListedBookmark, on_archive: any, on_remove: any) -> JsxEl
     return <li>
         <a href={item.url}>{item.title or item.url}</a>
         <span>
-            {[<a key={n} href={"/bookmarks?q=%23" + n}>{"#" + n}</a> for n in item.tag_names]}
+            {[
+                <span key={n}><a href={"/bookmarks?q=%23" + n}>{"#" + n}</a>{" "}</span>
+                for n in item.tag_names
+            ]}
         </span>
         <p>{item.description}</p>
         <a href={"/bookmarks/" + str(item.id) + "/edit"}>Edit</a>
+        {" "}
         <button type="button" onClick={lambda { on_archive(item.id, not item.is_archived); }}>
             {"Unarchive" if item.is_archived else "Archive"}
         </button>
+        {" "}
         <button type="button" onClick={lambda { on_remove(item.id); }}>Remove</button>
     </li>;
 }
@@ -67,6 +72,7 @@ impl BookmarkList(archived: bool = False) -> JsxElement {
                     aria-label="Search for words or #tags"
                     defaultValue={q}
                 />
+                <button type="submit">Search</button>
             </form>
         </search>
         <section aria-label="Bookmark list">
@@ -81,22 +87,32 @@ impl BookmarkList(archived: bool = False) -> JsxElement {
                     for i in items
                 ]}
             </ul>
-            <ul>
-                <li>
-                    <a href={page_href(base, q, number - 1) if number > 1 else "#"}>Previous</a>
-                </li>
-                {[
-                    <li key={"p" + str(n)}><a href={page_href(base, q, n)}>{str(n)}</a></li>
-                    for n in range(1, pages + 1)
-                ]}
-                <li>
-                    <a href={page_href(base, q, number + 1) if number < pages else "#"}>Next</a>
-                </li>
-            </ul>
+            {[<div key="empty"><p>You have no bookmarks yet</p><p>
+                        You can get started by adding bookmarks, importing your existing bookmarks or configuring the browser extension or the bookmarklet.
+                    </p></div> for _ in range(1) if ready and len(items) == 0]}
+            {[
+                <ul key="pages">
+                    <li>
+                        <a href={page_href(base, q, number - 1) if number > 1 else "#"}>Previous</a>
+                    </li>
+                    {[
+                        <li key={"p" + str(n)}><a href={page_href(base, q, n)}>{str(n)}</a></li>
+                        for n in range(1, pages + 1)
+                    ]}
+                    <li>
+                        <a href={page_href(base, q, number + 1) if number < pages else "#"}>Next</a>
+                    </li>
+                </ul>
+                for _ in range(1)
+                if len(items) > 0
+            ]}
         </section>
         <section aria-label="Tags">
             <h2>Tags</h2>
-            {[<a key={t.name} href={base + "?q=%23" + t.name}>{t.name}</a> for t in tags]}
+            {[
+                <span key={t.name}><a href={base + "?q=%23" + t.name}>{t.name}</a>{" "}</span>
+                for t in tags
+            ]}
         </section>
         {[
             <div key="ask" role="alertdialog" aria-label="Are you sure?">

@@ -17,7 +17,7 @@ def name_key(name: str) -> str;
 """A tag name with outer spaces cut and inner spaces made hyphens."""
 def sanitize_tag_name(name: str) -> str;
 
-"""The distinct names in comma-separated text, sanitized, ignoring case, sorted by lower-case name."""
+"""The distinct names in comma-separated text, sanitized, ignoring case (the last spelling is kept, as linkding does), sorted by lower-case name."""
 def parse_tag_string(text: str, delimiter: str = ",") -> list[str];
 
 """The tag of `owner` with this name, ignoring case, or None."""

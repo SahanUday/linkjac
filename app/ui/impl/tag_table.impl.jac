@@ -79,6 +79,7 @@ impl TagTable -> JsxElement {
                         <td><a href={"/bookmarks?q=%23" + r.name}>{str(r.count)}</a></td>
                         <td>
                             <a href={"/tags/" + str(r.id) + "/edit"}>Edit</a>
+                            {" "}
                             <button
                                 type="button"
                                 onClick={lambda { removing = r.id; }}

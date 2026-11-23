@@ -1,0 +1,1 @@
+LINKDING Add bookmark Bookmarks Settings Logout Tags Create Tag Merge Tags Search tags Search Sort by Show only unused tags 4 tags total Name Bookmarks Actions blue 2 Edit Remove green 1 Edit Remove red 1 Edit Remove unused 0 Edit Remove Previous 1 Next [fields] Search tags = | Sort by = Name A-Z | Show only unused tags = false

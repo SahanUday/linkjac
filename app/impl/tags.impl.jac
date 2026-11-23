@@ -12,17 +12,15 @@ impl parse_tag_string(text: str, delimiter: str = ",") -> list[str] {
     if not text {
         return [];
     }
-    first_seen: dict[str, str] = {};
+    last_seen: dict[str, str] = {};
     for raw in text.strip().split(delimiter) {
         if not raw.strip() {
             continue;
         }
         name = sanitize_tag_name(raw);
-        if name_key(name) not in first_seen {
-            first_seen[name_key(name)] = name;
-        }
+        last_seen[name_key(name)] = name;
     }
-    return [first_seen[key] for key in sorted(first_seen.keys())];
+    return [last_seen[key] for key in sorted(last_seen.keys())];
 }
 
 impl find_tag(owner: Root, called: str) -> Tag | None {

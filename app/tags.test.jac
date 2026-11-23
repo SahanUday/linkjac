@@ -3,7 +3,7 @@ test "a tag name loses outer spaces and gets hyphens inside" {
 }
 
 test "a tag string is sanitized, de-duplicated ignoring case and sorted" {
-    assert parse_tag_string("web, Demo,web ,, DEMO,a b") == ["a-b", "Demo", "web"];
+    assert parse_tag_string("web, Demo,web ,, DEMO,a b") == ["a-b", "DEMO", "web"];
     assert parse_tag_string("") == [];
 }
 

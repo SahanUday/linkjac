@@ -2,7 +2,7 @@
 id: GAP-046
 title: The accounts plugin has no setting to turn off public sign-up: the sign-in dialog offers Create account and register works for anyone
 kind: gap
-severity: minor
+severity: major
 status: open
 area: auth
 milestone: M4
@@ -24,10 +24,10 @@ neojac docs apps/server               # section "The accounts plugin": the setti
 ```
 
 ## Expected
-A setting such as "registration off", or a page saying how an app that makes its accounts itself closes `register`. `neojac docs search "registration sign up create account"` found only the rate-limit line of `apps/server`.
+The original has no sign-up: linkding's accounts are made by an admin, and its login page offers no way to create one. The port must behave the same, so `register` must be closed to a caller with no credentials. neojac side: a setting such as "registration off", or a page saying how an app that makes its accounts itself closes `register`. `neojac docs search "registration sign up create account"` found only the rate-limit line of `apps/server`.
 
 ## Workaround
-None yet. The parity runner uses the open `register` to make its two users. Decide in M6 (sign-in and API tokens through `auth`).
+None yet. The parity runner uses the open `register` to make its two users. M6 must close this (sign-in and API tokens through `auth`): the port is not equivalent to the original while anyone can register.
 
 ## Cause
 Unknown.

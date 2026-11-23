@@ -43,6 +43,9 @@ impl BookmarkForm(
             value={tag_string}
             onInput={lambda (e: any) { tag_string = e.target.value; }}
         />
+        <p>
+            Enter any number of tags separated by space and without the hash (#). If a tag does not exist it will be automatically created.
+        </p>
         <label htmlFor="id_title">Title</label>
         <input id="id_title" value={title} onInput={lambda (e: any) { title = e.target.value; }} />
         <label htmlFor="id_description">Description</label>
@@ -51,13 +54,14 @@ impl BookmarkForm(
             value={description}
             onInput={lambda (e: any) { description = e.target.value; }}
         />
-        <details>
+        <details open={notes0 != ""}>
             <summary>Notes</summary>
             <textarea
                 aria-label="Notes"
                 value={notes}
                 onInput={lambda (e: any) { notes = e.target.value; }}
             />
+            <p>Additional notes, supports Markdown.</p>
         </details>
         <label><input
             type="checkbox"
@@ -66,7 +70,11 @@ impl BookmarkForm(
         />
             Mark as unread
         </label>
+        <p>
+            Unread bookmarks can be filtered for, and marked as read after you had a chance to look at them.
+        </p>
         <button type="submit">Save</button>
+        {" "}
         <a href="/bookmarks">Cancel</a>
     </form>;
 }
