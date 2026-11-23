@@ -15,12 +15,16 @@ if ! command -v neojac >/dev/null; then
 fi
 neojac --version
 
-# 2. neojac's playbooks, where Claude Code loads skills from
+# 2. neojac's playbooks, in .claude/skills
 neojac skills install --to .claude/skills
 
 # 3. the original app, read-only reference
 if [ ! -d reference/linkding ]; then
   git clone https://github.com/sissbruecker/linkding reference/linkding
+fi
+pinned=$(sed -n 's/^Pinned commit: //p' reference/PINNED.md)
+if [[ $pinned =~ ^[0-9a-f]{40}$ ]]; then
+  git -C reference/linkding checkout -q "$pinned"
 fi
 commit=$(git -C reference/linkding rev-parse HEAD)
 echo "linkding at $commit"
@@ -28,6 +32,7 @@ if grep -q "_not set_" reference/PINNED.md; then
   sed -i "s/^Pinned commit: .*/Pinned commit: $commit/; s/^Pinned on: .*/Pinned on: $(date +%F)/" reference/PINNED.md
 fi
 
-# 4. what the original needs, so Claude can run it in M0
+# 4. what the original needs to run in M0
+if ! command -v node >/dev/null && command -v fnm >/dev/null; then eval "$(fnm env)"; fi
 command -v node >/dev/null || echo "note: Node is missing. The original's frontend build needs it (try: curl -fsSL https://fnm.vercel.app/install | bash; fnm install --lts)"
-echo "done. Next: commit, then start Claude Code in this folder."
+echo "done. Next: commit."

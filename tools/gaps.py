@@ -429,7 +429,7 @@ def render_markdown(text: str) -> str:
     try:
         import markdown
     except ImportError:
-        sys.exit("site needs the `markdown` package: pip install markdown")
+        sys.exit("site needs the `markdown` package: uv run --with markdown python tools/gaps.py site")
     return markdown.markdown(text, extensions=["fenced_code", "tables", "sane_lists"])
 
 

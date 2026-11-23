@@ -6,8 +6,8 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 
 | ID | Milestone | Status | Done when (something we can show) |
 |----|-----------|--------|-----------------------------------|
-| M0 | Setup and baseline | todo | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb --check` and `neojac port --check` run on a scratch copy and their findings are logged; gap site is live |
-| M1 | Data core | todo | `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
+| M0 | Setup and baseline | doing | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb --check` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
+| M1 | Data core | todo | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
 | M2 | REST API | todo | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
 | M3 | Import, export, CLI | todo | a Netscape bookmark file round-trips; admin commands run from a CLI app |
 | M4 | Web UI | todo | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |

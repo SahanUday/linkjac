@@ -4,6 +4,7 @@ Black-box checks that run the same requests against the original linkding and th
 
 - Build them in M0, against the original only. They must pass there before any Jac exists.
 - Written in Python with `pytest` and `httpx` (API) and Playwright (UI). They are our tooling, not part of the port.
+- Run them through uv so nothing is installed globally: `uv run --with pytest --with httpx --with playwright pytest parity/` (Playwright also needs its browsers: `uv run --with playwright playwright install chromium`).
 - The target is a base URL: `LINKDING_URL=http://127.0.0.1:8000 pytest parity/` for the original, another URL for the port.
 - One command runs everything and writes `parity/results.json` as `{"passed": n, "total": m}`: `parity/run.sh`.
 - Compare behaviour that a user or API client can see: status codes, JSON fields, filters, ordering, error bodies, redirects, rendered text. Ignore ids, timestamps and ordering the original does not promise.
