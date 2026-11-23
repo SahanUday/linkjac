@@ -124,7 +124,7 @@ Done-when for M4 is met after S4. The session that wrote this list stopped there
 
 - [x] S1 list page: items, order, search box and `q`, tags region, tag links, 30 per page, Previous and Next (spike above; 7 checks, original 7/7, port 7/7)
 - [x] S2 add: `/bookmarks/new` with URL, Tags (space-separated), Title, Description, Notes, unread box; same URL updates; invalid URL error; Cancel (6 checks, `parity/test_ui_add.py`; original 6/6, port 6/6; a mutant that broke tag splitting and the error text failed 2 of them)
-- [ ] S3 edit: `/bookmarks/<id>/edit`, Cancel
+- [x] S3 edit: `/bookmarks/<id>/edit` filled from the bookmark, Save, Cancel, the Edit link of an item, a bad address refused (6 checks, `parity/test_ui_edit.py`; original 6/6; port 5 passed and 1 expected gap: a missing bookmark answers 404, GAP-045). The route has the id before a fixed segment, so one page takes `/bookmarks/*` (GAP-044). List and form became components in `app/ui/`
 - [ ] S4 tags page: `/tags` with counts, sort, unused-only filter, new, rename, remove
 - [ ] S5 remove and archive on the list; archived list and unarchive
 - [ ] S6 sign-in and root: anonymous visit leads to sign-in, wrong password refused, `/` leads to the list, sign out

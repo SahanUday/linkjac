@@ -24,6 +24,9 @@ graph layers {
     """What the web pages ask the server for."""
     layer web { web_list | web_form; }
 
+    """Parts of pages: the list and the form."""
+    layer ui { ui.*; }
+
     """The pages the browser shows."""
     layer pages { pages.*; }
 
@@ -67,7 +70,7 @@ graph spaces {
             | rest_user;
     }
 
-    space site: browser { pages.*; }
+    space site: browser { pages.* | ui.*; }
 
     space cli: native { entry cli; }
 
@@ -78,7 +81,8 @@ graph spaces {
 graph import {
     """The REST layer is written over the domain."""
     edge Exposes: domain --> rest | service | web;
-    edge Shows: web --> pages;
+    edge Shows: web --> ui;
+    edge Builds: ui --> pages;
     edge Calls: service --> client;
 
     clock ++> tags | bookmarks { now_utc }
@@ -176,8 +180,18 @@ graph import {
     tags ++> web_list { name_key }
     profiles ++> web_list { profile_of }
     search ++> web_list { BookmarkFilter, search_bookmarks }
-    web_list ++> pages.bookmarks.index { bookmark_page, ListedBookmark, ListedTag }
+    web_list ++> ui.bookmark_list { bookmark_page, ListedBookmark, ListedTag }
     urls ++> web_form { is_valid_url }
-    bookmarks ++> web_form { BookmarkDraft, create_bookmark }
-    web_form ++> pages.bookmarks.new { save_bookmark }
+    bookmarks ++> web_form {
+        BookmarkDraft,
+        create_bookmark,
+        find_bookmark,
+        update_bookmark,
+        tag_names_of,
+    }
+    web_form ++> ui.bookmark_form { save_bookmark }
+    web_form ++> ui.bookmark_edit { bookmark_fields }
+    ui.bookmark_list ++> pages.bookmarks.index { BookmarkList }
+    ui.bookmark_edit ++> pages.bookmarks.index { EditBookmark }
+    ui.bookmark_form ++> pages.bookmarks.new | ui.bookmark_edit { BookmarkForm }
 }
