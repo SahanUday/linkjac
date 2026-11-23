@@ -6,6 +6,7 @@ obj ApiReply {
         body: str = "";
 }
 
+# WORKAROUND(GAP-033): @restspec answers 200 or 500 only, so the status travels inside the reply and the transport sends it.
 """A reply whose body is the JSON of `value`."""
 def reply_json(status: int, value: any) -> ApiReply;
 

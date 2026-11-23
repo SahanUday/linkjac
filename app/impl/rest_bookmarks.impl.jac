@@ -34,6 +34,7 @@ def list_reply(call: ApiCall, owner: Root, archived: bool) -> ApiReply {
     return page_reply(call, "bookmarks/archived" if archived else "bookmarks", found);
 }
 
+# UNTESTED(GAP-035): allroots() is empty in `neojac test`, and no API turns sharing on, so this has never run.
 def sharing_owners(public_only: bool) -> list[Root] {
     owners: list[Root] = [];
     for candidate in allroots() {

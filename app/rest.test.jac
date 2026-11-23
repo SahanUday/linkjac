@@ -19,8 +19,9 @@ test "tags are made, listed in pages, fetched and deleted through the API" {
     assert json.loads(again.body)["id"] == tag_id;
     assert answer("GET", f"/api/tags/{tag_id}/").status == 200;
     assert answer("PUT", f"/api/tags/{tag_id}/", "{}").status == 405;
+    answer("POST", "/api/tags/", "{\"name\": \"REST-TAG-2\"}");
     paged = json.loads(answer("GET", "/api/tags/", "", "limit=1").body);
-    assert len(paged["results"]) == 1 and "limit=1" in (paged["next"] or "limit=1");
+    assert len(paged["results"]) == 1 and paged["next"] is not None and "limit=1" in paged["next"];
     assert answer("DELETE", f"/api/tags/{tag_id}/").status == 204;
     assert answer("GET", f"/api/tags/{tag_id}/").status == 404;
 }

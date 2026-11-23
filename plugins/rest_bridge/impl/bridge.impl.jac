@@ -89,6 +89,7 @@ def json_reply(status: int, value: any) -> Response {
     );
 }
 
+# WORKAROUND(GAP-034): the app's auth answers a Token it cannot read in its own form; linkding's clients expect {"detail": "Invalid token."}.
 impl rest_reply_from(inner: Response) -> Response {
     if inner.status == 401 {
         return json_reply(401, {"detail": "Invalid token."});

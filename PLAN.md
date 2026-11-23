@@ -9,7 +9,7 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 | M0 | Setup and baseline | done | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
 | M1 | Data core | done | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
 | M2 | REST API | done | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
-| M3 | Import, export, CLI | todo | a Netscape bookmark file round-trips; admin commands run from a CLI app |
+| M3 | Import, export, CLI | doing | a Netscape bookmark file round-trips; admin commands run from a CLI app |
 | M4 | Web UI | todo | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
 | M5 | Background work | todo | page snapshot and favicon jobs run and a scheduled job fires |
 | M6 | Sign-in and architecture review | todo | sign-in and API tokens work through the `auth` plugin; the architecture picture matches the code and no duplicate implementations remain |
@@ -59,6 +59,35 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 - [x] S8 the rest of linkding's `/api/` that can run without the network or files: list filters (`unread`, `shared`, `sort`, `added_since`, `modified_since`), `archived`, `archive`, `unarchive`, `shared` (anonymous too), `user/profile/`; 9 parity checks added against the original first (`parity/test_api_bookmark_views.py`)
 - Not in M2, each with a reason: `bookmarks/check/` and the web-archive/scraping on create (need the network; M5 jobs), `singlefile` and assets (need `files`; M5), bundles (M4 with the UI), the `user` query parameter of the shared list (a root has no username; M6 with `auth`), the shared list with sharing enabled (unrun: GAP-035, and no API turns sharing on until M4). Known simplifications: `favicon_url`, `preview_image_url`, `website_title` and `website_description` are always null (no scraping); `web_archive_snapshot_url` is the original's fallback built from `date_added` (the original does the same when it has no snapshot); ids are counted per user in `ids.jac`, linkding's are global (two users both get id 1); `version` in the profile is the constant `1.47.0`; `date_added` and `date_modified` sent on create are ignored
 - [x] S9 close: persistence check against the served port (`tools/check_persistence.sh`), `neojac arch` clean, gap audit done; `/close-milestone` (build the site, push) not run, waiting for the user
+
+### M3
+
+`neojac port --check` on the original's Netscape unit (copies in `~/.claude-scratch/linkjac/m3-netscape/`): `exporter.py` is accepted (raw output typed `any`); `parser.py` is refused (class decorator, class attributes, `with`, `super()`: GAP-007, 008, 010, 011); `import_netscape.py` is refused. So the exporter's logic comes from `port`'s output as raw material, the parser and importer are designed by hand (`html.parser` is native, `neojac docs library/text`).
+
+- [ ] S1 export: an owner's bookmarks as a Netscape file, byte for byte as `exporter.py` writes it
+- [ ] S2 parser: Netscape file into bookmark records (tags, dates, `TOREAD`, `PRIVATE`, notes, archived marker)
+- [ ] S3 import: records into bookmarks (update on same normalized URL, skip duplicates in the file, dates kept, tags created, archived)
+- [ ] S4 round trip: export, import into an empty owner, same bookmarks (a `test` block, and a check)
+- [ ] S5 entry points and CLI app: `:protect` endpoints for import and export; a `cli` app that calls them (route in `neojac docs crossings`; `JAC_REMOTE_TOKEN` for a caller's session)
+- [ ] S6 admin commands: the original's `manage.py` commands that make sense here (`import_netscape <file> <user>` first)
+- [ ] S7 check on both targets: the original's `import_netscape` command and the port's CLI import the same file; the API shows the same bookmarks
+
+## Known deviations
+
+Where the port differs from linkding or has no proof yet. The final report (M8) must repeat this list as it stands then.
+
+- **Ids:** the port counts bookmark and tag ids per user (`ids.jac`); linkding's are global. Two users both get id 1 in the port.
+- **`bookmarks/check/`:** not ported, no parity check (needs the network; M5).
+- **Scraping:** no title, description, favicon or preview image is fetched on create. `favicon_url`, `preview_image_url`, `website_title` and `website_description` are always null in the port. The checks pin the field names, not these values.
+- **Web-archive lookup:** not ported. `web_archive_snapshot_url` is the original's own fallback built from `date_added`.
+- **`singlefile` and assets:** not ported, no check (need `files`; M5).
+- **Bundles:** not ported, no check (M4 with the UI).
+- **`?user=` on the shared list:** not ported. A root has no username (M6 with `auth`).
+- **Shared list with sharing enabled:** implemented, never run (GAP-035; no API turns sharing on). Only the disabled case has a check.
+- **Two-account isolation:** was untested at M2's close; now 7 checks (`parity/test_api_isolation.py`) pass on both targets with two users. Not covered: isolation of the profile and of the shared list (sharing cannot be turned on).
+- **Ids, untried:** a global counter kept under `root.shared` was not tried; the per-user counters are the only approach run.
+- **Links in a page:** `next` and `previous` are built from `http://` plus the `Host` header, so a client behind TLS or a proxy gets `http://` links. Whether the standard transport exposes the scheme was not checked.
+- **Smaller:** `date_added` and `date_modified` sent on create are ignored; the profile `version` is the constant `1.47.0`; the bridge stands in for the standard transport (GAP-037).
 
 ## Refactor backlog
 

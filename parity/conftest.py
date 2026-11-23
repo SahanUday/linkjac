@@ -9,6 +9,7 @@ import pytest
 
 BASE_URL = os.environ.get("LINKDING_URL", "http://127.0.0.1:8000").rstrip("/")
 TOKEN = os.environ.get("LINKDING_TOKEN", "")
+TOKEN_OTHER = os.environ.get("LINKDING_TOKEN_OTHER", "")
 RESULTS_PATH = os.environ.get("PARITY_RESULTS", "")
 # Skips the network fetch and the web archive lookup, so checks do not depend on the internet.
 QUIET = {"disable_scraping": "", "disable_html_snapshot": ""}
@@ -22,6 +23,15 @@ def expected_gap(gap_id):
 @pytest.fixture(scope="session")
 def api():
     with httpx.Client(base_url=f"{BASE_URL}/api", headers={"Authorization": f"Token {TOKEN}"}, timeout=20) as client:
+        yield client
+
+
+@pytest.fixture(scope="session")
+def other_api():
+    """A client for a second account, which must never see the first account's data."""
+    if not TOKEN_OTHER:
+        pytest.fail("LINKDING_TOKEN_OTHER is not set: the target needs a second account")
+    with httpx.Client(base_url=f"{BASE_URL}/api", headers={"Authorization": f"Token {TOKEN_OTHER}"}, timeout=20) as client:
         yield client
 
 

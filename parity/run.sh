@@ -29,8 +29,10 @@ if [ -z "${LINKDING_URL:-}" ] && [ "$target" = "original" ]; then
   ss -ltn | grep -q ":$port " && { echo "port $port is busy"; exit 1; }
   cd "$original"
   export LD_DISABLE_BACKGROUND_TASKS=True
-  LINKDING_TOKEN="$(uv run manage.py shell < "$here/ensure_original_user.py" | sed -n 's/^TOKEN=//p')"
-  export LINKDING_TOKEN
+  users="$(uv run manage.py shell < "$here/ensure_original_user.py")"
+  LINKDING_TOKEN="$(echo "$users" | sed -n 's/^TOKEN=//p')"
+  LINKDING_TOKEN_OTHER="$(echo "$users" | sed -n 's/^TOKEN_OTHER=//p')"
+  export LINKDING_TOKEN LINKDING_TOKEN_OTHER
   setsid uv run manage.py runserver "127.0.0.1:$port" --noreload >/dev/null 2>&1 &
   server_pid=$!
   export LINKDING_URL="http://127.0.0.1:$port"
@@ -45,11 +47,15 @@ elif [ -z "${LINKDING_URL:-}" ] && [ "$target" = "port" ]; then
   server_pid=$!
   export LINKDING_URL="http://127.0.0.1:$port"
   wait_for "$LINKDING_URL/__jac/auth/"
-  LINKDING_TOKEN="$(curl -s -X POST "$LINKDING_URL/__jac/auth/register" \
-    -d '{"username":"parity","email":"parity@example.com","password":"parity-pass"}' \
-    | sed -n 's/.*"token": *"\([0-9a-f]*\)".*/\1/p')"
-  [ -n "$LINKDING_TOKEN" ] || { echo "could not register the parity user on the port"; exit 1; }
-  export LINKDING_TOKEN
+  register() { # username
+    curl -s -X POST "$LINKDING_URL/__jac/auth/register" \
+      -d "{\"username\":\"$1\",\"email\":\"$1@example.com\",\"password\":\"parity-pass\"}" \
+      | sed -n 's/.*"token": *"\([0-9a-f]*\)".*/\1/p'
+  }
+  LINKDING_TOKEN="$(register parity)"
+  LINKDING_TOKEN_OTHER="$(register parity2)"
+  [ -n "$LINKDING_TOKEN" ] && [ -n "$LINKDING_TOKEN_OTHER" ] || { echo "could not register the parity users on the port"; exit 1; }
+  export LINKDING_TOKEN LINKDING_TOKEN_OTHER
 fi
 
 cd "$here"
