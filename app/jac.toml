@@ -17,3 +17,6 @@ plugin = "rest_bridge"
 api_prefix = "/api/"
 call_path = "/__jac/call/api/rest/handle"
 public_call_path = "/__jac/call/api/rest/handle_public"
+
+[apps.cli.remote]
+api = "http://127.0.0.1:8000"

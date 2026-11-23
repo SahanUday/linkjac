@@ -15,6 +15,12 @@ graph layers {
             | netscape_import;
     }
 
+    """What a signed-in caller can ask the server to do beyond /api/."""
+    layer service { admin; }
+
+    """Programs that call the server."""
+    layer client { cli; }
+
     """The REST layer: linkding's /api/ over the domain."""
     layer rest {
         rest
@@ -42,6 +48,7 @@ graph spaces {
             | netscape_parse
             | netscape_export
             | netscape_import
+            | admin
             | rest
             | rest_call
             | rest_reply
@@ -52,12 +59,16 @@ graph spaces {
             | rest_user;
     }
 
+    space cli: native { entry cli; }
+
     app api { run api; }
+    app cli { run cli; }
 }
 
 graph import {
     """The REST layer is written over the domain."""
-    edge Exposes: domain --> rest;
+    edge Exposes: domain --> rest | service;
+    edge Calls: service --> client;
 
     clock ++> tags | bookmarks { now_utc }
     ids ++> tags { next_tag_id }
@@ -137,6 +148,10 @@ graph import {
         tag_names_of,
     }
     netscape_export ++> netscape_import { export_netscape }
+    netscape_import ++> admin { import_netscape }
+    netscape_export ++> admin { export_netscape }
+    bookmarks ++> admin { list_bookmarks }
+    admin ++> cli { import_bookmarks, export_bookmarks }
     rest_call ++> rest_user { ApiCall }
     rest_reply ++> rest_user { ApiReply, reply_not_allowed, reply_detail, reply_json }
     rest_forms ++> rest_user { profile_json }

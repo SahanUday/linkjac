@@ -24,7 +24,7 @@ To serve linkding's `/api/` (methods, ids in paths, query, body, status codes: G
 - Chunked body: **tried.** The bridge reads it as an empty body (the app answered 400 "Invalid data"); the standard transport answers 411.
 - Keep-alive: **tried, and not a difference.** The bridge answers `HTTP/1.0` and closes after each reply; the docs say the standard transport also closes each reply ("Each reply closes its connection"). An earlier version of this gap listed `Connection: close` as a loss; that was wrong.
 - Streams (`events`), the interim `100 Continue` every 15 seconds, the 1 MiB head limit (431), the 512-connection limit, the 60-second request time, the 256 calls at once, the 501 for other transfer encodings: **not tried**, absent from the plugin's code as written (it handles none of them). `http.server`'s own head limits may apply; not measured.
-- `send` between apps: the plugin raises `OSError` ("carries no calls to other apps"), by its own code.
+- `send` between apps: the plugin first raised `OSError` ("carries no calls to other apps"), which stopped the CLI app of M3 (GAP-039); it now has a client-side `send` on `http.client`, with no streams, no `100 Continue` handling and none of the standard client's limits, and is tried only by the CLI's import and export.
 Apps that use streams or `send` cannot take this plugin. Whether a browser space's pages (M4) are served through it is not known: `serves_paths` returns True and nothing was tried.
 
 ## Repro

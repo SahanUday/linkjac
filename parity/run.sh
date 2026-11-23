@@ -41,8 +41,9 @@ elif [ -z "${LINKDING_URL:-}" ] && [ "$target" = "port" ]; then
   port="${PARITY_PORT:-8010}"
   ss -ltn | grep -q ":$port " && { echo "port $port is busy"; exit 1; }
   work="$(mktemp -d)"
-  (cd "$here/../app" && capped --mem 4G -- neojac build api > "$work/build.log" 2>&1) || { cat "$work/build.log"; exit 1; }
+  (cd "$here/../app" && capped --mem 4G -- neojac build > "$work/build.log" 2>&1) || { cat "$work/build.log"; exit 1; }
   bin="$(ls "$here"/../app/dist/api-*-* | head -1)"
+  export PARITY_CLI="$(ls "$here"/../app/dist/cli-*-* | head -1)"
   JAC_API_DATA="$work/data" JAC_API_LISTEN="127.0.0.1:$port" setsid "$bin" > "$work/server.log" 2>&1 &
   server_pid=$!
   export LINKDING_URL="http://127.0.0.1:$port"

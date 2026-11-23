@@ -9,7 +9,7 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 | M0 | Setup and baseline | done | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
 | M1 | Data core | done | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
 | M2 | REST API | done | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
-| M3 | Import, export, CLI | doing | a Netscape bookmark file round-trips; admin commands run from a CLI app |
+| M3 | Import, export, CLI | doing (done-when met; `/close-milestone` not run) | a Netscape bookmark file round-trips; admin commands run from a CLI app |
 | M4 | Web UI | todo | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
 | M5 | Background work | todo | page snapshot and favicon jobs run and a scheduled job fires |
 | M6 | Sign-in and architecture review | todo | sign-in and API tokens work through the `auth` plugin; the architecture picture matches the code and no duplicate implementations remain |
@@ -68,9 +68,9 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 - [x] S2 parser: Netscape file into bookmark records (tags, dates, `TOREAD`, `PRIVATE`, notes, archived marker)
 - [x] S3 import: records into bookmarks (update on same normalized URL, skip duplicates in the file, dates kept, tags created, archived)
 - [x] S4 round trip: export, import into an empty owner, same bookmarks (a `test` block, and a check)
-- [ ] S5 entry points and CLI app: `:protect` endpoints for import and export; a `cli` app that calls them (route in `neojac docs crossings`; `JAC_REMOTE_TOKEN` for a caller's session)
-- [ ] S6 admin commands: the original's `manage.py` commands that make sense here (`import_netscape <file> <user>` first)
-- [ ] S7 check on both targets: the original's `import_netscape` command and the port's CLI import the same file; the API shows the same bookmarks
+- [x] S5 entry points and CLI app: `:protect` endpoints for import and export; a `cli` app that calls them (route in `neojac docs crossings`; `JAC_REMOTE_TOKEN` for a caller's session)
+- [x] S6 admin commands: `import <file> [--map-private-flag]` and `export [<file>]`, as the signed-in token holder (GAP-040); the original's other commands are not ported (see Known deviations)
+- [x] S7 7 checks on both targets (`parity/test_netscape.py`): the original through its web import form and export view, the port through its CLI; the API shows the same bookmarks and the exported text is the same. Original 78/78, port 78/78
 
 ## Known deviations
 
@@ -87,6 +87,8 @@ Where the port differs from linkding or has no proof yet. The final report (M8) 
 - **Two-account isolation:** was untested at M2's close; now 7 checks (`parity/test_api_isolation.py`) pass on both targets with two users. Not covered: isolation of the profile and of the shared list (sharing cannot be turned on).
 - **Ids, untried:** a global counter kept under `root.shared` was not tried; the per-user counters are the only approach run.
 - **Links in a page:** `next` and `previous` are built from `http://` plus the `Host` header, so a client behind TLS or a proxy gets `http://` links. Whether the standard transport exposes the scheme was not checked.
+- **M3, import and export:** the port reads and writes the same file as linkding (7 checks). Differences: only the attributes `HREF`, `ADD_DATE`, `LAST_MODIFIED`, `TAGS`, `TOREAD` and `PRIVATE` of a link are read (the original copies any attribute onto the parser); the import goes one bookmark at a time, not in batches of 200; of linkding's field validators only the URL (valid, 2048 long), the title (512) and the tag name (64) lengths are applied; favicon and preview jobs are not scheduled after an import (M5). Whether the original and the port agree on a file with an unusual layout beyond the 7 checks is untested.
+- **M3, admin commands:** the port's CLI app (`cli`) has `import` and `export`, and acts as the account whose token it holds (`JAC_REMOTE_TOKEN`); the original's `import_netscape <file> <user>` names the user (GAP-040). linkding's other commands are not ported: `create_initial_superuser` and `ensure_superuser` (accounts belong to the `auth` plugin, M6), `backup`, `full_backup`, `generate_secret_key`, `enable_wal` and `migrate_tasks`. The two import and export commands have no check of their own beyond the 7 above, which call them. The import and export are not served over HTTP (the original's web form and view are M4), and the CLI calls the server through the bridge plugin, which now carries calls out as well (GAP-039, GAP-037).
 - **Smaller:** `date_added` and `date_modified` sent on create are ignored; the profile `version` is the constant `1.47.0`; the bridge stands in for the standard transport (GAP-037).
 
 ## Refactor backlog

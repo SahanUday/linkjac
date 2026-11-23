@@ -116,8 +116,25 @@ impl rest_reply_from(inner: Response) -> Response {
 
 impl RestBridge.open(host: dyn Host) {}
 
+# WORKAROUND(GAP-039): the CLI app reaches the server through the project's one transport, which is this plugin, so it carries calls out too (no streams).
 impl RestBridge.send(address: str, r: Request, seconds: float) -> Response {
-    raise OSError("rest_bridge carries no calls to other apps");
+    where = urlsplit(address);
+    link = HTTPConnection(where.hostname, where.port, timeout=seconds);
+    try {
+        link.request(
+            r.method, r.path + ("?" + r.query if r.query else ""), body=r.body, headers=r.headers
+        );
+        got = link.getresponse();
+        return Response(
+            status=got.status,
+            ctype=got.getheader("Content-Type") or "",
+            body=got.read(),
+            headers={},
+            events=None,
+        );
+    } finally {
+        link.close();
+    }
 }
 
 impl RestBridge.claim(address: str) -> Claim {

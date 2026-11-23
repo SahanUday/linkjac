@@ -2,6 +2,8 @@
 
 import json;
 import threading;
+import from http.client { HTTPConnection }
+import from urllib.parse { urlsplit }
 import from http.server { BaseHTTPRequestHandler, ThreadingHTTPServer }
 import from common.contract { Host }
 import from transport.contract { Transport, Request, Response, Tick, Claim, CannotListen }
