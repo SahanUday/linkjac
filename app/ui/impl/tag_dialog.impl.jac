@@ -22,22 +22,32 @@ impl TagDialog(tag_id: int = 0) -> JsxElement {
         }
     }
 
-    return <form onSubmit={save}>
-        <div role="dialog" aria-label={"Edit Tag" if tag_id != 0 else "Create Tag"}>
-            <h2>{"Edit Tag" if tag_id != 0 else "Create Tag"}</h2>
-            <label htmlFor="id_name">Name</label>
-            <input
-                id="id_name"
-                required={True}
-                value={name}
-                onInput={lambda (e: any) { name = e.target.value; }}
-            />
-            <p
-            >Tag names are case-insensitive and cannot contain spaces (spaces will be replaced with hyphens).</p>
-            {[<p key="problem" role="alert">{problem}</p> for _ in range(1) if problem != ""]}
-            <a href="/tags">Cancel</a>
-            {" "}
-            <button type="submit">Save</button>
-        </div>
-    </form>;
+    return <div>
+        {[
+            <form key="dialog" onSubmit={save}>
+                <div role="dialog" aria-label={"Edit Tag" if tag_id != 0 else "Create Tag"}>
+                    <h2>{"Edit Tag" if tag_id != 0 else "Create Tag"}</h2>
+                    <label htmlFor="id_name">Name</label>
+                    <input
+                        id="id_name"
+                        required={True}
+                        value={name}
+                        onInput={lambda (e: any) { name = e.target.value; }}
+                    />
+                    <p
+                    >Tag names are case-insensitive and cannot contain spaces (spaces will be replaced with hyphens).</p>
+                    {[
+                        <p key="problem" role="alert">{problem}</p>
+                        for _ in range(1)
+                        if problem != ""
+                    ]}
+                    <a href="/tags">Cancel</a>
+                    {" "}
+                    <button type="submit">Save</button>
+                </div>
+            </form>
+            for _ in range(1)
+            if ready
+        ]}
+    </div>;
 }
