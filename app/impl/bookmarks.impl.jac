@@ -1,4 +1,3 @@
-import from datetime { timezone }
 import from stdjac { remove }
 
 impl set_tags(owner: Root, bookmark: Bookmark, tag_string: str) {
@@ -27,7 +26,7 @@ impl create_bookmark(owner: Root, draft: BookmarkDraft) -> Bookmark {
     if existing is not None {
         return update_bookmark(owner, existing, draft);
     }
-    stamp = datetime.now(timezone.utc);
+    stamp = now_utc();
     made = owner ++> Bookmark(
         url=draft.url,
         url_normalized=normalize_url(draft.url),
@@ -51,20 +50,20 @@ impl update_bookmark(owner: Root, bookmark: Bookmark, draft: BookmarkDraft) -> B
     bookmark.notes = draft.notes;
     bookmark.unread = draft.unread;
     bookmark.shared = draft.shared;
-    bookmark.date_modified = datetime.now(timezone.utc);
+    bookmark.date_modified = now_utc();
     set_tags(owner, bookmark, draft.tag_string);
     return bookmark;
 }
 
 impl archive_bookmark(bookmark: Bookmark) -> Bookmark {
     bookmark.is_archived = True;
-    bookmark.date_modified = datetime.now(timezone.utc);
+    bookmark.date_modified = now_utc();
     return bookmark;
 }
 
 impl unarchive_bookmark(bookmark: Bookmark) -> Bookmark {
     bookmark.is_archived = False;
-    bookmark.date_modified = datetime.now(timezone.utc);
+    bookmark.date_modified = now_utc();
     return bookmark;
 }
 
@@ -84,7 +83,7 @@ impl tag_names_of(bookmark: Bookmark) -> list[str] {
 
 impl tag_counts(owner: Root) -> dict[str, int] {
     counts: dict[str, int] = {};
-    for tag in [owner --> [?:Tag]] {
+    for tag in sorted([owner --> [?:Tag]], key=lambda (t: Tag) -> str { t.name.lower() }) {
         counts[tag.name] = len([tag <-:Tagged:<-]);
     }
     return counts;

@@ -7,8 +7,8 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 | ID | Milestone | Status | Done when (something we can show) |
 |----|-----------|--------|-----------------------------------|
 | M0 | Setup and baseline | done | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
-| M1 | Data core | todo | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
-| M2 | REST API | todo | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
+| M1 | Data core | done | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
+| M2 | REST API | doing | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
 | M3 | Import, export, CLI | todo | a Netscape bookmark file round-trips; admin commands run from a CLI app |
 | M4 | Web UI | todo | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
 | M5 | Background work | todo | page snapshot and favicon jobs run and a scheduled job fires |
@@ -37,6 +37,11 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 - [x] S1 spike: one Bookmark and one Tag through `root`, served by the standard `store` plugin and read back after a restart; `neojac test` creates and lists; `archwire.jac` with `domain` and `service` layers; `app/jac.toml` with the lint ignore (GAP-025, GAP-026, GAP-027)
 - [x] S2 Bookmark with linkding's core fields (url, normalized url, title, description, notes, unread, archived, shared, dates) and add/update/delete
 - [x] S3 Tags the linkding way: name rules, case-insensitive find-or-make, replacing a bookmark's tags, tags listed with counts
-- [ ] S4 Search: text over url, title, description, notes; `#tag` terms; unread, archived and shared filters; newest first
-- [ ] S5 User profile: a `UserProfile` node under each caller's `root` with linkding's defaults (accounts themselves are M6, GAP-027)
-- [ ] S6 Close: persistence round trip against the served app, `neojac arch` clean, `neojac fmt --check`, `neojac check`, `neojac test`, `/close-milestone`
+- [x] S4 Search: text over url, title, description, notes; `#tag` terms; unread, archived and shared filters; newest first
+- [x] S5 User profile: a `UserProfile` node under each caller's `root` with linkding's defaults (accounts themselves are M6, GAP-027)
+- Not done in M1, carried to M2: tag search "lax" mode and quoted terms; linkding's default search is an expression language (and/or/not, quotes, parentheses; `bookmarks/services/search_query_parser.py`); M1 has the legacy all-terms search only. Per-user roots are untested until `auth` is bound (M6): the persistence check uses `root.shared`.
+- [x] S6 Close: persistence round trip against the served app, `neojac arch` clean, `neojac fmt --check`, `neojac check`, `neojac test`, `/close-milestone`
+
+### M2
+
+_Slices to be listed when M2 starts._

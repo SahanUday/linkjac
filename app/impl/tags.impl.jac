@@ -1,5 +1,3 @@
-import from datetime { timezone }
-
 impl sanitize_tag_name(name: str) -> str {
     return name.strip().replace(" ", "-");
 }
@@ -35,5 +33,5 @@ impl find_or_make_tag(owner: Root, called: str) -> Tag {
     if found is not None {
         return found;
     }
-    return owner ++> Tag(name=called, date_added=datetime.now(timezone.utc));
+    return owner ++> Tag(name=called, date_added=now_utc());
 }

@@ -39,3 +39,9 @@ test "archive, unarchive and delete" {
     assert made not in list_bookmarks(root);
     assert find_existing(root, "https://arch.example") is None;
 }
+
+test "tag counts come in name order ignoring case" {
+    create_bookmark(root, draft("https://order.example", "zz-ord, AA-ord, mm-ord"));
+    names = [n for n in tag_counts(root).keys() if n.endswith("-ord")];
+    assert names == ["AA-ord", "mm-ord", "zz-ord"];
+}

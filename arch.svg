@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 472 438" width="472" height="438" class="arch" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="13">
+<style>
+.arch { --ink: #1d2433; --soft: #5b6578; --line: #8792a6; --paper: #ffffff; --fill: #f5f7fb; --band: #eef2f8; --bad: #c62828; background: var(--paper); }
+@media (prefers-color-scheme: dark) { .arch { --ink: #e6e9f0; --soft: #a3adbf; --line: #6f7a8e; --paper: #14171d; --fill: #1d222b; --band: #232a35; --bad: #ff6b6b; } }
+.arch text { fill: var(--ink); white-space: pre; }
+.arch .heading { font-weight: 700; }
+.arch .soft, .arch .label { fill: var(--soft); }
+.arch .box rect { fill: var(--fill); stroke: var(--line); stroke-width: 1.2; }
+.arch .box.band rect { fill: var(--band); }
+.arch .box.outside rect { stroke-dasharray: 4 3; fill: var(--paper); }
+.arch .box .title { font-weight: 700; }
+.arch .box .cap { fill: var(--paper); stroke: none; }
+.arch .box.opens, .arch .arrow { cursor: pointer; }
+.arch .arrow path { fill: none; stroke: var(--line); stroke-width: 1.4; }
+.arch .arrow .hit { stroke: transparent; stroke-width: 10; }
+.arch .arrow.declared path.line { stroke-dasharray: 2 4; }
+.arch .arrow:hover path.line, .arch .box.opens:hover rect.frame { stroke: var(--ink); }
+.arch .bad rect.frame, .arch .bad path.line { stroke: var(--bad); }
+.arch .arrow.picked path.line { stroke: var(--ink); stroke-width: 2.4; }
+.arch .bad .label, .arch .bad .title { fill: var(--bad); }
+.arch marker path { fill: var(--line); stroke: none; }
+</style>
+<defs><marker id="arch-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
+<text class="heading" x="12" y="25" textLength="56" lengthAdjust="spacingAndGlyphs">linkjac</text>
+<g class="arrow" data-key="layer:domain&gt;layer:service"><title>arrow from domain to service</title><path class="hit" d="M224,255 L224,306"/><path class="line" d="M224,255 L224,306" marker-end="url(#arch-head)"/><text class="label" x="236" y="277" textLength="48" lengthAdjust="spacingAndGlyphs">Serves</text></g>
+<g class="arrow" data-key="ecosystem:std&gt;layer:domain"><title>arrow from the runtime and standard library to domain</title><path class="hit" d="M152,93 L152,144"/><path class="line" d="M152,93 L152,144" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:python&gt;layer:domain"><title>arrow from Python to domain</title><path class="hit" d="M392,93 L392,144"/><path class="line" d="M392,93 L392,144" marker-end="url(#arch-head)"/></g>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer domain" data-id="layer:domain" data-kind="layer"><rect class="frame" x="64" y="147" width="392" height="108" rx="5"/><rect class="cap" x="76" y="138" width="64" height="18"/><text class="title" x="84" y="151" textLength="48" lengthAdjust="spacingAndGlyphs">domain</text>
+<text x="76" y="169" textLength="360" lengthAdjust="spacingAndGlyphs">Bookmarks and tags, and the rules for keeping</text>
+<text x="76" y="187" textLength="40" lengthAdjust="spacingAndGlyphs">them.</text>
+<text x="76" y="223" textLength="368" lengthAdjust="spacingAndGlyphs">bookmarks · clock · profiles · search · tags ·</text>
+<text x="76" y="241" textLength="32" lengthAdjust="spacingAndGlyphs">urls</text>
+</g>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer service" data-id="layer:service" data-kind="layer"><rect class="frame" x="88" y="309" width="352" height="90" rx="5"/><rect class="cap" x="100" y="300" width="72" height="18"/><text class="title" x="108" y="313" textLength="56" lengthAdjust="spacingAndGlyphs">service</text>
+<text x="100" y="331" textLength="328" lengthAdjust="spacingAndGlyphs">What a caller reaches: endpoints over the</text>
+<text x="100" y="349" textLength="56" lengthAdjust="spacingAndGlyphs">domain.</text>
+<text x="100" y="385" textLength="56" lengthAdjust="spacingAndGlyphs">service</text>
+</g>
+<g class="box ecosystem outside" data-id="ecosystem:std" data-kind="ecosystem"><rect class="frame" x="16" y="57" width="304" height="36" rx="5"/><rect class="cap" x="28" y="48" width="272" height="18"/><text class="title" x="36" y="61" textLength="256" lengthAdjust="spacingAndGlyphs">the runtime and standard library</text>
+<text x="28" y="79" textLength="216" lengthAdjust="spacingAndGlyphs">datetime · hashlib · urllib</text>
+</g>
+<g class="box ecosystem outside" data-id="ecosystem:python" data-kind="ecosystem"><rect class="frame" x="360" y="57" width="96" height="36" rx="5"/><rect class="cap" x="372" y="48" width="64" height="18"/><text class="title" x="380" y="61" textLength="48" lengthAdjust="spacingAndGlyphs">Python</text>
+<text x="372" y="79" textLength="48" lengthAdjust="spacingAndGlyphs">stdjac</text>
+</g>
+</svg>
