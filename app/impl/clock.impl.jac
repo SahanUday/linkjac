@@ -25,7 +25,7 @@ impl read_epoch(text: str) -> datetime | None {
     try {
         seconds = int(text);
     } except (ValueError, OverflowError) {
-        # A number past 64 bits is out of range for every unit, as it is in the original.
+        # WORKAROUND(GAP-041): int is 64-bit, so a longer number raises here; it is no date, what the original does was not run.
         return None;
     }
     for divisor in [1, 1000, 1000000] {

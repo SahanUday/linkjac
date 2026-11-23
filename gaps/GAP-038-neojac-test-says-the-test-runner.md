@@ -8,7 +8,7 @@ area: test
 milestone: M3
 found: 2026-11-23
 neojac: 0.4.0
-command:
+command: capped --mem 4G -- neojac test (run in app/)
 code:
 ---
 
@@ -29,6 +29,9 @@ Could not be made to fail on demand; the repro above is the circumstance, not a 
 
 ## Expected
 `neojac docs apps/stdjac` and `neojac help test` were not found to say what "failed to build" means for a module. A diagnostic of the kind `neojac check` prints (code, file, line) was expected, or no failure.
+
+## Next time
+Capture the full output (`... 2>&1 | tee ~/.claude-scratch/linkjac/gap-038-run.log`) and note whether any server or other `neojac` process was running at the time (`pgrep -a 'neojac|api-linux|cli-linux'`). The two runs above were made without either: the first was read from its last six lines only, and for the second it was not noted whether a served binary was still up from a parity run.
 
 ## Workaround
 Rerun `neojac test`. Nothing in the code.

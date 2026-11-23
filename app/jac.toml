@@ -10,6 +10,7 @@ directories = ["."]
 [packages]
 rest_bridge = { path = "../plugins/rest_bridge" }
 
+# WORKAROUND(GAP-037, GAP-039): one project-wide transport that stands in for the standard one and also carries the CLI's calls.
 [transport]
 plugin = "rest_bridge"
 
@@ -18,5 +19,6 @@ api_prefix = "/api/"
 call_path = "/__jac/call/api/rest/handle"
 public_call_path = "/__jac/call/api/rest/handle_public"
 
+# The address the cli app calls by default (neojac docs apps/crossings); JAC_REMOTE_API overrides it where the program runs.
 [apps.cli.remote]
 api = "http://127.0.0.1:8000"

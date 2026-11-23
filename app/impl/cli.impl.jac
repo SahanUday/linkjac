@@ -11,7 +11,7 @@ impl run_import(path: str, map_private_flag: bool) -> int {
     } except RemoteError as e {
         print("import failed:", e.detail);
         return 1;
-    } except OSError as e {
+    } except OSError {
         print("could not read", path);
         return 1;
     }
@@ -33,8 +33,13 @@ impl run_export(path: str) -> int {
         print(text);
         return 0;
     }
-    with open(path, "w") as target {
-        target.write(text);
+    try {
+        with open(path, "w") as target {
+            target.write(text);
+        }
+    } except OSError {
+        print("could not write", path);
+        return 1;
     }
     return 0;
 }

@@ -36,7 +36,8 @@ JAC_DEPLOY_KEY=s3cret JAC_REMOTE_TOKEN=<token> JAC_REMOTE_API=http://127.0.0.1:8
 ```
 
 ## Expected
-`neojac docs crossings` ("The deployment's key") says an untagged endpoint is served to a request that carries the key, and the building-an-app skill says such a caller "is no account, so it reads `root.shared`, not `root`". Nothing found says how a program with the key acts for one named account, or lists accounts with their names. A `RemoteFailed` for `root` was not expected to come without a reason.
+Docs silent on the main point: how a program with the deployment's key acts for one named account, or lists accounts with their names. Pages read: `neojac docs crossings` ("The deployment's key", "Calling as a signed-in user"), `neojac docs apps/data` ("Whose root": `allroots()` is "Every caller's root", no names), and the building-an-app skill (line 148: "A caller with only the deployment's key is no account, so it reads `root.shared`, not `root`").
+What the docs do cover, and the run agrees with: `root` has no value for a keyed caller with no session, and a failed call is a `RemoteFailed` (`neojac docs crossings`, "How a crossing fails": "The endpoint raised, or does not exist"). Not found in the docs: whether the reason of the raise is carried to the caller. The `RemoteFailed` here said only `count_roots failed`. That part is a question about the message, not a contradiction.
 
 ## Workaround
 The port's `import` and `export` commands act as the signed-in token holder; there is no `<user>` argument. The original's `import_netscape <file> <user>` is recorded as a deviation in PLAN.md.

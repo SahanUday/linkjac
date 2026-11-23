@@ -9,8 +9,8 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 | M0 | Setup and baseline | done | linkding runs from `reference/`; `parity/` checks pass against it; `neojac absorb` and `neojac port --check` run on a copy outside the repo and their findings are logged; gap site is live |
 | M1 | Data core | done | `app/jac.toml` has `[check.lint] ignore = ["strip-comments", "strip-docstrings"]` (set before any `neojac fmt --fix`); `archwire.jac` declares the layers; bookmarks, tags and users stored through `root` and the `store` plugin; `neojac arch` is clean; a `neojac test` run creates, lists and searches them |
 | M2 | REST API | done | API parity checks pass: same status codes, fields and filters as linkding's `/api/` (checkpoint) |
-| M3 | Import, export, CLI | doing (done-when met; `/close-milestone` not run) | a Netscape bookmark file round-trips; admin commands run from a CLI app |
-| M4 | Web UI | todo | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
+| M3 | Import, export, CLI | done | a Netscape bookmark file round-trips; admin commands run from a CLI app |
+| M4 | Web UI | doing | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
 | M5 | Background work | todo | page snapshot and favicon jobs run and a scheduled job fires |
 | M6 | Sign-in and architecture review | todo | sign-in and API tokens work through the `auth` plugin; the architecture picture matches the code and no duplicate implementations remain |
 | M7 | Optional extras | todo | any of: desktop window, Android app on the Pixel 6a, `by llm()` tag suggestions |
@@ -72,6 +72,28 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 - [x] S6 admin commands: `import <file> [--map-private-flag]` and `export [<file>]`, as the signed-in token holder (GAP-040); the original's other commands are not ported (see Known deviations)
 - [x] S7 7 checks on both targets (`parity/test_netscape.py`): the original through its web import form and export view, the port through its CLI; the API shows the same bookmarks and the exported text is the same. Original 78/78, port 78/78
 
+## Port usage
+
+Per unit of the original: what `neojac port --check` said, and what the app's code is. "As-is" = port's output used unchanged; "raw material" = port's output read and then rewritten; "by hand" = designed without port output. "Run when" says whether the check was run before the work (as CLAUDE.md asks) or only afterwards, on 2026-11-23, for this table (re-run on a copy in `~/.claude-scratch/linkjac/port-usage/`; the result of that re-run is what is shown, its refusal lines are the first ones counted by kind, not a full list).
+
+| Milestone | Unit (linkding source) | `port --check` | Used as | Run when | Gaps |
+|---|---|---|---|---|---|
+| M0 | all of `bookmarks/` (251 sources) | 197 refused, 54 would port (mostly `__init__.py` and small modules) | none used; survey only | at the time | GAP-006, 004, 007 to 024 |
+| M0 | `package.json`, `pyproject.toml` through `absorb` | `absorb` has no `--check`; takes `package.json` and `Cargo.toml` only | none used | at the time | GAP-002, 003 |
+| M1 | `utils.py` (`normalize_url`, `parse_tag_string`) | refused: `try`, class attribute, class decorator, module-level name | by hand. An excerpt of `parse_tag_string` and `sanitize_tag_name` (not the unit itself) was ported in scratch (`m1-urls-tags/`, output typed `any`); `app/impl/tags.impl.jac` is not that output (it keeps a dict by name key and returns the names sorted) | at the time, for the excerpt; for the whole file only now | GAP-009, 010, 011 |
+| M1 | `models.py` (Bookmark, Tag, UserProfile) | refused: 140 class attributes, 19 decorators, `*args`/`**kwargs`, `**` arguments | by hand (nodes over `root`) | now only | GAP-011, 008, 012 |
+| M1 | `queries.py` (search) | refused: `with`, `try` | by hand | now only | GAP-007, 009 |
+| M2 | `api/routes.py` | refused: decorators, class attributes, `try` | by hand (transport plugin plus `rest*.jac`) | now only | GAP-008, 009, 011, 030 to 034 |
+| M2 | `api/serializers.py` | refused: class attributes, class statements, `**`, `super()` | by hand | now only | GAP-010, 011 |
+| M2 | `services/search_query_parser.py` | refused: class attributes, class decorators, `try` | by hand (`search_expression.jac`) | now only | GAP-008, 009, 011 |
+| M2 | `services/tags.py`, `services/bookmarks.py` | `tags.py` refused (`try`, module-level `logger`); `bookmarks.py` not checked | by hand | now only (`tags.py`); never (`bookmarks.py`) | GAP-009, 015 |
+| M3 | `services/exporter.py` | would port (1 source), output typed `any` | raw material: the `export_netscape` logic follows it; the code in `app/` is rewritten with typed names, `bookmark_lines` split out and `epoch_of` added | at the time | none new |
+| M3 | `services/parser.py` | refused: class attributes, class decorator, `with`, `super()` | by hand (`netscape_parse.jac`) | at the time | GAP-007, 008, 010, 011 |
+| M3 | `services/importer.py` | refused: class attributes, class decorators, `try`, module-level `logger` | by hand (`netscape_import.jac`) | at the time | GAP-008, 009, 011, 015 |
+| M3 | `management/commands/import_netscape.py` | refused: class attribute, `with`, `*args`/`**kwargs` | by hand (`cli.jac`, `admin.jac`) | at the time | GAP-007, 012, 040 |
+
+Reading the table: of the 11 unit rows from M1 to M3, one (the exporter) would port, and its output was raw material, not used as-is; the other 10 were refused and designed by hand. Nothing was used as-is. Before the work the check was run on the M3 units and on an excerpt of `utils.py`; for `models.py`, `queries.py`, `routes.py`, `serializers.py`, `search_query_parser.py`, `tags.py` and the whole of `utils.py` it was run only afterwards, and `services/bookmarks.py` was never checked. So M1 and M2 skipped the "check first" step of CLAUDE.md "How to work" 3; the outcome is unlikely to differ (GAP-006 had the M0 whole-directory result: 197 of 251 refused), but it was not known at the time. The gap ids in the last column are matched by refusal kind from the gap titles; whether each was filed for exactly that unit was not re-read.
+
 ## Known deviations
 
 Where the port differs from linkding or has no proof yet. The final report (M8) must repeat this list as it stands then.
@@ -89,6 +111,9 @@ Where the port differs from linkding or has no proof yet. The final report (M8) 
 - **Links in a page:** `next` and `previous` are built from `http://` plus the `Host` header, so a client behind TLS or a proxy gets `http://` links. Whether the standard transport exposes the scheme was not checked.
 - **M3, import and export:** the port reads and writes the same file as linkding (7 checks). Differences: only the attributes `HREF`, `ADD_DATE`, `LAST_MODIFIED`, `TAGS`, `TOREAD` and `PRIVATE` of a link are read (the original copies any attribute onto the parser); the import goes one bookmark at a time, not in batches of 200; of linkding's field validators only the URL (valid, 2048 long), the title (512) and the tag name (64) lengths are applied; favicon and preview jobs are not scheduled after an import (M5). Whether the original and the port agree on a file with an unusual layout beyond the 7 checks is untested.
 - **M3, admin commands:** the port's CLI app (`cli`) has `import` and `export`, and acts as the account whose token it holds (`JAC_REMOTE_TOKEN`); the original's `import_netscape <file> <user>` names the user (GAP-040). linkding's other commands are not ported: `create_initial_superuser` and `ensure_superuser` (accounts belong to the `auth` plugin, M6), `backup`, `full_backup`, `generate_secret_key`, `enable_wal` and `migrate_tasks`. The two import and export commands have no check of their own beyond the 7 above, which call them. The import and export are not served over HTTP (the original's web form and view are M4), and the CLI calls the server through the bridge plugin, which now carries calls out as well (GAP-039, GAP-037).
+- **M3, import of an archived marker on an existing bookmark (found by the gap audit by reading, not run):** the original's importer does not save `is_archived` for a bookmark it updates (`bookmarks/services/importer.py`: `_copy_bookmark_data` sets it, but `bulk_update` does not list it), the port sets it. No check covers an archived marker on an update. Fix and check are queued before M4 closes or in the next refactor.
+- **Parity code is not tracked:** commit fdbd07d keeps `parity/*.py`, `run.sh` and `conftest.py` out of git on purpose (see `parity/README.md`); the two results files and the README are tracked. So the counts here can be reproduced only on the author's machine.
+- **`int` is 64-bit (GAP-041):** `read_epoch` reads a number past 64 bits as no date; what the original does with such a number was not run.
 - **Smaller:** `date_added` and `date_modified` sent on create are ignored; the profile `version` is the constant `1.47.0`; the bridge stands in for the standard transport (GAP-037).
 
 ## Refactor backlog
@@ -105,4 +130,5 @@ Left open, with the reason:
 - The JSON body is encoded twice (envelope, then the bridge); `json_reply` in the bridge duplicates `reply_json` because a plugin cannot import the app (GAP-037).
 - `parity/run.sh` and `tools/check_persistence.sh` both build, start and register; share one script. `check_persistence.sh` reads JSON with `sed`.
 - `read_tag_names` uses `str(n)` after `all([isinstance(n, str) ...])`; whether `isinstance` in a comprehension narrows is unchecked.
+- The bridge's outbound `send` (GAP-039) has no test of its own (`bridge.test.jac` covers the reply guard only) and returns no response headers; only the CLI checks reach it.
 - The bridge keeps its settings and the app's handler in module `glob`s because the handler class is built by the library.

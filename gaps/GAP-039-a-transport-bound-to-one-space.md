@@ -34,8 +34,37 @@ dist/cli-linux-x86_64 export          # "export failed: rest_bridge carries no c
 ```
 For binding A, replace the project-level `[transport]` by `[spaces.api.transport] plugin = "rest_bridge"` and rebuild; `curl -sv http://127.0.0.1:8322/__jac/auth/` shows `HTTP/1.1`.
 
+## jac.toml lines
+Binding C is the file as it stood before the workaround (the `[transport]` block is `app/jac.toml` at commit d358789; the `[spaces.cli.transport]` pair was added under it for the test and removed after). Bindings A and B were not kept as files: the blocks below are rewritten from the table above and the project's settings, not copied from the builds that ran.
+
+```toml
+# A (rewritten, not copied)
+[packages]
+rest_bridge = { path = "../plugins/rest_bridge" }
+[spaces.api.transport]
+plugin = "rest_bridge"
+[spaces.api.transport.rest_bridge]
+api_prefix = "/api/"
+call_path = "/__jac/call/api/rest/handle"
+public_call_path = "/__jac/call/api/rest/handle_public"
+[spaces.cli.transport]
+plugin = "http"
+
+# B (rewritten, not copied): as A, but the settings table is [transport.rest_bridge] and there is no [spaces.api.transport.rest_bridge]
+
+# C (the project-level lines are in git; the last pair was added for the test)
+[transport]
+plugin = "rest_bridge"
+[transport.rest_bridge]
+api_prefix = "/api/"
+call_path = "/__jac/call/api/rest/handle"
+public_call_path = "/__jac/call/api/rest/handle_public"
+[spaces.cli.transport]
+plugin = "http"
+```
+
 ## Expected
-`neojac docs apps/plugins`: "`[spaces.<space>.<abstraction>]` binds one space's, for an abstraction a space has one of. The spaces one program runs share one `store`, so they are bound alike (E5090 otherwise)." Nothing there says a transport is shared, or that spaces bound to different transports get one. Two apps (`api` and `cli`) each run one space, so each is its own program and was expected to take its own space's binding.
+Page followed: `neojac docs apps/plugins`, section "Binding a plugin" (line 116): "`[spaces.<space>.<abstraction>]` binds one space's, for an abstraction a space has one of. The spaces one program runs share one `store`, so they are bound alike (E5090 otherwise)." Only `store` is named as shared. The docs describe this syntax and say it binds one space's plugin, so the result is a bug (kind stays `bug`), not a docs gap. The same page, "Picking a plugin where the program runs", says a space's own binding can also be picked at start with `JAC_<SPACE>_<ABSTRACTION>` (here `JAC_API_TRANSPORT`, `JAC_CLI_TRANSPORT`); that was not tried, so whether it would have given each space its own plugin is unknown. Two apps (`api` and `cli`) each run one space, so each is its own program and was expected to take its own space's binding.
 
 ## Workaround
 Binding C, and `plugins/rest_bridge` got a client-side `send` (the standard `http` transport's job), so the one plugin carries both the served `/api/` and the CLI's calls (`WORKAROUND(GAP-039)` in `plugins/rest_bridge/impl/bridge.impl.jac`). Before that the plugin's `send` raised `OSError` (GAP-037), which made the CLI fail.
