@@ -2,10 +2,11 @@
 
 import from "@jac/runtime" { sign_in, useSearchParams }
 
-"""One bookmark of the list: its title, its tags, its description and what can be done to it."""
-def:pub BookmarkRow(item: ListedBookmark) -> JsxElement;
+"""One bookmark of the list: its title, its tags, its description and what can be done to it; `on_archive(id, archived)` and `on_remove(id)` are called by its buttons."""
+def:pub BookmarkRow(item: ListedBookmark, on_archive: any, on_remove: any) -> JsxElement;
 
-"""The address of page `number` of the list for the query `q`."""
-def page_href(q: str, number: int) -> str;
+"""The address of page `number` of the list at `base` for the query `q`."""
+def page_href(base: str, q: str, number: int) -> str;
 
-def:pub BookmarkList -> JsxElement;
+"""The caller's live bookmarks, or the archived ones when `archived` is set."""
+def:pub BookmarkList(archived: bool = False) -> JsxElement;

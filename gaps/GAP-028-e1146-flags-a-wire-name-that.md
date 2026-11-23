@@ -15,6 +15,8 @@ code:
 ## Symptom
 A wire `a ++> b { make }` whose name `make` is used only in `b.test.jac` is accepted by `neojac check b.jac` and `neojac test`, but `neojac check` (no argument) and `neojac check api` report `E1146: 'make' is wired into 'b', which never uses it` once `b` is in a space of an app. A project cannot have both a test that needs a name from another module and a clean `neojac check`.
 
+Seen again in M4 S5 (2026-11-23) with `web_actions.test.jac`: `neojac test web_actions.test.jac` said `W2001 unknown name 'create_bookmark'` until the names were wired in, and then bare `neojac check` said `E1146` for `BookmarkDraft` and `create_bookmark`. The same workaround (`glob __all__` with a `WORKAROUND(GAP-028)` comment in `web_actions.jac`) cleared it.
+
 ## Repro
 ```sh
 neojac --version

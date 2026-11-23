@@ -25,6 +25,14 @@ test "a file's bookmarks are made with their dates, flags and tags" {
     assert tag_names_of(made) == ["imp-x", "imp-y"];
 }
 
+test "the archived marker does not archive a bookmark that is already saved" {
+    saved = create_bookmark(root, BookmarkDraft(url="https://imp.example/stays"));
+    import_netscape(
+        root, one_file([row("https://imp.example/stays", "TAGS=\"linkding:bookmarks.archived\"")])
+    );
+    assert not saved.is_archived;
+}
+
 test "a missing date means now, and a missing modified date means the added date" {
     import_netscape(root, one_file([row("https://imp.example/dates", "ADD_DATE=\"86400\"")]));
     kept = find_existing(root, "https://imp.example/dates");

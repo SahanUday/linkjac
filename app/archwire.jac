@@ -22,7 +22,7 @@ graph layers {
     layer client { cli; }
 
     """What the web pages ask the server for."""
-    layer web { web_list | web_form | web_tags; }
+    layer web { web_list | web_form | web_tags | web_actions; }
 
     """Parts of pages: the list and the form."""
     layer ui { ui.*; }
@@ -61,6 +61,7 @@ graph spaces {
             | web_list
             | web_form
             | web_tags
+            | web_actions
             | rest
             | rest_call
             | rest_reply
@@ -192,6 +193,17 @@ graph import {
     }
     web_form ++> ui.bookmark_form { save_bookmark }
     web_form ++> ui.bookmark_edit { bookmark_fields }
+    bookmarks ++> web_actions {
+        BookmarkDraft,
+        create_bookmark,
+        find_bookmark,
+        set_archived,
+        delete_bookmark,
+    }
+    web_actions ++> ui.bookmark_list { archive_bookmark, remove_bookmark }
+    ui.site_nav ++> ui.bookmark_list | ui.tag_table | ui.bookmark_edit | pages.bookmarks.new {
+        SiteNav,
+    }
     ui.bookmark_list ++> pages.bookmarks.index { BookmarkList }
     ui.bookmark_edit ++> pages.bookmarks.index { EditBookmark }
     ui.bookmark_form ++> pages.bookmarks.new | ui.bookmark_edit { BookmarkForm }

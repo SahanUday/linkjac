@@ -1,24 +1,9 @@
 """The tags page: the table of tags with their counts, search, sort, the unused filter, and creating, renaming and removing a tag."""
 
-import time
+import re
 
 from conftest import BASE_URL
-from ui import items_of
-
-
-def soon(read, expected, seconds=8):
-    """Asserts that `read()` comes to equal `expected` within a few seconds: pages and servers settle at their own pace."""
-    deadline = time.time() + seconds
-    got = None
-    while time.time() < deadline:
-        try:
-            got = read()
-            if got == expected:
-                return
-        except Exception as problem:  # a page in the middle of reloading has no table yet
-            got = repr(problem)
-        time.sleep(0.2)
-    assert got == expected
+from ui import items_of, soon
 
 
 def open_tags(ui, search=""):
@@ -59,6 +44,19 @@ def test_the_table_lists_tags_with_their_bookmark_counts(ui, make_bookmark, make
     three_tags(make_bookmark, make_tag, unique)
     open_tags(ui, unique)
     soon(lambda: rows_of(ui), [(f"{unique}-a", "2"), (f"{unique}-b", "1"), (f"{unique}-c", "0")])
+
+
+def test_the_table_says_how_many_tags_there_are_in_all_and_how_many_a_filter_shows(ui, api, make_bookmark, make_tag, unique):
+    three_tags(make_bookmark, make_tag, unique)
+    total = len(tag_names(api))
+    open_tags(ui)
+    soon(lambda: ui.get_by_text(re.compile(r"\d+ tags total")).first.inner_text().strip(), f"{total} tags total")
+    assert ui.get_by_text(re.compile(r"Showing \d+ of \d+ tags")).count() == 0
+    open_tags(ui, unique)
+    soon(lambda: ui.get_by_text(re.compile(r"Showing \d+ of \d+ tags")).first.inner_text().strip(), f"Showing 3 of {total} tags")
+    open_tags(ui)
+    ui.get_by_label("Show only unused tags").check()
+    soon(lambda: ui.get_by_text(re.compile(r"Showing \d+ of \d+ tags")).count(), 1)
 
 
 def test_the_search_box_narrows_the_table(ui, make_bookmark, make_tag, unique):

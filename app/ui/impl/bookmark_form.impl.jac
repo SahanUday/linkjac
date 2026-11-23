@@ -7,6 +7,7 @@ impl BookmarkForm(
     notes0: str = "",
     unread0: bool = False,
 ) -> JsxElement {
+    # WORKAROUND(GAP-047): state named like the prop would not build.
     has url: str = url0;
     has tag_string: str = tags0;
     has title: str = title0;

@@ -21,6 +21,8 @@ Both times the next `neojac test` (and `neojac test netscape_parse.test.jac` alo
 
 Not reproduced in three later tries (after occurrence 2): a full run after `touch` of every `.jac` and removal of `.jac/cache`, at `--mem 4G` and at `--mem 8G` (13 of 13 modules passed each time).
 
+4. M4 S5, 2026-11-23, `neojac test web_actions.test.jac`: `web_actions.jac: the test runner failed to build`, `0 passed; 0 of 1 module passed`. This time the full output was read: above that line the run had printed the real diagnostics (`W2001 unknown name 'create_bookmark'` four times, with file, line and caret). So a "failed to build" line can follow ordinary diagnostics, and occurrences 1 and 3 (read through `tail` only) may have had diagnostics above the lines that were read. It does not explain occurrence 2 (full output read, no diagnostic) or the reruns that passed with no source change.
+
 ## Repro
 ```sh
 neojac --version                      # neojac 0.4.0 (linux-x86_64, bdb6b2746f64)
@@ -40,3 +42,14 @@ Rerun `neojac test`. Nothing in the code.
 
 ## Cause
 Unknown.
+
+## Runs since 2026-11-23 (full output kept in `~/.claude-scratch/linkjac/test-2026-11-23.log`)
+Each run is made through `~/.claude-scratch/linkjac/ntest.sh`, which appends `neojac test`'s whole output to the day's log, and first records `pgrep` for neojac, `api-linux`, `cli-linux`, `manage.py`, `vite` and `bun`, and how many sockets listen on 8000, 8010 and 5173. The served binaries are named `api` and `cli` inside `dist/`, so the `api-linux` pattern does not match them; the listener count is the signal for a server. From the log:
+- Run 1 (before the script existed; 60 passed, 13 of 13 modules): whether anything was running before it was not recorded; `pgrep` after it showed nothing.
+- Run 2 (20:07, repeat, 60 passed, 13 of 13): no processes, 0 listeners.
+- Run 3 (20:20, 60 passed, 13 of 13): no processes, 1 listener (the port server of a mutation run, on 8010).
+- Runs 4 and 5 (`neojac test web_actions.test.jac`, failed to build, with diagnostics above the line: see 4): a `neojac build` of another project copy was running (the mutation run's), 0 listeners.
+- Run 6 (same file, 2 passed): no processes, 1 listener.
+- Run 7 (full, 62 passed, 14 of 14 modules): two `neojac build` processes of the mutation run were running.
+No spurious "did not build" in these seven runs (the two "did not build" were real errors). A running server (run 3, 6) and a running `neojac build` of another directory (run 7) did not stop a run passing.
+- Runs 8 and 9 (full, 62 passed, 14 of 14 modules; both answered from the cache in 0.09 s after comment-only edits): no processes, 0 listeners for run 9; run 8 had 1 listener (a mutation run's server). Still no spurious "did not build".

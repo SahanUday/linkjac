@@ -1,4 +1,4 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 840 744" width="840" height="744" class="arch" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="13">
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 936 1086" width="936" height="1086" class="arch" font-family="ui-monospace, 'SF Mono', Menlo, Consolas, 'DejaVu Sans Mono', monospace" font-size="13">
 <style>
 .arch { --ink: #1d2433; --soft: #5b6578; --line: #8792a6; --paper: #ffffff; --fill: #f5f7fb; --band: #eef2f8; --bad: #c62828; background: var(--paper); }
 @media (prefers-color-scheme: dark) { .arch { --ink: #e6e9f0; --soft: #a3adbf; --line: #6f7a8e; --paper: #14171d; --fill: #1d222b; --band: #232a35; --bad: #ff6b6b; } }
@@ -22,44 +22,67 @@
 </style>
 <defs><marker id="arch-head" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse"><path d="M0,0 L10,5 L0,10 z"/></marker></defs>
 <text class="heading" x="12" y="25" textLength="56" lengthAdjust="spacingAndGlyphs">linkjac</text>
-<g class="arrow" data-key="layer:domain&gt;layer:rest"><title>arrow from domain to rest</title><path class="hit" d="M488,345 L488,399 L544,399 L544,432"/><path class="line" d="M488,345 L488,399 L544,399 L544,432" marker-end="url(#arch-head)"/><text class="label" x="500" y="367" textLength="56" lengthAdjust="spacingAndGlyphs">Exposes</text></g>
-<g class="arrow" data-key="layer:domain&gt;layer:service"><title>arrow from domain to service</title><path class="hit" d="M312,345 L312,432"/><path class="line" d="M312,345 L312,432" marker-end="url(#arch-head)"/><text class="label" x="324" y="367" textLength="56" lengthAdjust="spacingAndGlyphs">Exposes</text></g>
-<g class="arrow" data-key="layer:service&gt;layer:client"><title>arrow from service to client</title><path class="hit" d="M200,525 L200,597 L208,597 L208,630"/><path class="line" d="M200,525 L200,597 L208,597 L208,630" marker-end="url(#arch-head)"/><text class="label" x="212" y="583" textLength="40" lengthAdjust="spacingAndGlyphs">Calls</text></g>
-<g class="arrow" data-key="ecosystem:std&gt;layer:domain"><title>arrow from the runtime and standard library to domain</title><path class="hit" d="M352,111 L352,198"/><path class="line" d="M352,111 L352,198" marker-end="url(#arch-head)"/></g>
-<g class="arrow" data-key="ecosystem:python&gt;layer:domain"><title>arrow from Python to domain</title><path class="hit" d="M600,93 L600,198"/><path class="line" d="M600,93 L600,198" marker-end="url(#arch-head)"/></g>
-<g class="arrow" data-key="ecosystem:std&gt;layer:client"><title>arrow from the runtime and standard library to client</title><path class="hit" d="M248,111 L248,129 L16,129 L16,201"/><path class="line" d="M248,111 L248,129 L16,129 L16,201"/><path class="hit" d="M16,201 L16,435"/><path class="line" d="M16,201 L16,435"/><path class="hit" d="M16,435 L16,597 L184,597 L184,630"/><path class="line" d="M16,435 L16,597 L184,597 L184,630" marker-end="url(#arch-head)"/></g>
-<g class="arrow" data-key="ecosystem:python&gt;layer:client"><title>arrow from Python to client</title><path class="hit" d="M632,93 L632,147 L656,147 L656,201"/><path class="line" d="M632,93 L632,147 L656,147 L656,201"/><path class="hit" d="M656,201 L656,381 L448,381 L448,435"/><path class="line" d="M656,201 L656,381 L448,381 L448,435"/><path class="hit" d="M448,435 L448,597 L344,597 L344,630"/><path class="line" d="M448,435 L448,597 L344,597 L344,630" marker-end="url(#arch-head)"/></g>
-<g class="arrow" data-key="ecosystem:python&gt;layer:rest"><title>arrow from Python to rest</title><path class="hit" d="M664,93 L664,165 L704,165 L704,201"/><path class="line" d="M664,93 L664,165 L704,165 L704,201"/><path class="hit" d="M704,201 L704,432"/><path class="line" d="M704,201 L704,432" marker-end="url(#arch-head)"/></g>
-<g class="arrow" data-key="ecosystem:std&gt;layer:rest"><title>arrow from the runtime and standard library to rest</title><path class="hit" d="M456,111 L456,129 L680,129 L680,201"/><path class="line" d="M456,111 L456,129 L680,129 L680,201"/><path class="hit" d="M680,201 L680,432"/><path class="line" d="M680,201 L680,432" marker-end="url(#arch-head)"/></g>
-<g class="box layer opens" role="button" tabindex="0" aria-label="layer domain" data-id="layer:domain" data-kind="layer"><rect class="frame" x="248" y="201" width="384" height="144" rx="5"/><rect class="cap" x="260" y="192" width="64" height="18"/><text class="title" x="268" y="205" textLength="48" lengthAdjust="spacingAndGlyphs">domain</text>
-<text x="260" y="223" textLength="360" lengthAdjust="spacingAndGlyphs">Bookmarks and tags, and the rules for keeping</text>
-<text x="260" y="241" textLength="40" lengthAdjust="spacingAndGlyphs">them.</text>
-<text x="260" y="277" textLength="288" lengthAdjust="spacingAndGlyphs">bookmarks · clock · ids · matching ·</text>
-<text x="260" y="295" textLength="280" lengthAdjust="spacingAndGlyphs">netscape_export · netscape_import ·</text>
-<text x="260" y="313" textLength="288" lengthAdjust="spacingAndGlyphs">netscape_parse · profiles · search ·</text>
-<text x="260" y="331" textLength="248" lengthAdjust="spacingAndGlyphs">search_expression · tags · urls</text>
+<g class="arrow" data-key="layer:domain&gt;layer:rest"><title>arrow from domain to rest</title><path class="hit" d="M712,327 L712,363 L896,363 L896,399"/><path class="line" d="M712,327 L712,363 L896,363 L896,399"/><path class="hit" d="M896,399 L896,543 L880,543 L880,576"/><path class="line" d="M896,399 L896,543 L880,543 L880,576" marker-end="url(#arch-head)"/><text class="label" x="724" y="349" textLength="56" lengthAdjust="spacingAndGlyphs">Exposes</text></g>
+<g class="arrow" data-key="layer:domain&gt;layer:service"><title>arrow from domain to service</title><path class="hit" d="M592,327 L592,396"/><path class="line" d="M592,327 L592,396" marker-end="url(#arch-head)"/><text class="label" x="604" y="349" textLength="56" lengthAdjust="spacingAndGlyphs">Exposes</text></g>
+<g class="arrow" data-key="layer:service&gt;layer:client"><title>arrow from service to client</title><path class="hit" d="M600,489 L600,525 L520,525 L520,579"/><path class="line" d="M600,489 L600,525 L520,525 L520,579"/><path class="hit" d="M520,579 L520,741 L768,741 L768,792"/><path class="line" d="M520,579 L520,741 L768,741 L768,792" marker-end="url(#arch-head)"/><text class="label" x="612" y="511" textLength="40" lengthAdjust="spacingAndGlyphs">Calls</text></g>
+<g class="arrow" data-key="layer:domain&gt;layer:web"><title>arrow from domain to web</title><path class="hit" d="M472,327 L472,363 L376,363 L376,396"/><path class="line" d="M472,327 L472,363 L376,363 L376,396" marker-end="url(#arch-head)"/><text class="label" x="484" y="349" textLength="56" lengthAdjust="spacingAndGlyphs">Exposes</text></g>
+<g class="arrow" data-key="layer:web&gt;layer:ui"><title>arrow from web to ui</title><path class="hit" d="M176,471 L176,525 L448,525 L448,579"/><path class="line" d="M176,471 L176,525 L448,525 L448,579"/><path class="hit" d="M448,579 L448,792"/><path class="line" d="M448,579 L448,792" marker-end="url(#arch-head)"/><text class="label" x="188" y="511" textLength="40" lengthAdjust="spacingAndGlyphs">Shows</text></g>
+<g class="arrow" data-key="layer:ui&gt;layer:pages"><title>arrow from ui to pages</title><path class="hit" d="M416,903 L416,954"/><path class="line" d="M416,903 L416,954" marker-end="url(#arch-head)"/><text class="label" x="428" y="925" textLength="48" lengthAdjust="spacingAndGlyphs">Builds</text></g>
+<g class="arrow" data-key="ecosystem:std&gt;layer:domain"><title>arrow from the runtime and standard library to domain</title><path class="hit" d="M568,111 L568,180"/><path class="line" d="M568,111 L568,180" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:python&gt;layer:domain"><title>arrow from Python to domain</title><path class="hit" d="M816,93 L816,147 L808,147 L808,180"/><path class="line" d="M816,93 L816,147 L808,147 L808,180" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:std&gt;layer:client"><title>arrow from the runtime and standard library to client</title><path class="hit" d="M464,111 L464,129 L416,129 L416,183"/><path class="line" d="M464,111 L464,129 L416,129 L416,183"/><path class="hit" d="M416,183 L416,399"/><path class="line" d="M416,183 L416,399"/><path class="hit" d="M416,399 L416,543 L496,543 L496,579"/><path class="line" d="M416,399 L416,543 L496,543 L496,579"/><path class="hit" d="M496,579 L496,723 L744,723 L744,792"/><path class="line" d="M496,579 L496,723 L744,723 L744,792" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:python&gt;layer:client"><title>arrow from Python to client</title><path class="hit" d="M848,93 L848,183"/><path class="line" d="M848,93 L848,183"/><path class="hit" d="M848,183 L848,399"/><path class="line" d="M848,183 L848,399"/><path class="hit" d="M848,399 L848,543 L544,543 L544,579"/><path class="line" d="M848,399 L848,543 L544,543 L544,579"/><path class="hit" d="M544,579 L544,759 L792,759 L792,792"/><path class="line" d="M544,579 L544,759 L792,759 L792,792" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:npm&gt;layer:pages"><title>arrow from npm to pages</title><path class="hit" d="M312,615 L312,723 L256,723 L256,795"/><path class="line" d="M312,615 L312,723 L256,723 L256,795"/><path class="hit" d="M256,795 L256,954"/><path class="line" d="M256,795 L256,954" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:python&gt;layer:rest"><title>arrow from Python to rest</title><path class="hit" d="M880,93 L880,147 L920,147 L920,183"/><path class="line" d="M880,93 L880,147 L920,147 L920,183"/><path class="hit" d="M920,183 L920,399"/><path class="line" d="M920,183 L920,399"/><path class="hit" d="M920,399 L920,525 L904,525 L904,576"/><path class="line" d="M920,399 L920,525 L904,525 L904,576" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:std&gt;layer:rest"><title>arrow from the runtime and standard library to rest</title><path class="hit" d="M672,111 L672,129 L872,129 L872,183"/><path class="line" d="M672,111 L672,129 L872,129 L872,183"/><path class="hit" d="M872,183 L872,399"/><path class="line" d="M872,183 L872,399"/><path class="hit" d="M872,399 L872,525 L856,525 L856,576"/><path class="line" d="M872,399 L872,525 L856,525 L856,576" marker-end="url(#arch-head)"/></g>
+<g class="arrow" data-key="ecosystem:npm&gt;layer:ui"><title>arrow from npm to ui</title><path class="hit" d="M360,615 L360,792"/><path class="line" d="M360,615 L360,792" marker-end="url(#arch-head)"/></g>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer domain" data-id="layer:domain" data-kind="layer"><rect class="frame" x="440" y="183" width="384" height="144" rx="5"/><rect class="cap" x="452" y="174" width="64" height="18"/><text class="title" x="460" y="187" textLength="48" lengthAdjust="spacingAndGlyphs">domain</text>
+<text x="452" y="205" textLength="360" lengthAdjust="spacingAndGlyphs">Bookmarks and tags, and the rules for keeping</text>
+<text x="452" y="223" textLength="40" lengthAdjust="spacingAndGlyphs">them.</text>
+<text x="452" y="259" textLength="288" lengthAdjust="spacingAndGlyphs">bookmarks · clock · ids · matching ·</text>
+<text x="452" y="277" textLength="280" lengthAdjust="spacingAndGlyphs">netscape_export · netscape_import ·</text>
+<text x="452" y="295" textLength="288" lengthAdjust="spacingAndGlyphs">netscape_parse · profiles · search ·</text>
+<text x="452" y="313" textLength="248" lengthAdjust="spacingAndGlyphs">search_expression · tags · urls</text>
 </g>
-<g class="box layer opens" role="button" tabindex="0" aria-label="layer service" data-id="layer:service" data-kind="layer"><rect class="frame" x="40" y="435" width="384" height="90" rx="5"/><rect class="cap" x="52" y="426" width="72" height="18"/><text class="title" x="60" y="439" textLength="56" lengthAdjust="spacingAndGlyphs">service</text>
-<text x="52" y="457" textLength="360" lengthAdjust="spacingAndGlyphs">What a signed-in caller can ask the server to</text>
-<text x="52" y="475" textLength="128" lengthAdjust="spacingAndGlyphs">do beyond /api/.</text>
-<text x="52" y="511" textLength="40" lengthAdjust="spacingAndGlyphs">admin</text>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer service" data-id="layer:service" data-kind="layer"><rect class="frame" x="440" y="399" width="384" height="90" rx="5"/><rect class="cap" x="452" y="390" width="72" height="18"/><text class="title" x="460" y="403" textLength="56" lengthAdjust="spacingAndGlyphs">service</text>
+<text x="452" y="421" textLength="360" lengthAdjust="spacingAndGlyphs">What a signed-in caller can ask the server to</text>
+<text x="452" y="439" textLength="128" lengthAdjust="spacingAndGlyphs">do beyond /api/.</text>
+<text x="452" y="475" textLength="40" lengthAdjust="spacingAndGlyphs">admin</text>
 </g>
-<g class="box layer opens" role="button" tabindex="0" aria-label="layer client" data-id="layer:client" data-kind="layer"><rect class="frame" x="96" y="633" width="264" height="72" rx="5"/><rect class="cap" x="108" y="624" width="64" height="18"/><text class="title" x="116" y="637" textLength="48" lengthAdjust="spacingAndGlyphs">client</text>
-<text x="108" y="655" textLength="240" lengthAdjust="spacingAndGlyphs">Programs that call the server.</text>
-<text x="108" y="691" textLength="24" lengthAdjust="spacingAndGlyphs">cli</text>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer client" data-id="layer:client" data-kind="layer"><rect class="frame" x="656" y="795" width="264" height="72" rx="5"/><rect class="cap" x="668" y="786" width="64" height="18"/><text class="title" x="676" y="799" textLength="48" lengthAdjust="spacingAndGlyphs">client</text>
+<text x="668" y="817" textLength="240" lengthAdjust="spacingAndGlyphs">Programs that call the server.</text>
+<text x="668" y="853" textLength="24" lengthAdjust="spacingAndGlyphs">cli</text>
 </g>
-<g class="box layer opens" role="button" tabindex="0" aria-label="layer rest" data-id="layer:rest" data-kind="layer"><rect class="frame" x="472" y="435" width="352" height="126" rx="5"/><rect class="cap" x="484" y="426" width="48" height="18"/><text class="title" x="492" y="439" textLength="32" lengthAdjust="spacingAndGlyphs">rest</text>
-<text x="484" y="457" textLength="328" lengthAdjust="spacingAndGlyphs">The REST layer: linkding's /api/ over the</text>
-<text x="484" y="475" textLength="56" lengthAdjust="spacingAndGlyphs">domain.</text>
-<text x="484" y="511" textLength="280" lengthAdjust="spacingAndGlyphs">rest · rest_bookmarks · rest_call ·</text>
-<text x="484" y="529" textLength="312" lengthAdjust="spacingAndGlyphs">rest_forms · rest_paging · rest_reply ·</text>
-<text x="484" y="547" textLength="168" lengthAdjust="spacingAndGlyphs">rest_tags · rest_user</text>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer web" data-id="layer:web" data-kind="layer"><rect class="frame" x="16" y="399" width="376" height="72" rx="5"/><rect class="cap" x="28" y="390" width="40" height="18"/><text class="title" x="36" y="403" textLength="24" lengthAdjust="spacingAndGlyphs">web</text>
+<text x="28" y="421" textLength="304" lengthAdjust="spacingAndGlyphs">What the web pages ask the server for.</text>
+<text x="28" y="457" textLength="352" lengthAdjust="spacingAndGlyphs">web_actions · web_form · web_list · web_tags</text>
 </g>
-<g class="box ecosystem outside" data-id="ecosystem:std" data-kind="ecosystem"><rect class="frame" x="200" y="57" width="344" height="54" rx="5"/><rect class="cap" x="212" y="48" width="272" height="18"/><text class="title" x="220" y="61" textLength="256" lengthAdjust="spacingAndGlyphs">the runtime and standard library</text>
-<text x="212" y="79" textLength="320" lengthAdjust="spacingAndGlyphs">datetime · sys · html · hashlib · json ·</text>
-<text x="212" y="97" textLength="48" lengthAdjust="spacingAndGlyphs">urllib</text>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer ui" data-id="layer:ui" data-kind="layer"><rect class="frame" x="280" y="795" width="336" height="108" rx="5"/><rect class="cap" x="292" y="786" width="32" height="18"/><text class="title" x="300" y="799" textLength="16" lengthAdjust="spacingAndGlyphs">ui</text>
+<text x="292" y="817" textLength="304" lengthAdjust="spacingAndGlyphs">Parts of pages: the list and the form.</text>
+<text x="292" y="853" textLength="248" lengthAdjust="spacingAndGlyphs">bookmark_edit · bookmark_form ·</text>
+<text x="292" y="871" textLength="312" lengthAdjust="spacingAndGlyphs">bookmark_list · site_nav · tag_dialog ·</text>
+<text x="292" y="889" textLength="72" lengthAdjust="spacingAndGlyphs">tag_table</text>
 </g>
-<g class="box ecosystem outside" data-id="ecosystem:python" data-kind="ecosystem"><rect class="frame" x="584" y="57" width="120" height="36" rx="5"/><rect class="cap" x="596" y="48" width="64" height="18"/><text class="title" x="604" y="61" textLength="48" lengthAdjust="spacingAndGlyphs">Python</text>
-<text x="596" y="79" textLength="48" lengthAdjust="spacingAndGlyphs">stdjac</text>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer pages" data-id="layer:pages" data-kind="layer"><rect class="frame" x="176" y="957" width="352" height="90" rx="5"/><rect class="cap" x="188" y="948" width="56" height="18"/><text class="title" x="196" y="961" textLength="40" lengthAdjust="spacingAndGlyphs">pages</text>
+<text x="188" y="979" textLength="224" lengthAdjust="spacingAndGlyphs">The pages the browser shows.</text>
+<text x="188" y="1015" textLength="328" lengthAdjust="spacingAndGlyphs">bookmarks.index · bookmarks.new · index ·</text>
+<text x="188" y="1033" textLength="80" lengthAdjust="spacingAndGlyphs">tags.index</text>
+</g>
+<g class="box layer opens" role="button" tabindex="0" aria-label="layer rest" data-id="layer:rest" data-kind="layer"><rect class="frame" x="568" y="579" width="352" height="126" rx="5"/><rect class="cap" x="580" y="570" width="48" height="18"/><text class="title" x="588" y="583" textLength="32" lengthAdjust="spacingAndGlyphs">rest</text>
+<text x="580" y="601" textLength="328" lengthAdjust="spacingAndGlyphs">The REST layer: linkding's /api/ over the</text>
+<text x="580" y="619" textLength="56" lengthAdjust="spacingAndGlyphs">domain.</text>
+<text x="580" y="655" textLength="280" lengthAdjust="spacingAndGlyphs">rest · rest_bookmarks · rest_call ·</text>
+<text x="580" y="673" textLength="312" lengthAdjust="spacingAndGlyphs">rest_forms · rest_paging · rest_reply ·</text>
+<text x="580" y="691" textLength="168" lengthAdjust="spacingAndGlyphs">rest_tags · rest_user</text>
+</g>
+<g class="box ecosystem outside" data-id="ecosystem:std" data-kind="ecosystem"><rect class="frame" x="416" y="57" width="344" height="54" rx="5"/><rect class="cap" x="428" y="48" width="272" height="18"/><text class="title" x="436" y="61" textLength="256" lengthAdjust="spacingAndGlyphs">the runtime and standard library</text>
+<text x="428" y="79" textLength="320" lengthAdjust="spacingAndGlyphs">datetime · sys · html · hashlib · json ·</text>
+<text x="428" y="97" textLength="48" lengthAdjust="spacingAndGlyphs">urllib</text>
+</g>
+<g class="box ecosystem outside" data-id="ecosystem:python" data-kind="ecosystem"><rect class="frame" x="800" y="57" width="120" height="36" rx="5"/><rect class="cap" x="812" y="48" width="64" height="18"/><text class="title" x="820" y="61" textLength="48" lengthAdjust="spacingAndGlyphs">Python</text>
+<text x="812" y="79" textLength="48" lengthAdjust="spacingAndGlyphs">stdjac</text>
+</g>
+<g class="box ecosystem outside" data-id="ecosystem:npm" data-kind="ecosystem"><rect class="frame" x="288" y="579" width="120" height="36" rx="5"/><rect class="cap" x="300" y="570" width="40" height="18"/><text class="title" x="308" y="583" textLength="24" lengthAdjust="spacingAndGlyphs">npm</text>
+<text x="300" y="601" textLength="96" lengthAdjust="spacingAndGlyphs">@jac/runtime</text>
 </g>
 </svg>

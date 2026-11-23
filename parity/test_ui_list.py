@@ -1,5 +1,7 @@
 """The bookmark list page: its items, order, search, tags region and pagination, as a signed-in user sees them."""
 
+import re
+
 from conftest import BASE_URL
 from ui import bookmark_items, items_of, region
 
@@ -67,9 +69,17 @@ def test_the_list_has_thirty_items_a_page(ui, make_bookmark, unique):
     tag = f"{unique}-p"
     for i in range(32):
         make_bookmark(title=f"item {i:02d}", tag_names=[tag])
+    make_bookmark(title=f"outside {unique}")  # the newest of all, and not in the search: a page link that loses the search shows it
     open_list(ui, tag)
-    assert len(items_of(ui)) == 30
+    first_page = [r[0] for r in items_of(ui)]
+    assert len(first_page) == 30 and first_page[0] == "item 31" and first_page[-1] == "item 02"
     ui.get_by_role("link", name="Next").click()
     ui.wait_for_url("**page=2*")
     assert [r[0] for r in items_of(ui)] == ["item 01", "item 00"]
-    assert ui.get_by_role("link", name="Previous").count() == 1
+    assert re.search(r"page=1(&|$)", ui.get_by_role("link", name="Previous").get_attribute("href"))
+    ui.get_by_role("link", name="Previous").click()
+    ui.wait_for_url(lambda url: "page=2" not in url)
+    assert [r[0] for r in items_of(ui)] == first_page
+    ui.get_by_role("link", name="2", exact=True).click()
+    ui.wait_for_url("**page=2*")
+    assert [r[0] for r in items_of(ui)] == ["item 01", "item 00"]

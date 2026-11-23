@@ -59,6 +59,15 @@ def test_the_archived_marker_archives_and_is_not_a_tag(netscape, api, unique, li
     assert found[0]["tag_names"] == [tag]
 
 
+def test_the_archived_marker_does_not_archive_a_bookmark_that_exists(netscape, api, unique, listed):
+    tag, find = listed
+    url = f"https://nsc.example/{unique}/kept"
+    netscape.import_text(file_of(row(url, "Kept", f'TAGS="{tag}"')))
+    netscape.import_text(file_of(row(url, "Kept", f'TAGS="{tag},linkding:bookmarks.archived"')))
+    assert find()["kept"]["is_archived"] is False
+    assert api.get("/bookmarks/archived/", params={"q": f"#{tag}"}).json()["results"] == []
+
+
 def test_importing_again_changes_the_bookmark_and_adds_tags(netscape, unique, listed):
     tag, find = listed
     url = f"https://nsc.example/{unique}/again"
@@ -79,6 +88,9 @@ def test_the_private_flag_is_read_only_when_asked(netscape, unique, listed):
     assert find()["pub"]["shared"] is True
     netscape.import_text(file_of(row(url, "P", f'PRIVATE="1" TAGS="{tag}"')), map_private_flag=True)
     assert find()["pub"]["shared"] is True
+    private = f"https://nsc.example/{unique}/priv"
+    netscape.import_text(file_of(row(private, "Q", f'PRIVATE="1" TAGS="{tag}"')), map_private_flag=True)
+    assert find()["priv"]["shared"] is False
 
 
 def test_bad_and_repeated_addresses_are_left_out(netscape, unique, listed):
@@ -88,6 +100,9 @@ def test_bad_and_repeated_addresses_are_left_out(netscape, unique, listed):
         row(f"https://nsc.example/{unique}/ok/", "Again", f'TAGS="{tag}"'),
         row("not a url", "Bad", f'TAGS="{tag}"'),
         row(f"https://nsc.example/{unique}/late", "Late", f'ADD_DATE="soon" TAGS="{tag}"'),
+        row(f"https://nsc.example/{unique}/later", "Later", f'LAST_MODIFIED="soon" TAGS="{tag}"'),
+        row(f"https://nsc.example/{unique}/" + "x" * 2100, "Long address", f'TAGS="{tag}"'),
+        row(f"https://nsc.example/{unique}/title", "T" * 513, f'TAGS="{tag}"'),
     ))
     assert list(find()) == ["ok"]
     assert find()["ok"]["title"] == "Ok"

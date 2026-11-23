@@ -3,6 +3,7 @@
 import glob
 import os
 import re
+import time
 
 import pytest
 from playwright.sync_api import sync_playwright
@@ -20,32 +21,51 @@ def expected_gap_on_port(gap_id):
     return pytest.mark.xfail(TARGET == "port", reason=gap_id, strict=True)  # gaps-ok
 
 
+def submit_credentials(page, username, password):
+    """Fills the target's own sign-in form and presses its button."""
+    page.get_by_label("Username").fill(username)
+    page.get_by_label("Password").fill(password)
+    page.get_by_role("button", name="Login" if TARGET == "original" else "Sign in").click()
+
+
 def sign_in(page):
     """Signs the parity user in through the target's own sign-in."""
     if TARGET == "original":
         page.goto(f"{BASE_URL}/login/")
-        page.get_by_label("Username").fill("parity")
-        page.get_by_label("Password").fill("parity-pass")
-        page.get_by_role("button", name="Login").click()
+        submit_credentials(page, "parity", "parity-pass")
         page.wait_for_url(f"{BASE_URL}/bookmarks*")
     else:
         page.goto(f"{BASE_URL}/bookmarks")
-        page.get_by_label("Username").fill("parity")
-        page.get_by_label("Password").fill("parity-pass")
-        page.get_by_role("button", name="Sign in").click()
+        submit_credentials(page, "parity", "parity-pass")
         page.get_by_role("heading", name="Bookmarks", level=1).wait_for()
         page.get_by_label("Username").wait_for(state="detached")
 
 
 @pytest.fixture(scope="session")
-def browser_page():
+def browser():
     with sync_playwright() as pw:
-        browser = pw.chromium.launch(executable_path=CHROME)
-        page = browser.new_page()
-        page.set_default_timeout(10000)
-        sign_in(page)
-        yield page
-        browser.close()
+        found = pw.chromium.launch(executable_path=CHROME)
+        yield found
+        found.close()
+
+
+@pytest.fixture(scope="session")
+def browser_page(browser):
+    page = browser.new_page()
+    page.set_default_timeout(10000)
+    sign_in(page)
+    yield page
+    page.close()
+
+
+@pytest.fixture
+def visitor(browser):
+    """A page in a browser context of its own, so nobody is signed in."""
+    context = browser.new_context()
+    page = context.new_page()
+    page.set_default_timeout(10000)
+    yield page
+    context.close()
 
 
 @pytest.fixture
@@ -71,3 +91,18 @@ def items_of(page):
         names = re.findall(r'link "([^"]*)"', item.aria_snapshot())
         rows.append((names[0], sorted(n for n in names[1:] if n.startswith("#"))))
     return rows
+
+
+def soon(read, expected, seconds=8):
+    """Asserts that `read()` comes to equal `expected` within a few seconds: pages and servers settle at their own pace."""
+    deadline = time.time() + seconds
+    got = None
+    while time.time() < deadline:
+        try:
+            got = read()
+            if got == expected:
+                return
+        except Exception as problem:  # a page in the middle of reloading has no table yet
+            got = repr(problem)
+        time.sleep(0.2)
+    assert got == expected

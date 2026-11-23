@@ -26,7 +26,7 @@ neojac check                          # W3055 on `page`
 The docs' examples to pass the default `neojac check`, or the pages to say that bodies go in an annex. `neojac docs apps/pages` ("The shortest site", "What a page module declares") says a page module declares `page` and shows no annex; it says `.impl.jac` files under `pages/` are not pages ("except `.impl.jac` and `.test.jac` files and anything in a directory named `impl`") but not that a page's body belongs there.
 
 ## Workaround
-`neojac fmt --fix pages`, once (allowed here: `app/jac.toml` has the lint ignore for comments and docstrings). Nothing in the code.
+`neojac fmt --fix pages`, once (allowed here: `app/jac.toml` has the lint ignore for comments and docstrings). Nothing in the code. The rule `separate-impls` (W3055) is not turned off anywhere: no `jac.toml` in the repo lists it under `[check.lint] ignore`, and the page and component bodies are in `impl` annexes as the rule asks, so there is no place for a `WORKAROUND(GAP-042)` marker; it is a docs gap, not a code workaround. (Checked by `grep -rn 'separate-impls\|W3055'` over `*.jac`, `*.toml`.)
 
 ## Cause
 Unknown.

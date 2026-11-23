@@ -23,6 +23,7 @@ impl EditBookmark(bookmark_id: int) -> JsxElement {
     }
 
     return <main aria-label="Edit bookmark">
+        <SiteNav />
         <h1>Edit bookmark</h1>
         {[
             <BookmarkForm

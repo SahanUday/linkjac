@@ -41,6 +41,7 @@ impl add_tags(owner: Root, bookmark: Bookmark, names: list[str]) {
 
 impl save_listed(owner: Root, listed: NetscapeBookmark, map_private_flag: bool) {
     bookmark = find_existing(owner, listed.href);
+    is_new = bookmark is None;
     if bookmark is None {
         bookmark = create_bookmark(owner, BookmarkDraft(url=listed.href));
     }
@@ -63,7 +64,8 @@ impl save_listed(owner: Root, listed: NetscapeBookmark, map_private_flag: bool) 
     if map_private_flag and not listed.private {
         bookmark.shared = True;
     }
-    if listed.archived {
+    # The original saves the archived marker only for a bookmark it creates, never for one it updates.
+    if listed.archived and is_new {
         bookmark.is_archived = True;
     }
     add_tags(owner, bookmark, listed.tag_names);

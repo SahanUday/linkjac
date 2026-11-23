@@ -9,6 +9,12 @@ impl TagTable -> JsxElement {
     (params, setParams) = useSearchParams();
     search = params.get("search") or "";
 
+    count_text = (
+        "Showing " + str(len(rows)) + " of " + str(total) + " tags"
+            if search.strip() != "" or unused
+            else str(total) + " tags total"
+    );
+
     async def load(wanted_sort: str, wanted_unused: bool) {
         got = await tag_table(search, wanted_sort, wanted_unused);
         rows = got.rows;
@@ -40,6 +46,7 @@ impl TagTable -> JsxElement {
     }
 
     return <main aria-label="Tags">
+        <SiteNav />
         <h1>Tags</h1>
         <a href="/tags/new">Create Tag</a>
         <form method="get" action="/tags">
@@ -62,7 +69,7 @@ impl TagTable -> JsxElement {
                 Show only unused tags
             </label>
         </form>
-        <p>{"Showing " + str(len(rows)) + " of " + str(total) + " tags"}</p>
+        <p>{count_text}</p>
         <table>
             <thead><tr><th>Name</th><th>Bookmarks</th><th>Actions</th></tr></thead>
             <tbody>

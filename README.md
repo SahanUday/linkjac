@@ -37,9 +37,9 @@ Bytes of source by language (2026-11-23, `.jac` and `.py` files only, no generat
 
 | Folder | Jac | Python |
 |---|---|---|
-| `app/` | 122,746 | 0 |
+| `app/` | 128,259 | 0 |
 | `plugins/` | 9,784 | 0 |
-| `parity/` | 0 | 52,654 |
+| `parity/` | 0 | 62,964 |
 | `tools/` | 0 | 27,910 |
 
 Preview the site: `uv run --with markdown python tools/gaps.py site` then open `site/index.html`.

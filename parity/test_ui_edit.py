@@ -28,10 +28,12 @@ def test_saving_changes_the_bookmark(ui, api, make_bookmark, unique):
     ui.get_by_label("Description").fill("After text")
     ui.get_by_label("Tags", exact=True).fill(f"{unique}-y {unique}-z")
     ui.get_by_label("Mark as unread").check()
+    ui.get_by_text("Notes", exact=True).first.click()
+    ui.get_by_label("Notes", exact=True).fill("After notes")
     ui.get_by_role("button", name="Save").click()
     ui.wait_for_url(f"{BASE_URL}/bookmarks*")
     got = api.get(f"/bookmarks/{made['id']}/").json()
-    assert (got["title"], got["description"], got["unread"]) == ("After", "After text", True)
+    assert (got["title"], got["description"], got["notes"], got["unread"]) == ("After", "After text", "After notes", True)
     assert sorted(got["tag_names"]) == [f"{unique}-y", f"{unique}-z"]
 
 
@@ -51,6 +53,15 @@ def test_the_edit_link_of_an_item_opens_its_form(ui, make_bookmark, unique):
     ui.get_by_role("heading", name="Edit bookmark", level=1).wait_for()
     assert ui.get_by_label("Title").input_value() == f"Linked {unique}"
     assert str(made["id"]) in ui.url
+
+
+def test_saving_an_address_with_spaces_around_it_keeps_the_bare_address(ui, api, make_bookmark, unique):
+    made = make_bookmark(title="Spaced")
+    open_edit(ui, made["id"])
+    ui.get_by_label("URL").fill(f"  https://example.com/{unique}/spaced  ")
+    ui.get_by_role("button", name="Save").click()
+    ui.wait_for_url(f"{BASE_URL}/bookmarks*")
+    assert api.get(f"/bookmarks/{made['id']}/").json()["url"] == f"https://example.com/{unique}/spaced"
 
 
 def test_saving_a_bad_address_is_refused_and_keeps_the_bookmark(ui, api, make_bookmark):
