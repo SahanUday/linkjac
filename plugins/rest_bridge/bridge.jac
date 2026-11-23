@@ -44,10 +44,7 @@ def answer(sent: Request) -> Response;
 """The request for the app's one REST endpoint that stands for `sent`, with `Token` keyword turned into `Bearer`."""
 def rest_call_for(sent: Request) -> Request;
 
-"""The reply to a request under the static prefix: the kept file's content type and bytes, which the app sent as base64 inside its answer."""
-def static_reply_from(inner: Response) -> Response;
-
-"""The reply a client of the REST API sees for what the app's REST endpoint answered; a refused token is linkding's "Invalid token."."""
+"""The reply a client of the REST API sees for what the app's REST endpoint answered; a refused token is linkding's "Invalid token."; a file (`__file__` in the body: content type, base64 bytes, a name) is sent as its bytes."""
 def rest_reply_from(inner: Response) -> Response;
 
 # WORKAROUND(GAP-037): the standard transport cannot be extended, so this one stands in for it (no streams, limits or keep-alive).

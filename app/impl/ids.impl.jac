@@ -17,3 +17,9 @@ impl next_tag_id(owner: Root) -> int {
     counter.last_tag += 1;
     return counter.last_tag;
 }
+
+impl next_asset_id(owner: Root) -> int {
+    counter = counter_of(owner);
+    counter.last_asset += 1;
+    return counter.last_asset;
+}

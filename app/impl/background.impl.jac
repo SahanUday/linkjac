@@ -1,6 +1,8 @@
 glob loading: dict[str, Job[list[str]]] = {},
      failed_at: dict[str, float] = {},
-     seconds_before_retry: float = 60.0;
+     seconds_before_retry: float = 60.0,
+     snapshotting: list[tuple[Asset, Bookmark, Job[str]]] = [],
+     most_snapshots_at_once: int = 2;
 
 def collect_favicons {
     for base in list(loading.keys()) {
@@ -32,15 +34,46 @@ def want_favicon(bookmark: Bookmark) {
     }
 }
 
-impl run_background_work {
-    collect_favicons();
-    for owner in allroots() {
-        profile = find_profile(owner);
-        if profile is None or not profile.enable_favicons {
+def collect_snapshots {
+    still: list[tuple[Asset, Bookmark, Job[str]]] = [];
+    for (asset, bookmark, started) in snapshotting {
+        if not started.done() {
+            still.append((asset, bookmark, started));
             continue;
         }
+        try {
+            complete_snapshot(asset, bookmark, wait started);
+        } except JobFailed {
+            fail_snapshot(asset);
+        }
+    }
+    snapshotting.clear();
+    snapshotting.extend(still);
+}
+
+def is_snapshotting(asset: Asset) -> bool {
+    return any([each[0] is asset for each in snapshotting]);
+}
+
+def want_snapshots(bookmark: Bookmark) {
+    for asset in assets_of(bookmark) {
+        if asset.status == "pending"
+            and not is_snapshotting(asset)
+            and len(snapshotting) < most_snapshots_at_once
+        {
+            snapshotting.append((asset, bookmark, flow load_snapshot(bookmark.url)));
+        }
+    }
+}
+
+impl run_background_work {
+    collect_favicons();
+    collect_snapshots();
+    for owner in allroots() {
+        profile = find_profile(owner);
         for bookmark in list_bookmarks(owner) {
-            if not bookmark.favicon_file {
+            want_snapshots(bookmark);
+            if profile is not None and profile.enable_favicons and not bookmark.favicon_file {
                 want_favicon(bookmark);
             }
         }

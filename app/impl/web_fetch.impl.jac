@@ -28,7 +28,7 @@ impl may_connect(host: str) -> bool {
     return True;
 }
 
-def read_head(response: HTTPResponse) -> bytes {
+def read_body(response: HTTPResponse, head_only: bool) -> bytes {
     content = b"";
     while len(content) <= longest_page {
         part = response.read(chunk_size);
@@ -36,14 +36,14 @@ def read_head(response: HTTPResponse) -> bytes {
             break;
         }
         content += part;
-        if b"</head>" in content {
+        if head_only and b"</head>" in content {
             return content.split(b"</head>")[0] + b"</head>";
         }
     }
     return content;
 }
 
-def get_once(current: str) -> tuple[int, str, bytes] | None {
+def get_once(current: str, head_only: bool) -> tuple[int, str, bytes] | None {
     parts = urlsplit(current);
     if parts.scheme not in ["http", "https"]
         or not parts.hostname
@@ -59,7 +59,7 @@ def get_once(current: str) -> tuple[int, str, bytes] | None {
         connection.request("GET", path, headers={"User-Agent": user_agent});
         response = connection.getresponse();
         where = response.getheader("Location") or "";
-        return (response.status, where, read_head(response));
+        return (response.status, where, read_body(response, head_only));
     } except Exception {
         return None;
     } finally {
@@ -67,10 +67,10 @@ def get_once(current: str) -> tuple[int, str, bytes] | None {
     }
 }
 
-impl fetch_head(url: str) -> str | None {
+impl fetch_page(url: str, head_only: bool = False) -> str | None {
     current = url;
     for _ in range(most_redirects + 1) {
-        got = get_once(current);
+        got = get_once(current, head_only);
         if got is None {
             return None;
         }
@@ -81,4 +81,8 @@ impl fetch_head(url: str) -> str | None {
         return got[2].decode("utf-8", errors="replace");
     }
     return None;
+}
+
+impl fetch_head(url: str) -> str | None {
+    return fetch_page(url, True);
 }

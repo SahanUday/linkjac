@@ -22,5 +22,8 @@ def reply_not_allowed(method: str) -> ApiReply;
 """The 400 reply for a body that is not a JSON object."""
 def reply_not_a_dictionary -> ApiReply;
 
+"""A 200 reply that is a file: the transport sends the bytes (base64 text) with `content_type`, as a download named `filename` unless that is empty."""
+def reply_file(content_type: str, data: str, filename: str) -> ApiReply;
+
 """A reply with no body."""
 def reply_empty(status: int) -> ApiReply;

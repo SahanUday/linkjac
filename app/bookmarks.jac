@@ -17,7 +17,21 @@ node Bookmark {
         favicon_file: str = "";
 }
 
+"""A file kept for a bookmark: today the snapshot of its page, `pending` until background work fills it in."""
+node Asset {
+    has id: int,
+        date_created: datetime,
+        asset_type: str = "snapshot",
+        content_type: str = "",
+        display_name: str = "New snapshot",
+        status: str = "pending",
+        file_size: int = 0,
+        data: str = "";
+}
+
 edge Tagged: Bookmark --> Tag {}
+
+edge HasAsset: Bookmark --> Asset {}
 
 """What a client gives to save or change a bookmark, with tags as comma-separated text."""
 obj BookmarkDraft {

@@ -91,6 +91,9 @@ def create_reply(call: ApiCall, owner: Root) -> ApiReply {
         return refused(reading);
     }
     made = create_bookmark(owner, reading.draft);
+    if "disable_html_snapshot" not in call.query and not assets_of(made) {
+        ask_for_snapshot(owner, made);
+    }
     if "disable_scraping" not in call.query {
         enhance_with_website_metadata(made);
     }
@@ -159,6 +162,13 @@ impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
             return check_route(call, owner);
         }
         return one_reply(call, owner, call.segments[1]);
+    }
+    if len(call.segments) >= 3 and call.segments[2] == "assets" {
+        found = find_bookmark(owner, id_in_path(call.segments[1]));
+        if found is None {
+            return missing_bookmark();
+        }
+        return assets_route(call, found, call.segments[3:]);
     }
     if len(call.segments) == 3 and call.segments[2] in ["archive", "unarchive"] {
         return set_archived_reply(call, owner, call.segments[1], call.segments[2] == "archive");

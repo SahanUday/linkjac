@@ -42,13 +42,15 @@ export FIXTURE_URL="http://127.0.0.1:$fixture_port"
 export LD_ALLOWED_INTERNAL_HOSTS=127.0.0.1
 # The favicon provider is the fixture site too.
 export LD_FAVICON_PROVIDER="$FIXTURE_URL/favicon/{domain}"
+export LD_ENABLE_SNAPSHOTS=True
 wait_for "$FIXTURE_URL/__seen"
 
 if [ -z "${LINKDING_URL:-}" ] && [ "$target" = "original" ]; then
   port="${PARITY_PORT:-8000}"
   ss -ltn | grep -q ":$port " && { echo "port $port is busy"; exit 1; }
   cd "$original"
-  # Background tasks stay on: the account that wants favicons is parity3 alone.
+  # Background tasks stay on: the account that wants favicons and snapshots is parity3 alone. The real single-file needs a browser, so a script that only fetches the page stands in.
+  export LD_SINGLEFILE_PATH="$here/single_file_stub.py" LD_SINGLEFILE_UBLOCK_OPTIONS=""
   # The original keeps a site's favicon for a day, so one fetched in an earlier run would stand in for the fixture's.
   rm -f data/favicons/http_127_0_0_1.*
   users="$(uv run manage.py shell < "$here/ensure_original_user.py")"

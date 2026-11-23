@@ -14,16 +14,17 @@ impl Gateway.relay(method: str) {
         body=body,
         client=self.client_address[0],
     );
-    if sent.path.startswith(prefix_now) {
+    if sent.path.startswith(prefix_now) or is_static(sent.path) {
         reply = rest_reply_from(answer(rest_call_for(sent)));
-    } elif static_now and sent.path.startswith(static_now) {
-        reply = static_reply_from(answer(rest_call_for(sent)));
     } else {
         reply = answer(sent);
     }
     self.send_response(reply.status);
     if reply.body {
         self.send_header("Content-Type", reply.ctype);
+    }
+    for (name, value) in reply.headers.items() {
+        self.send_header(name, value);
     }
     self.send_header("Content-Length", str(len(reply.body)));
     self.end_headers();
@@ -95,6 +96,17 @@ def json_reply(status: int, value: any) -> Response {
     );
 }
 
+def file_reply(kept: dict[str, str]) -> Response {
+    named = {"Content-Disposition": f'attachment; filename="{kept["name"]}"'} if kept["name"] else {};
+    return Response(
+        status=200,
+        ctype=kept["type"],
+        body=base64.b64decode(kept["base64"]),
+        headers=named,
+        events=None,
+    );
+}
+
 # WORKAROUND(GAP-034): the app's auth answers a Token it cannot read in its own form; linkding's clients expect {"detail": "Invalid token."}.
 impl rest_reply_from(inner: Response) -> Response {
     if inner.status == 401 {
@@ -104,6 +116,9 @@ impl rest_reply_from(inner: Response) -> Response {
         decoded = json.loads(inner.body.decode("utf-8"));
         if inner.status == 200 and decoded["ok"] {
             data = decoded["data"];
+            if data["status"] == 200 and data["body"].startswith('{"__file__"') {
+                return file_reply(json.loads(data["body"])["__file__"]);
+            }
             return Response(
                 status=data["status"],
                 ctype="application/json",
@@ -118,31 +133,6 @@ impl rest_reply_from(inner: Response) -> Response {
             500, {"detail": "The app answered in a form the REST bridge does not know."}
         );
     }
-}
-
-impl static_reply_from(inner: Response) -> Response {
-    try {
-        decoded = json.loads(inner.body.decode("utf-8"));
-        if inner.status == 200 and decoded["ok"] {
-            data = decoded["data"];
-            if data["status"] != 200 {
-                return json_reply(data["status"], {"detail": "Not found."});
-            }
-            kept = json.loads(data["body"]);
-            return Response(
-                status=200,
-                ctype=kept["type"],
-                body=base64.b64decode(kept["base64"]),
-                headers={},
-                events=None,
-            );
-        }
-    } except (ValueError, KeyError, TypeError, AttributeError) {
-        return json_reply(
-            500, {"detail": "The app answered in a form the REST bridge does not know."}
-        );
-    }
-    return json_reply(500, {"detail": "The app did not answer a static request."});
 }
 
 impl RestBridge.open(host: dyn Host) {}

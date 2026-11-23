@@ -70,6 +70,9 @@ impl set_archived(bookmark: Bookmark, archived: bool) -> Bookmark {
 }
 
 impl delete_bookmark(bookmark: Bookmark) {
+    for asset in [bookmark ->:HasAsset:->] {
+        remove(asset);
+    }
     remove(bookmark);
 }
 

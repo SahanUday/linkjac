@@ -34,11 +34,12 @@ graph layers {
     layer net { web_fetch | website; }
 
     """Work done apart from requests: icons fetched by jobs and kept, started by one scheduled function."""
-    layer background { favicons | favicon_job | background; }
+    layer background { favicons | favicon_job | snapshot_job | assets | background; }
 
     """The REST layer: linkding's /api/ over the domain."""
     layer rest {
         rest
+            | rest_assets
             | rest_static
             | rest_check
             | rest_call
@@ -69,7 +70,10 @@ graph spaces {
             | website
             | favicons
             | favicon_job
+            | snapshot_job
+            | assets
             | background
+            | rest_assets
             | rest_static
             | web_settings
             | rest_check
@@ -102,6 +106,7 @@ graph import {
     edge Reads: net --> rest;
     edge Describes: domain --> net;
     edge Keeps: domain --> background;
+    edge Fetches: net --> background;
     edge Serves: background --> rest;
     edge Shows: web --> ui;
     edge Builds: ui --> pages;
@@ -199,8 +204,30 @@ graph import {
         keep_favicon,
     }
     favicon_job ++> background { load_favicon }
+    snapshot_job ++> background { load_snapshot }
+    web_fetch ++> snapshot_job { fetch_page }
+    bookmarks ++> assets { Asset, HasAsset, Bookmark, touch }
+    ids ++> assets { next_asset_id }
+    clock ++> assets { now_utc }
+    profiles ++> assets { profile_of }
+    assets ++> background { Asset, assets_of, complete_snapshot, fail_snapshot }
+    assets ++> rest_bookmarks { ask_for_snapshot, assets_of }
+    assets ++> rest_assets { Asset, assets_of, find_asset, delete_asset }
+    bookmarks ++> rest_assets { Bookmark }
+    rest_call ++> rest_assets { ApiCall, id_in_path }
+    rest_paging ++> rest_assets { window_of, page_of }
+    rest_forms ++> rest_assets { iso_utc }
+    rest_reply ++> rest_assets {
+        ApiReply,
+        reply_detail,
+        reply_json,
+        reply_empty,
+        reply_not_allowed,
+        reply_file,
+    }
+    rest_assets ++> rest_bookmarks { assets_route }
     favicons ++> rest_static { find_favicon }
-    rest_reply ++> rest_static { ApiReply, reply_not_allowed, reply_detail, reply_json }
+    rest_reply ++> rest_static { ApiReply, reply_not_allowed, reply_detail, reply_file }
     rest_static ++> rest { static_route }
     profiles ++> web_settings { profile_of }
     web_fetch ++> website { fetch_head }
