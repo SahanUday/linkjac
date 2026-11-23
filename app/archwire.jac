@@ -30,9 +30,13 @@ graph layers {
     """The pages the browser shows."""
     layer pages { pages.*; }
 
+    """Reading web pages: fetching one and what it says about itself."""
+    layer net { web_fetch | website; }
+
     """The REST layer: linkding's /api/ over the domain."""
     layer rest {
         rest
+            | rest_check
             | rest_call
             | rest_reply
             | rest_forms
@@ -57,6 +61,9 @@ graph spaces {
             | netscape_parse
             | netscape_export
             | netscape_import
+            | web_fetch
+            | website
+            | rest_check
             | admin
             | web_list
             | web_form
@@ -83,6 +90,7 @@ graph spaces {
 graph import {
     """The REST layer is written over the domain."""
     edge Exposes: domain --> rest | service | web;
+    edge Reads: net --> rest;
     edge Shows: web --> ui;
     edge Builds: ui --> pages;
     edge Calls: service --> client;
@@ -169,6 +177,13 @@ graph import {
     netscape_export ++> admin { export_netscape }
     bookmarks ++> admin { list_bookmarks }
     admin ++> cli { import_bookmarks, export_bookmarks }
+    web_fetch ++> website { fetch_head }
+    website ++> rest_check { load_website_metadata }
+    rest_call ++> rest_check { ApiCall, query_value }
+    rest_reply ++> rest_check { ApiReply, reply_not_allowed, reply_json }
+    bookmarks ++> rest_check { find_existing }
+    rest_forms ++> rest_check { bookmark_json }
+    rest_check ++> rest_bookmarks { check_route }
     rest_call ++> rest_user { ApiCall }
     rest_reply ++> rest_user { ApiReply, reply_not_allowed, reply_detail, reply_json }
     rest_forms ++> rest_user { profile_json }

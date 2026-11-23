@@ -14,6 +14,7 @@ BASE_URL = os.environ.get("LINKDING_URL", "http://127.0.0.1:8000").rstrip("/")
 TOKEN = os.environ.get("LINKDING_TOKEN", "")
 TOKEN_OTHER = os.environ.get("LINKDING_TOKEN_OTHER", "")
 RESULTS_PATH = os.environ.get("PARITY_RESULTS", "")
+FIXTURE = os.environ.get("FIXTURE_URL", "http://127.0.0.1:9100").rstrip("/")
 # Skips the network fetch and the web archive lookup, so checks do not depend on the internet.
 QUIET = {"disable_scraping": "", "disable_html_snapshot": ""}
 
@@ -36,6 +37,15 @@ def other_api():
         pytest.fail("LINKDING_TOKEN_OTHER is not set: the target needs a second account")
     with httpx.Client(base_url=f"{BASE_URL}/api", headers={"Authorization": f"Token {TOKEN_OTHER}"}, timeout=20) as client:
         yield client
+
+
+def wipe_account(client):
+    """Deletes every bookmark (live and archived) and every tag of the client's account."""
+    for path in ("/bookmarks/?limit=1000", "/bookmarks/archived/?limit=1000"):
+        for bookmark in client.get(path).json()["results"]:
+            client.delete(f"/bookmarks/{bookmark['id']}/")
+    for tag in client.get("/tags/?limit=1000").json()["results"]:
+        client.delete(f"/tags/{tag['id']}/")
 
 
 class WebNetscape:

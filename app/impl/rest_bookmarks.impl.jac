@@ -146,6 +146,9 @@ impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
         if call.segments[1] == "shared" {
             return shared_route(call, False);
         }
+        if call.segments[1] == "check" {
+            return check_route(call, owner);
+        }
         return one_reply(call, owner, call.segments[1]);
     }
     if len(call.segments) == 3 and call.segments[2] in ["archive", "unarchive"] {

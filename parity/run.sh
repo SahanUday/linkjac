@@ -12,8 +12,10 @@ export PARITY_RESULTS="$here/results.json"
 rm -f "$PARITY_RESULTS"
 
 server_pid=""
+fixture_pid=""
 work=""
 stop_server() {
+  [ -n "$fixture_pid" ] && kill -- "-$fixture_pid" 2>/dev/null || true
   [ -n "$server_pid" ] && kill -- "-$server_pid" 2>/dev/null || true
   [ -n "$work" ] && rm -rf "$work" || true
 }
@@ -23,6 +25,16 @@ wait_for() { # url
   for _ in $(seq 60); do curl -s -o /dev/null "$1" && return 0; sleep 0.5; done
   echo "server did not answer at $1"; return 1
 }
+
+# The local web site every network check points at, so no check touches the internet (parity/fixture_server.py).
+fixture_port="${FIXTURE_PORT:-9100}"
+ss -ltn | grep -q ":$fixture_port " && { echo "port $fixture_port is busy"; exit 1; }
+setsid python3 "$here/fixture_server.py" "$fixture_port" >/dev/null 2>&1 &
+fixture_pid=$!
+export FIXTURE_URL="http://127.0.0.1:$fixture_port"
+# Both apps may fetch from the fixture's address and no other private one (the original's own setting, read by the port too).
+export LD_ALLOWED_INTERNAL_HOSTS=127.0.0.1
+wait_for "$FIXTURE_URL/__seen"
 
 if [ -z "${LINKDING_URL:-}" ] && [ "$target" = "original" ]; then
   port="${PARITY_PORT:-8000}"
