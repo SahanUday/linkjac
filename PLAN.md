@@ -123,7 +123,7 @@ Built `app/web_list.jac` (a `:protect` function `bookmark_page(q, page, archived
 Done-when for M4 is met after S4. The session that wrote this list stopped there, as asked.
 
 - [x] S1 list page: items, order, search box and `q`, tags region, tag links, 30 per page, Previous and Next (spike above; 7 checks, original 7/7, port 7/7)
-- [ ] S2 add: `/bookmarks/new` with URL, Tags, Title, Description, Notes, unread and share boxes; same URL updates; invalid URL error
+- [x] S2 add: `/bookmarks/new` with URL, Tags (space-separated), Title, Description, Notes, unread box; same URL updates; invalid URL error; Cancel (6 checks, `parity/test_ui_add.py`; original 6/6, port 6/6; a mutant that broke tag splitting and the error text failed 2 of them)
 - [ ] S3 edit: `/bookmarks/<id>/edit`, Cancel
 - [ ] S4 tags page: `/tags` with counts, sort, unused-only filter, new, rename, remove
 - [ ] S5 remove and archive on the list; archived list and unarchive

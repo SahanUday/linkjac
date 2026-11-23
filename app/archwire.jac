@@ -22,7 +22,7 @@ graph layers {
     layer client { cli; }
 
     """What the web pages ask the server for."""
-    layer web { web_list; }
+    layer web { web_list | web_form; }
 
     """The pages the browser shows."""
     layer pages { pages.*; }
@@ -56,6 +56,7 @@ graph spaces {
             | netscape_import
             | admin
             | web_list
+            | web_form
             | rest
             | rest_call
             | rest_reply
@@ -175,5 +176,8 @@ graph import {
     tags ++> web_list { name_key }
     profiles ++> web_list { profile_of }
     search ++> web_list { BookmarkFilter, search_bookmarks }
-    web_list ++> pages.bookmarks { bookmark_page, ListedBookmark, ListedTag }
+    web_list ++> pages.bookmarks.index { bookmark_page, ListedBookmark, ListedTag }
+    urls ++> web_form { is_valid_url }
+    bookmarks ++> web_form { BookmarkDraft, create_bookmark }
+    web_form ++> pages.bookmarks.new { save_bookmark }
 }
