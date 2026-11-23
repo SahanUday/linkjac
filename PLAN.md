@@ -72,6 +72,66 @@ Counts are reported as two numbers: original (must stay 33 of 33 plus what is ad
 - [x] S6 admin commands: `import <file> [--map-private-flag]` and `export [<file>]`, as the signed-in token holder (GAP-040); the original's other commands are not ported (see Known deviations)
 - [x] S7 7 checks on both targets (`parity/test_netscape.py`): the original through its web import form and export view, the port through its CLI; the API shows the same bookmarks and the exported text is the same. Original 78/78, port 78/78
 
+### M4
+
+#### UI parity method
+
+What is compared: structure and behaviour, never pixels, class names, markup or CSS. The same Playwright checks (`parity/test_ui_*.py`, Python, `LINKDING_URL`) run against both targets, and are run on the original first; a check that fails on the original is wrong and is fixed there before the port is tried. Each check drives the page by role and accessible name (`get_by_role`, `get_by_label`), the way `neojac browse snapshot` prints the page, and asserts: (1) the outline of a region as a list of (role, name) with dates, ids and "Today" normalised away; (2) what a user action does, read both from the page afterwards and from the API (`/api/`, which both targets answer the same); (3) status and address after navigation. A difference that can only be matched by copying linkding's web components or markup is not matched: it is logged as a gap or a deviation, with the check marked `expected_gap("GAP-nnn")`. Sign-in: the original's own `/login/` form; the port's runs through the `accounts` plugin (`sign_in()` shows the runtime's own form, GAP to be filed with the first page that needs it), so login is checked as behaviour (an anonymous visit leads to a sign-in, a wrong password is refused with a message, a right one reaches the list), not as a form outline.
+
+The pages and actions of the original (from `bookmarks/urls.py`, the templates and `neojac browse` on the running original), and what each check pins:
+
+| Page / action | Original's address | Behaviour to check |
+|---|---|---|
+| Root | `/` | Anonymous: leads to login. Signed in: leads to `/bookmarks`. |
+| Login, logout | `/login/`, `/logout/` | Fields Username and Password, button Login. Wrong password: stays on the form with an error. Right one: `/bookmarks`. Logout button ends the session; `/bookmarks` then leads to login. |
+| Bookmark list | `/bookmarks` | Heading "Bookmarks"; one list item per bookmark, newest first; each item: title link (the URL when no title), `#tag` links, description, date link, View, Edit, Archive, Remove. Empty state when none. Side regions: Tags (tag links with counts, alphabetical). |
+| Pagination | `/bookmarks?page=n` | 30 items per page (profile `bookmarks_per_page`, API default of the profile); Previous, page numbers, Next; page 2 holds the next 30. |
+| Search | `/bookmarks?q=...` | Search box "Search for words or #tags"; submitting filters like the API's `q`; clicking a `#tag` link adds the tag to the query; an empty result shows the empty state. |
+| Search preferences | the dropdown on the list | Sort by (added/title, asc/desc), shared filter, unread filter change the order and the list. |
+| Add | `/bookmarks/new` | Fields URL, Tags, Title, Description, Notes, Mark as unread, Share; Save creates and returns to the list; the same URL again updates that bookmark; an invalid URL shows an error and creates nothing; tags typed with spaces and commas become tags. |
+| Edit | `/bookmarks/<id>/edit` | Same fields filled with the bookmark's; Save changes it; Cancel changes nothing. |
+| Remove | the Remove button | Removes the bookmark (after the page's own confirmation); it is gone from list and API. |
+| Archive, Unarchive | Archive button, `/bookmarks/archived` | Moves the bookmark to the archived list and back; the main list no longer shows it. |
+| Bulk edit | "Bulk edit" button | Checkboxes appear; actions archive, unarchive, delete, tag, untag, mark read, share, unshare on the selected; "select across" applies to every match. |
+| Details, View | the View link | The bookmark's details (notes, dates, tags). |
+| Tags page | `/tags` | Lists tags with counts; sort; "Show only unused tags"; New, Edit (rename), Remove, Merge. |
+| Shared list | `/bookmarks/shared` | Only shared bookmarks; own and others' by `user` filter. |
+| Settings | `/settings/general`, `/settings/integrations` | The profile fields (theme, items per page, tag search mode, sharing, ...) save and change the list. API token creation under integrations. |
+| Import, export | `/settings/general` form, `/settings/export` | Import a Netscape file through the form; export downloads the same text as M3's export (M3 covers the file; M4 covers the form). |
+| Bundles, favicons, previews, assets, feeds, bookmarklet | | Out of M4: bundles are not in the API either; the rest need M5 jobs or files. |
+
+#### What neojac's docs support for a web UI (read 2026-11-23; `neojac docs search` for pages, browse, template, ui plugin)
+
+- A `browser` space whose modules under `pages/` are routes (`apps/pages`): `pages/bookmarks.jac` is `/bookmarks`, a `page` function returns JSX, `has` is state, `can with entry` an effect; React is the `ui` plugin with file routes, built by Vite from an `[npm.web]` tree in `jac.toml` and `eco/web/{index.html,vite.config.ts}`.
+- A page calls the server's `:pub` and `:protect` functions as ordinary async calls; the archwire wires each one to the page (`apps/crossings`, `apps/pages` "Calling the server").
+- Sign-in: `sign_in()` from `@jac/runtime` shows the `auth` plugin's own form over the page (`apps/pages` "Signing in"); the page cannot supply its own login form.
+- `import "./x.css";` puts a style sheet in the bundle (`apps/pages` "npm packages and style sheets"). There are no server-rendered templates: a page is HTML made in the browser, so `curl` sees an empty shell.
+- Checking: `neojac browse` (open, snapshot, click, fill, wait, errors) drives a pinned headless Chrome and prints the page as an accessibility outline (`toolchain/browse`).
+- Found by `neojac docs search` to have no page on them (searched 2026-11-23, "server-side rendering", "redirect", "cookie", "Content-Disposition", "download file"): server-side rendering; an HTTP redirect an app answers with (the hits are `urllib` and the sign-in's own `redirect` field); a cookie an app sets (the hits are the `http` library and `neojac browse`); a response header such as `Content-Disposition` (no page mentions it), which the export download needs. "No page found by that search" is not proof that none exists. Each is logged as a gap when the slice that needs it is reached.
+
+#### Spike: the bookmark list (2026-11-23)
+
+Built `app/web_list.jac` (a `:protect` function `bookmark_page(q, page, archived)` giving one page of bookmarks and the tags of the matches), `app/pages/bookmarks.jac` and its impl, the `site` browser space, `app api { run api; serve site; }`, `eco/web/`, `[npm.web]`. Shown:
+- The whole route works through the project's own `rest_bridge` transport: it serves the bundle (HTML shell at `/bookmarks`, assets under `/assets/`) and the page's calls, with no change to the plugin. This was not expected (GAP-037: the bridge stands in for the standard transport); it was not measured whether it serves everything the standard transport does for a bundle (cache headers, 404 and 403 rules).
+- The built program is now a directory (`dist/api-<platform>/api` and `pages/site/`), as `neojac docs apps/index` says; `parity/run.sh` was changed to run `.../api`.
+- The page's structure matches the original's in roles and names: a heading, a search box, a "Bookmark list" region of list items (title link, `#tag` links, description, Edit, Archive, Remove), a pagination list (Previous, page numbers, Next) and a "Tags" region. 7 checks (`parity/test_ui_list.py`): original 7/7 (run first), port 7/7.
+- Gaps found: GAP-042 (the default lint refuses the inline page bodies every docs example shows; `neojac fmt --fix pages` moves them to `pages/impl/`), GAP-043 (a page cannot build the obj of the server's space: `this.init is not a function`; worked around with one `has` per field).
+- Differences kept, not matched: the sign-in is the plugin's dialog, not linkding's `/login/` page; the list is filled after the page loads (the checks wait for the network to go quiet; the original sends the list in the page); the tag region lists tag names as plain links (linkding groups them by letter, with a count link); the original's date link, "View" link, bundles region, "Bulk edit" button and search preferences menu are not on the port's list yet; the original's pagination shows "..." gaps for long ranges and the port lists every page number.
+
+#### Slices
+
+Done-when for M4 is met after S4. The session that wrote this list stopped there, as asked.
+
+- [x] S1 list page: items, order, search box and `q`, tags region, tag links, 30 per page, Previous and Next (spike above; 7 checks, original 7/7, port 7/7)
+- [ ] S2 add: `/bookmarks/new` with URL, Tags, Title, Description, Notes, unread and share boxes; same URL updates; invalid URL error
+- [ ] S3 edit: `/bookmarks/<id>/edit`, Cancel
+- [ ] S4 tags page: `/tags` with counts, sort, unused-only filter, new, rename, remove
+- [ ] S5 remove and archive on the list; archived list and unarchive
+- [ ] S6 sign-in and root: anonymous visit leads to sign-in, wrong password refused, `/` leads to the list, sign out
+- [ ] S7 search preferences: sort, shared and unread filters; unread and shared marks on items
+- [ ] S8 bulk edit
+- [ ] S9 settings page (profile fields) and the import and export form
+
 ## Port usage
 
 Per unit of the original: what `neojac port --check` said, and what the app's code is. "As-is" = port's output used unchanged; "raw material" = port's output read and then rewritten; "by hand" = designed without port output. "Run when" says whether the check was run before the work (as CLAUDE.md asks) or only afterwards, on 2026-11-23, for this table (re-run on a copy in `~/.claude-scratch/linkjac/port-usage/`; the result of that re-run is what is shown, its refusal lines are the first ones counted by kind, not a full list).

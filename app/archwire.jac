@@ -21,6 +21,12 @@ graph layers {
     """Programs that call the server."""
     layer client { cli; }
 
+    """What the web pages ask the server for."""
+    layer web { web_list; }
+
+    """The pages the browser shows."""
+    layer pages { pages.*; }
+
     """The REST layer: linkding's /api/ over the domain."""
     layer rest {
         rest
@@ -49,6 +55,7 @@ graph spaces {
             | netscape_export
             | netscape_import
             | admin
+            | web_list
             | rest
             | rest_call
             | rest_reply
@@ -59,15 +66,18 @@ graph spaces {
             | rest_user;
     }
 
+    space site: browser { pages.*; }
+
     space cli: native { entry cli; }
 
-    app api { run api; }
+    app api { run api; serve site; }
     app cli { run cli; }
 }
 
 graph import {
     """The REST layer is written over the domain."""
-    edge Exposes: domain --> rest | service;
+    edge Exposes: domain --> rest | service | web;
+    edge Shows: web --> pages;
     edge Calls: service --> client;
 
     clock ++> tags | bookmarks { now_utc }
@@ -161,4 +171,9 @@ graph import {
     rest_reply ++> rest { ApiReply, reply_detail }
     rest_tags ++> rest { tags_route }
     rest_bookmarks ++> rest { bookmarks_route, shared_route }
+    bookmarks ++> web_list { Bookmark, tag_names_of }
+    tags ++> web_list { name_key }
+    profiles ++> web_list { profile_of }
+    search ++> web_list { BookmarkFilter, search_bookmarks }
+    web_list ++> pages.bookmarks { bookmark_page, ListedBookmark, ListedTag }
 }

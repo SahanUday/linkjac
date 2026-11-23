@@ -22,3 +22,16 @@ public_call_path = "/__jac/call/api/rest/handle_public"
 # The address the cli app calls by default (neojac docs apps/crossings); JAC_REMOTE_API overrides it where the program runs.
 [apps.cli.remote]
 api = "http://127.0.0.1:8000"
+
+[npm.web]
+private = true
+type = "module"
+
+[npm.web.dependencies]
+react = "^19.1.0"
+react-dom = "^19.1.0"
+react-router-dom = "^7.6.0"
+
+[npm.web.devDependencies]
+"@vitejs/plugin-react" = "^5.0.0"
+vite = "^7.1.0"
