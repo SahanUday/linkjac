@@ -2,6 +2,7 @@
 
 import json
 import os
+import time
 import subprocess
 import uuid
 
@@ -13,6 +14,7 @@ pytest_plugins = ["ui"]
 BASE_URL = os.environ.get("LINKDING_URL", "http://127.0.0.1:8000").rstrip("/")
 TOKEN = os.environ.get("LINKDING_TOKEN", "")
 TOKEN_OTHER = os.environ.get("LINKDING_TOKEN_OTHER", "")
+TOKEN_JOBS = os.environ.get("LINKDING_TOKEN_JOBS", "")
 RESULTS_PATH = os.environ.get("PARITY_RESULTS", "")
 FIXTURE = os.environ.get("FIXTURE_URL", "http://127.0.0.1:9100").rstrip("/")
 # Skips the network fetch and the web archive lookup, so checks do not depend on the internet.
@@ -46,6 +48,27 @@ def wipe_account(client):
             client.delete(f"/bookmarks/{bookmark['id']}/")
     for tag in client.get("/tags/?limit=1000").json()["results"]:
         client.delete(f"/tags/{tag['id']}/")
+
+
+@pytest.fixture(scope="session")
+def jobs_api():
+    """A client for the account whose profile has favicons and snapshots on; the background-job checks use it alone."""
+    if not TOKEN_JOBS:
+        pytest.fail("LINKDING_TOKEN_JOBS is not set: the target needs an account with favicons and snapshots on")
+    with httpx.Client(base_url=f"{BASE_URL}/api", headers={"Authorization": f"Token {TOKEN_JOBS}"}, timeout=20) as client:
+        yield client
+        wipe_account(client)
+
+
+def eventually(read, seconds=40):
+    """Polls `read()` until it gives something other than None or False, and returns that; the jobs run on their own time."""
+    deadline = time.time() + seconds
+    while time.time() < deadline:
+        found = read()
+        if found:
+            return found
+        time.sleep(0.5)
+    return read()
 
 
 class WebNetscape:

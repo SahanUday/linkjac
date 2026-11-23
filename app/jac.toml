@@ -18,6 +18,7 @@ plugin = "rest_bridge"
 api_prefix = "/api/"
 call_path = "/__jac/call/api/rest/handle"
 public_call_path = "/__jac/call/api/rest/handle_public"
+static_prefix = "/static/"
 
 # The address the cli app calls by default (neojac docs apps/crossings); JAC_REMOTE_API overrides it where the program runs.
 [apps.cli.remote]

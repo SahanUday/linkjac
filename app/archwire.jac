@@ -22,7 +22,7 @@ graph layers {
     layer client { cli; }
 
     """What the web pages ask the server for."""
-    layer web { web_list | web_form | web_tags | web_actions; }
+    layer web { web_list | web_form | web_tags | web_actions | web_settings; }
 
     """Parts of pages: the list and the form."""
     layer ui { ui.*; }
@@ -33,9 +33,13 @@ graph layers {
     """Reading web pages: fetching one and what it says about itself."""
     layer net { web_fetch | website; }
 
+    """Work done apart from requests: icons fetched by jobs and kept, started by one scheduled function."""
+    layer background { favicons | favicon_job | background; }
+
     """The REST layer: linkding's /api/ over the domain."""
     layer rest {
         rest
+            | rest_static
             | rest_check
             | rest_call
             | rest_reply
@@ -63,6 +67,11 @@ graph spaces {
             | netscape_import
             | web_fetch
             | website
+            | favicons
+            | favicon_job
+            | background
+            | rest_static
+            | web_settings
             | rest_check
             | admin
             | web_list
@@ -91,6 +100,9 @@ graph import {
     """The REST layer is written over the domain."""
     edge Exposes: domain --> rest | service | web;
     edge Reads: net --> rest;
+    edge Describes: domain --> net;
+    edge Keeps: domain --> background;
+    edge Serves: background --> rest;
     edge Shows: web --> ui;
     edge Builds: ui --> pages;
     edge Calls: service --> client;
@@ -177,8 +189,23 @@ graph import {
     netscape_export ++> admin { export_netscape }
     bookmarks ++> admin { list_bookmarks }
     admin ++> cli { import_bookmarks, export_bookmarks }
+    bookmarks ++> website { Bookmark }
+    bookmarks ++> background { Bookmark, list_bookmarks }
+    profiles ++> background { find_profile }
+    favicons ++> background {
+        favicon_base_name,
+        provider_address,
+        find_favicon_of_site,
+        keep_favicon,
+    }
+    favicon_job ++> background { load_favicon }
+    favicons ++> rest_static { find_favicon }
+    rest_reply ++> rest_static { ApiReply, reply_not_allowed, reply_detail, reply_json }
+    rest_static ++> rest { static_route }
+    profiles ++> web_settings { profile_of }
     web_fetch ++> website { fetch_head }
     website ++> rest_check { load_website_metadata }
+    website ++> rest_bookmarks { enhance_with_website_metadata }
     rest_call ++> rest_check { ApiCall, query_value }
     rest_reply ++> rest_check { ApiReply, reply_not_allowed, reply_json }
     bookmarks ++> rest_check { find_existing }

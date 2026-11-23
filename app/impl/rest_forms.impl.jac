@@ -14,7 +14,7 @@ impl tag_json(tag: Tag) -> dict[str, any] {
     return {"id": tag.id, "name": tag.name, "date_added": iso_utc(tag.date_added)};
 }
 
-impl bookmark_json(bookmark: Bookmark) -> dict[str, any] {
+impl bookmark_json(bookmark: Bookmark, origin: str = "") -> dict[str, any] {
     return {
         "id": bookmark.id,
         "url": bookmark.url,
@@ -22,7 +22,9 @@ impl bookmark_json(bookmark: Bookmark) -> dict[str, any] {
         "description": bookmark.description,
         "notes": bookmark.notes,
         "web_archive_snapshot_url": archive_url_of(bookmark),
-        "favicon_url": None,
+        "favicon_url": origin + "/static/" + bookmark.favicon_file
+            if bookmark.favicon_file
+            else None,
         "preview_image_url": None,
         "is_archived": bookmark.is_archived,
         "unread": bookmark.unread,

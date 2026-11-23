@@ -21,7 +21,10 @@ def filter_of(call: ApiCall, owner: Root, archived: bool) -> BookmarkFilter {
 
 def page_reply(call: ApiCall, route: str, found: list[Bookmark]) -> ApiReply {
     window = window_of(call);
-    rows = [bookmark_json(b) for b in found[window.offset:window.offset + window.limit]];
+    rows = [
+        bookmark_json(b, call.origin)
+        for b in found[window.offset:window.offset + window.limit]
+    ];
     return reply_json(200, page_of(call, route, window, len(found), rows));
 }
 
@@ -87,7 +90,11 @@ def create_reply(call: ApiCall, owner: Root) -> ApiReply {
     if reading.errors {
         return refused(reading);
     }
-    return reply_json(201, bookmark_json(create_bookmark(owner, reading.draft)));
+    made = create_bookmark(owner, reading.draft);
+    if "disable_scraping" not in call.query {
+        enhance_with_website_metadata(made);
+    }
+    return reply_json(201, bookmark_json(made, call.origin));
 }
 
 def has_other_with_url(owner: Root, bookmark: Bookmark, url: str) -> bool {
@@ -106,7 +113,9 @@ def change_reply(call: ApiCall, owner: Root, bookmark: Bookmark) -> ApiReply {
     if reading.errors {
         return refused(reading);
     }
-    return reply_json(200, bookmark_json(update_bookmark(owner, bookmark, reading.draft)));
+    return reply_json(
+        200, bookmark_json(update_bookmark(owner, bookmark, reading.draft), call.origin)
+    );
 }
 
 def one_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
@@ -115,7 +124,7 @@ def one_reply(call: ApiCall, owner: Root, text: str) -> ApiReply {
         return missing_bookmark();
     }
     if call.method == "GET" {
-        return reply_json(200, bookmark_json(bookmark));
+        return reply_json(200, bookmark_json(bookmark, call.origin));
     }
     if call.method == "PUT" or call.method == "PATCH" {
         return change_reply(call, owner, bookmark);

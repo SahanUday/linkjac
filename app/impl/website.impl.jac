@@ -44,3 +44,16 @@ impl load_website_metadata(url: str) -> WebsiteMetadata {
     }
     return found;
 }
+
+impl enhance_with_website_metadata(bookmark: Bookmark) {
+    if bookmark.title and bookmark.description {
+        return;
+    }
+    found = load_website_metadata(bookmark.url);
+    if not bookmark.title {
+        bookmark.title = found.title or "";
+    }
+    if not bookmark.description {
+        bookmark.description = found.description or "";
+    }
+}

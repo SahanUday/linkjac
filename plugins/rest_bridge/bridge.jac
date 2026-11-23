@@ -1,6 +1,7 @@
 """Rest bridge: a transport that serves HTTP and hands every request under one path prefix to the app as a single call."""
 
 import json;
+import base64;
 import threading;
 import from http.client { HTTPConnection }
 import from urllib.parse { urlsplit }
@@ -12,6 +13,7 @@ import from transport.contract { Transport, Request, Response, Tick, Claim, Cann
 glob prefix_now: str = "/api/",
      call_now: str = "",
      public_call_now: str = "",
+     static_now: str = "",
      handler_now: Callable[[Request], Response] | None = None;
 
 """The listening socket this transport took for the program."""
@@ -42,6 +44,9 @@ def answer(sent: Request) -> Response;
 """The request for the app's one REST endpoint that stands for `sent`, with `Token` keyword turned into `Bearer`."""
 def rest_call_for(sent: Request) -> Request;
 
+"""The reply to a request under the static prefix: the kept file's content type and bytes, which the app sent as base64 inside its answer."""
+def static_reply_from(inner: Response) -> Response;
+
 """The reply a client of the REST API sees for what the app's REST endpoint answered; a refused token is linkding's "Invalid token."."""
 def rest_reply_from(inner: Response) -> Response;
 
@@ -55,7 +60,8 @@ obj RestBridge(Transport) {
     """The path prefix whose requests become one call of the app: `call_path` is the endpoint for a request with credentials, `public_call_path` for one without."""
     has api_prefix: str = "/api/",
         call_path: str = "",
-        public_call_path: str = "";
+        public_call_path: str = "",
+        static_prefix: str = "";
 
     def open(host: dyn Host);
 

@@ -8,7 +8,7 @@ impl check_route(call: ApiCall, owner: Root) -> ApiReply {
     return reply_json(
         200,
         {
-            "bookmark": bookmark_json(existing) if existing is not None else None,
+            "bookmark": bookmark_json(existing, call.origin) if existing is not None else None,
             "metadata": {
                 "url": found.url,
                 "title": found.title,

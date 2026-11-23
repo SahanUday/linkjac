@@ -21,7 +21,7 @@ def tag_json(tag: Tag) -> dict[str, any];
 def profile_json(profile: UserProfile) -> dict[str, any];
 
 """A bookmark as the API shows it, fields in linkding's order."""
-def bookmark_json(bookmark: Bookmark) -> dict[str, any];
+def bookmark_json(bookmark: Bookmark, origin: str = "") -> dict[str, any];
 
 """`start` with each field the body gives put in its place; a url is required when `url_required`."""
 def read_draft(given: dict[str, any], start: BookmarkDraft, url_required: bool) -> DraftReading;

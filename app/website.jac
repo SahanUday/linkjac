@@ -28,3 +28,6 @@ class MetadataReader(HTMLParser) {
 
 """What the page at `url` says about itself; nothing found when it cannot be read."""
 def load_website_metadata(url: str) -> WebsiteMetadata;
+
+"""Fills the title and description of `bookmark` from its page when they are empty, as linkding does for a bookmark made through the API."""
+def enhance_with_website_metadata(bookmark: Bookmark);

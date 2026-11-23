@@ -42,8 +42,10 @@ class Fixture(BaseHTTPRequestHandler):
             return self.reply(410, "text/html; charset=utf-8", b"<html><head><title>Gone page</title></head></html>")
         if path == "/redirect":
             return self.reply(302, "text/plain", b"", [("Location", "/page")])
-        if path == "/image.png" or path.startswith("/favicon/"):
+        if path == "/image.png":
             return self.reply(200, "image/png", PNG)
+        if path.startswith("/favicon/"):  # a different icon for each domain asked for, so an app that asks for the wrong one shows
+            return self.reply(200, "image/png", PNG + path.rsplit("/", 1)[1].encode())
         return self.reply(404, "text/plain", b"not here")
 
 

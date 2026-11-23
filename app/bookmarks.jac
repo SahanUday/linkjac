@@ -13,7 +13,8 @@ node Bookmark {
         notes: str = "",
         unread: bool = False,
         is_archived: bool = False,
-        shared: bool = False;
+        shared: bool = False,
+        favicon_file: str = "";
 }
 
 edge Tagged: Bookmark --> Tag {}

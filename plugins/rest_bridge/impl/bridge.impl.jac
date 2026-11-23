@@ -16,6 +16,8 @@ impl Gateway.relay(method: str) {
     );
     if sent.path.startswith(prefix_now) {
         reply = rest_reply_from(answer(rest_call_for(sent)));
+    } elif static_now and sent.path.startswith(static_now) {
+        reply = static_reply_from(answer(rest_call_for(sent)));
     } else {
         reply = answer(sent);
     }
@@ -55,6 +57,10 @@ impl answer(sent: Request) -> Response {
     return handle(sent);
 }
 
+def is_static(path: str) -> bool {
+    return bool(static_now) and path.startswith(static_now);
+}
+
 # WORKAROUND(GAP-034): the standard auth plugin reads only `Bearer`, linkding's clients send `Token`.
 impl rest_call_for(sent: Request) -> Request {
     headers = dict(sent.headers);
@@ -71,7 +77,7 @@ impl rest_call_for(sent: Request) -> Request {
     };
     return Request(
         method="POST",
-        path=call_now if given else public_call_now,
+        path=call_now if given and not is_static(sent.path) else public_call_now,
         query="",
         headers=headers,
         body=json.dumps({"args": arguments}).encode("utf-8"),
@@ -112,6 +118,31 @@ impl rest_reply_from(inner: Response) -> Response {
             500, {"detail": "The app answered in a form the REST bridge does not know."}
         );
     }
+}
+
+impl static_reply_from(inner: Response) -> Response {
+    try {
+        decoded = json.loads(inner.body.decode("utf-8"));
+        if inner.status == 200 and decoded["ok"] {
+            data = decoded["data"];
+            if data["status"] != 200 {
+                return json_reply(data["status"], {"detail": "Not found."});
+            }
+            kept = json.loads(data["body"]);
+            return Response(
+                status=200,
+                ctype=kept["type"],
+                body=base64.b64decode(kept["base64"]),
+                headers={},
+                events=None,
+            );
+        }
+    } except (ValueError, KeyError, TypeError, AttributeError) {
+        return json_reply(
+            500, {"detail": "The app answered in a form the REST bridge does not know."}
+        );
+    }
+    return json_reply(500, {"detail": "The app did not answer a static request."});
 }
 
 impl RestBridge.open(host: dyn Host) {}
@@ -156,6 +187,7 @@ impl RestBridge.listen(
     prefix_now = self.api_prefix;
     call_now = self.call_path;
     public_call_now = self.public_call_path;
+    static_now = self.static_prefix;
     handler_now = handle;
     door = claim as Door;
     if listening is not None {

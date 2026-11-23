@@ -39,5 +39,8 @@ kill %1
 ## Workaround
 The bridge hands the whole path to one app endpoint (`rest.handle`), which does the routing, ids included, in Jac (`WORKAROUND(GAP-031)` in `plugins/rest_bridge/bridge.jac`). Cost: a transport plugin of ~200 lines that has to stand in for the standard `http` transport (no streams, no keep-alive, none of its limits: GAP-037).
 
+## Later use (2026-11-23, M5 S3)
+A second need for a path with a variable part: linkding serves a favicon at `/static/<file name>` and its API shows that address in `favicon_url`. The same workaround is used: the bridge has a second prefix (`static_prefix`, `WORKAROUND(GAP-031)` in `plugins/rest_bridge/bridge.jac`) and sends the whole path to `rest.handle_public`, which answers `{type, base64}`; the bridge unpacks it into the bytes and the content type (the app's own replies are JSON, `neojac docs apps/server` "Replies"). `@restspec`'s `produces` (a content type for an unenveloped body) was not tried for bytes, and its path is exact anyway. The served image was fetched with `httpx` in the favicon checks (`parity/test_jobs_favicon.py`, 4/4 on both apps).
+
 ## Cause
 Unknown.

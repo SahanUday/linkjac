@@ -16,6 +16,9 @@ impl handle(method: str, path: str, query: str, body: str, origin: str) -> ApiRe
 }
 
 impl handle_public(method: str, path: str, query: str, body: str, origin: str) -> ApiReply {
+    if path.startswith("/static/") {
+        return static_route(method, path);
+    }
     call = make_call(method, path, query, body, origin);
     if call.segments == ["bookmarks", "shared"] {
         return shared_route(call, True);
