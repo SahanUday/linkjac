@@ -173,5 +173,5 @@ impl bookmarks_route(call: ApiCall, owner: Root) -> ApiReply {
     if len(call.segments) == 3 and call.segments[2] in ["archive", "unarchive"] {
         return set_archived_reply(call, owner, call.segments[1], call.segments[2] == "archive");
     }
-    return reply_detail(404, "Not found.");
+    return reply_not_found();
 }

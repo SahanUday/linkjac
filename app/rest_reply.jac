@@ -10,6 +10,9 @@ obj ApiReply {
 """A reply whose body is the JSON of `value`."""
 def reply_json(status: int, value: any) -> ApiReply;
 
+"""The 404 reply for a path that no route takes."""
+def reply_not_found -> ApiReply;
+
 """A reply of the form {"detail": text}, which linkding uses for every refusal that is not a field error."""
 def reply_detail(status: int, detail: str) -> ApiReply;
 

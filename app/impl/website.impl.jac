@@ -28,7 +28,7 @@ impl MetadataReader.handle_data(data: str) {
 }
 
 impl load_website_metadata(url: str) -> WebsiteMetadata {
-    page = fetch_head(url);
+    page = fetch_page(url, head_only=True);
     found = WebsiteMetadata(url=url);
     if page is None {
         return found;

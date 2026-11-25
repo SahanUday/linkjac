@@ -4,7 +4,7 @@ impl static_route(method: str, path: str) -> ApiReply {
     }
     found = find_favicon(path.removeprefix("/static/"));
     if found is None {
-        return reply_detail(404, "Not found.");
+        return reply_not_found();
     }
     return reply_file(found.content_type, found.data, "");
 }

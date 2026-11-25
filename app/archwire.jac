@@ -144,6 +144,7 @@ graph import {
         reply_detail,
         reply_empty,
         reply_field_errors,
+        reply_not_found,
     }
     rest_forms ++> rest_tags { tag_json }
     profiles ++> rest_forms { UserProfile }
@@ -225,14 +226,15 @@ graph import {
         reply_empty,
         reply_not_allowed,
         reply_file,
+        reply_not_found,
     }
     rest_assets ++> rest_bookmarks { assets_route }
     favicons ++> rest_static { find_favicon }
-    rest_reply ++> rest_static { ApiReply, reply_not_allowed, reply_detail, reply_file }
+    rest_reply ++> rest_static { ApiReply, reply_not_allowed, reply_not_found, reply_file }
     rest_static ++> rest { static_route }
     profiles ++> web_settings { profile_of }
     address_guard ++> web_fetch { checked_addresses }
-    web_fetch ++> website { fetch_head }
+    web_fetch ++> website { fetch_page }
     website ++> rest_check { load_website_metadata }
     website ++> rest_bookmarks { enhance_with_website_metadata }
     rest_call ++> rest_check { ApiCall, query_value }
@@ -241,12 +243,12 @@ graph import {
     rest_forms ++> rest_check { bookmark_json }
     rest_check ++> rest_bookmarks { check_route }
     rest_call ++> rest_user { ApiCall }
-    rest_reply ++> rest_user { ApiReply, reply_not_allowed, reply_detail, reply_json }
+    rest_reply ++> rest_user { ApiReply, reply_not_allowed, reply_json, reply_not_found }
     rest_forms ++> rest_user { profile_json }
     profiles ++> rest_user { profile_of }
     rest_user ++> rest { user_route }
     rest_call ++> rest { make_call }
-    rest_reply ++> rest { ApiReply, reply_detail }
+    rest_reply ++> rest { ApiReply, reply_detail, reply_not_found }
     rest_tags ++> rest { tags_route }
     rest_bookmarks ++> rest { bookmarks_route, shared_route }
     bookmarks ++> web_list { Bookmark, tag_names_of }

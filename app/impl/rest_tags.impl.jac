@@ -51,5 +51,5 @@ impl tags_route(call: ApiCall, owner: Root) -> ApiReply {
     if len(call.segments) == 2 {
         return one_tag_reply(call, owner, call.segments[1]);
     }
-    return reply_detail(404, "Not found.");
+    return reply_not_found();
 }

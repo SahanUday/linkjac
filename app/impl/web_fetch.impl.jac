@@ -36,16 +36,12 @@ def connect_checked(host: str, port: int, secure: bool) -> HTTPConnection | None
     if not addresses {
         return None;
     }
-    if secure {
-        connection: HTTPConnection = HTTPSConnection(host, port);
-        connection.sock = ssl.create_default_context().wrap_socket(
-            open_to(addresses, port), server_hostname=host
-        );
-        return connection;
-    }
-    plain = HTTPConnection(host, port);
-    plain.sock = open_to(addresses, port);
-    return plain;
+    opened = open_to(addresses, port);
+    connection = HTTPSConnection(host, port) if secure else HTTPConnection(host, port);
+    connection.sock = ssl.create_default_context().wrap_socket(opened, server_hostname=host)
+        if secure
+        else opened;
+    return connection;
 }
 
 def get_once(current: str, head_only: bool) -> tuple[int, str, bytes] | None {
@@ -88,8 +84,4 @@ impl fetch_page(url: str, head_only: bool = False) -> str | None {
         return got[2].decode("utf-8", errors="replace");
     }
     return None;
-}
-
-impl fetch_head(url: str) -> str | None {
-    return fetch_page(url, True);
 }

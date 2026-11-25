@@ -1,7 +1,7 @@
 impl handle(method: str, path: str, query: str, body: str, origin: str) -> ApiReply {
     call = make_call(method, path, query, body, origin);
     if not call.segments {
-        return reply_detail(404, "Not found.");
+        return reply_not_found();
     }
     if call.segments[0] == "tags" {
         return tags_route(call, root);
@@ -12,7 +12,7 @@ impl handle(method: str, path: str, query: str, body: str, origin: str) -> ApiRe
     if call.segments[0] == "user" {
         return user_route(call, root);
     }
-    return reply_detail(404, "Not found.");
+    return reply_not_found();
 }
 
 impl handle_public(method: str, path: str, query: str, body: str, origin: str) -> ApiReply {

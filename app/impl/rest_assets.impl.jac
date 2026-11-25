@@ -24,22 +24,23 @@ def list_assets(call: ApiCall, bookmark: Bookmark) -> ApiReply {
     );
 }
 
+def download_reply(call: ApiCall, asset: Asset) -> ApiReply {
+    if call.method != "GET" {
+        return reply_not_allowed(call.method);
+    }
+    if asset.status != "complete" {
+        return reply_detail(404, "Asset file does not exist");
+    }
+    return reply_file(asset.content_type, asset.data, asset.display_name + ".html");
+}
+
 def one_asset(call: ApiCall, bookmark: Bookmark, segments: list[str]) -> ApiReply {
     asset = find_asset(bookmark, id_in_path(segments[0]));
     if asset is None {
         return missing_asset();
     }
     if len(segments) == 2 {
-        if segments[1] != "download" {
-            return reply_detail(404, "Not found.");
-        }
-        if call.method != "GET" {
-            return reply_not_allowed(call.method);
-        }
-        if asset.status != "complete" {
-            return reply_detail(404, "Asset file does not exist");
-        }
-        return reply_file(asset.content_type, asset.data, asset.display_name + ".html");
+        return download_reply(call, asset) if segments[1] == "download" else reply_not_found();
     }
     if call.method == "GET" {
         return reply_json(200, asset_json(asset, bookmark));
@@ -58,7 +59,7 @@ impl assets_route(call: ApiCall, bookmark: Bookmark, segments: list[str]) -> Api
             else reply_not_allowed(call.method);
     }
     if len(segments) > 2 {
-        return reply_detail(404, "Not found.");
+        return reply_not_found();
     }
     return one_asset(call, bookmark, segments);
 }

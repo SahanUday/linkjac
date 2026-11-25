@@ -25,8 +25,9 @@ impl complete_snapshot(asset: Asset, bookmark: Bookmark, text: str) {
     asset.status = "complete";
     asset.content_type = "text/html";
     asset.display_name = "HTML snapshot from " + asset.date_created.strftime("%m/%d/%Y");
-    asset.data = base64.b64encode(text.encode("utf-8")).decode("ascii");
-    asset.file_size = len(text.encode("utf-8"));
+    page = text.encode("utf-8");
+    asset.data = base64.b64encode(page).decode("ascii");
+    asset.file_size = len(page);
     touch(bookmark);
 }
 

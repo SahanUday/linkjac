@@ -5,5 +5,5 @@ impl user_route(call: ApiCall, owner: Root) -> ApiReply {
         }
         return reply_json(200, profile_json(profile_of(owner)));
     }
-    return reply_detail(404, "Not found.");
+    return reply_not_found();
 }
