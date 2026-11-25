@@ -27,5 +27,7 @@ Documented, so kind is limitation: `neojac docs apps/data`, "Where it is kept": 
 ## Workaround
 None yet. M1 stores a `UserProfile` node under each caller's `root`; M2 runs per-caller roots under the `accounts` plugin; accounts as linkding has them are M6.
 
+M6 note (2026-11-26): the port now keeps linkding's user fields in its own auth plugin's file (`plugins/linkauth`), still outside `root` (GAP-051); the app cannot read them (GAP-052, GAP-053).
+
 ## Cause
 Unknown.

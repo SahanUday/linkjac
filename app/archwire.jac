@@ -24,7 +24,7 @@ graph layers {
     """What the web pages ask the server for."""
     layer web { web_list | web_form | web_tags | web_actions | web_settings; }
 
-    """Parts of pages: the list and the form."""
+    """Parts of pages: the lists, forms, dialog and navigation they are made of."""
     layer ui { ui.*; }
 
     """The pages the browser shows."""
@@ -33,7 +33,7 @@ graph layers {
     """Reading web pages: fetching one and what it says about itself."""
     layer net { address_guard | web_fetch | website; }
 
-    """Work done apart from requests: icons fetched by jobs and kept, started by one scheduled function."""
+    """Work done apart from requests: icons and page snapshots fetched by jobs and kept, started by one scheduled function."""
     layer background { favicons | favicon_job | snapshot_job | assets | background; }
 
     """The REST layer: linkding's /api/ over the domain."""

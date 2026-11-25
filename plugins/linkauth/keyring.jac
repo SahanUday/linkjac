@@ -4,6 +4,7 @@ import os;
 import re;
 import time;
 import from common.contract { Host, Secret }
+import from token_header.words { token_words }
 import from auth.contract { Auth, AuthHost, Session, SignIn, SignInField, SignInAction, Rejected }
 
 # WORKAROUND(GAP-034, GAP-046, GAP-050): the standard accounts plugin reads only Bearer, keeps sign-up open and cannot be extended.

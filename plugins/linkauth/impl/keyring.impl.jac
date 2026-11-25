@@ -5,11 +5,8 @@ def rejected(why: str) -> Rejected {
 }
 
 impl credential(headers: dict[str, str]) -> str {
-    words = headers.get("authorization", "").split();
-    if len(words) == 2 and words[0].lower() in ["token", "bearer"] {
-        return words[1];
-    }
-    return "";
+    words = token_words(headers.get("authorization", ""));
+    return words[1] if len(words) == 2 else "";
 }
 
 impl is_username(username: str) -> bool {

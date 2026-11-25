@@ -1,0 +1,7 @@
+[project]
+name = "token_header"
+kind = "library"
+version = "0.1.0"
+
+[check.lint]
+ignore = ["strip-comments", "strip-docstrings"]

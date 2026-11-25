@@ -4,19 +4,25 @@ def missing_bookmark -> ApiReply {
     return reply_detail(404, "No Bookmark matches the given query.");
 }
 
-def filter_of(call: ApiCall, owner: Root, archived: bool) -> BookmarkFilter {
-    profile = profile_of(owner);
+# The query values every list of bookmarks takes, whoever's they are.
+def query_filter(call: ApiCall) -> BookmarkFilter {
     return BookmarkFilter(
         text=query_value(call, "q"),
-        archived=archived,
         unread=query_value(call, "unread", "off"),
-        shared=query_value(call, "shared", "off"),
         sort=query_value(call, "sort", "added_desc"),
         added_since=query_value(call, "added_since"),
         modified_since=query_value(call, "modified_since"),
-        legacy=profile.legacy_search,
-        lax=profile.tag_search == "lax",
     );
+}
+
+def filter_of(call: ApiCall, owner: Root, archived: bool) -> BookmarkFilter {
+    profile = profile_of(owner);
+    narrowing = query_filter(call);
+    narrowing.archived = archived;
+    narrowing.shared = query_value(call, "shared", "off");
+    narrowing.legacy = profile.legacy_search;
+    narrowing.lax = profile.tag_search == "lax";
+    return narrowing;
 }
 
 def page_reply(call: ApiCall, route: str, found: list[Bookmark]) -> ApiReply {
@@ -64,14 +70,8 @@ impl shared_route(call: ApiCall, public_only: bool) -> ApiReply {
     if call.method != "GET" {
         return reply_not_allowed(call.method);
     }
-    narrowing = BookmarkFilter(
-        text=query_value(call, "q"),
-        shared="yes",
-        unread=query_value(call, "unread", "off"),
-        sort=query_value(call, "sort", "added_desc"),
-        added_since=query_value(call, "added_since"),
-        modified_since=query_value(call, "modified_since"),
-    );
+    narrowing = query_filter(call);
+    narrowing.shared = "yes";
     return page_reply(
         call, "bookmarks/shared", search_many(sharing_owners(public_only), narrowing)
     );

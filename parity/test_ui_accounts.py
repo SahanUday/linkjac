@@ -44,3 +44,26 @@ def test_signing_out_leaves_the_api_token_working(visitor):
     visitor.get_by_role("button", name="Logout").click()
     visitor.get_by_label("Username").wait_for()
     assert httpx.get(f"{BASE_URL}/api/tags/", headers={"Authorization": f"Token {TOKEN}"}, timeout=20).status_code == 200
+
+
+def asks_for_a_sign_in(browser, state):
+    """Whether a new browser given the cookies and storage of `state` is asked to sign in at the list."""
+    context = browser.new_context(storage_state=state)
+    try:
+        page = context.new_page()
+        page.set_default_timeout(10000)
+        page.goto(f"{BASE_URL}/bookmarks")
+        page.wait_for_load_state("networkidle")
+        page.get_by_label("Username").or_(page.get_by_role("button", name="Logout")).first.wait_for()
+        return page.get_by_label("Username").count() == 1
+    finally:
+        context.close()
+
+
+def test_signing_out_ends_the_session_for_whoever_kept_a_copy_of_it(browser, visitor):
+    sign_in(visitor)
+    kept = visitor.context.storage_state()
+    assert not asks_for_a_sign_in(browser, kept)
+    visitor.get_by_role("button", name="Logout").click()
+    visitor.get_by_label("Username").wait_for()
+    assert asks_for_a_sign_in(browser, kept)

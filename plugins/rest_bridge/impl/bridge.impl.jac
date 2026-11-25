@@ -74,14 +74,10 @@ def is_static(path: str) -> bool {
     return bool(static_now) and path.startswith(static_now);
 }
 
-def token_keyword(words: list[str]) -> bool {
-    return bool(words) and words[0].lower() in ["token", "bearer"];
-}
-
 # WORKAROUND(GAP-054): the auth plugin cannot say why it refuses a header, so the transport does.
 impl header_fault(header: str) -> str {
-    words = header.split();
-    if not token_keyword(words) or len(words) == 2 {
+    words = token_words(header);
+    if not words or len(words) == 2 {
         return "";
     }
     if len(words) == 1 {
@@ -98,7 +94,7 @@ impl rest_call_for(sent: Request) -> Request {
         "body": sent.body.decode("utf-8"),
         "origin": "http://" + sent.headers.get("host", ""),
     };
-    carries_token = token_keyword(sent.headers.get("authorization", "").split());
+    carries_token = bool(token_words(sent.headers.get("authorization", "")));
     return Request(
         method="POST",
         path=call_now if carries_token and not is_static(sent.path) else public_call_now,

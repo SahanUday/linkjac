@@ -42,5 +42,7 @@ What the docs do cover, and the run agrees with: `root` has no value for a keyed
 ## Workaround
 The port's `import` and `export` commands act as the signed-in token holder; there is no `<user>` argument. The original's `import_netscape <file> <user>` is recorded as a deviation in PLAN.md.
 
+M6 note (2026-11-26): an auth plugin of our own does not change this: the app still cannot ask it who a user is or which root is theirs (GAP-052, GAP-053).
+
 ## Cause
 Unknown.
