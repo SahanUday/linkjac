@@ -12,7 +12,7 @@ directories = ["."]
 rest_bridge = { path = "../plugins/rest_bridge" }
 linkauth = { path = "../plugins/linkauth" }
 
-# WORKAROUND(GAP-034, GAP-046, GAP-050, GAP-051, GAP-053, GAP-055): the standard accounts plugin cannot be made to behave as linkding's sign-in.
+# WORKAROUND(GAP-027, GAP-034, GAP-046, GAP-050, GAP-051, GAP-053, GAP-055): the standard accounts plugin cannot be made to behave as linkding's sign-in.
 [auth]
 plugin = "linkauth"
 

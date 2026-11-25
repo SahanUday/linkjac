@@ -236,7 +236,24 @@ What closed and what did not:
 - [x] S3 checks, run on the original first: `parity/test_api_auth.py` and `parity/test_ui_accounts.py`, 30 checks, original 30/30; port before the change 11/30, after 30/30; one more added in S4 (original 10/10 for its file first). The port's harness now makes its accounts with the superuser and uses API tokens; the UI harness presses `Login` on both
 - [x] S4 mutation of the new checks (scratch copy, one change at a time, run on the port against the auth, account, sign-in and isolation checks): 21 mutants of the plugin, bridge and ledger, 20 killed at the first try (one of them after its pattern was corrected; the restart one by `tools/check_persistence.sh`) and 1 survived: sign-out leaving the server's session alive. New check `test_signing_out_ends_the_session_for_whoever_kept_a_copy_of_it` (original passes it, run first) kills it. A control passed. After S5 moved the keyword test into a library, 2 more mutants of it, both killed
 - [x] S5 architecture review. Picture: `neojac check` holds the wires to the code (an undeclared or unused import is refused), three layer descriptions in `app/archwire.jac` were out of date and are fixed, `arch.svg` redrawn; the picture shows the app only, not its plugins (GAP-058). Who carries out what: `store` the standard `sqlite`, `auth` `plugins/linkauth`, `transport` `plugins/rest_bridge`, `jobs`, `schedule`, `limits` the standard ones. Duplicates merged, 2: the `Token`/`Bearer` keyword test that both plugins had (now the library `libraries/token_header`), and the bookmark-list filter built twice from the query (`query_filter`). Mutation of the filter change: 3 mutants, 2 killed, 1 survived (the shared list's own filter: sharing cannot be turned on, GAP-035)
-- [ ] S6 close
+- [x] S6 close (checks and audit; the milestone stays open, see below)
+
+#### M6 done-when, judged 2026-11-26 (end of S6): not met
+
+Done-when, quoted from the table: "sign-in and API tokens work through the `auth` plugin; the architecture picture matches the code and no duplicate implementations remain".
+- **Sign-in and API tokens through the `auth` plugin: met.** Through `plugins/linkauth`. Full run: original 191/191 and guard 46/46; port 190 passed and 1 expected failure (GAP-045) of 191, guard 46/46. With the differences under Known deviations, of which GAP-059 is a security one.
+- **The picture matches the code: met for `app/`** (`neojac check` holds its wires; `arch.svg` redrawn). The plugins' and the library's `archwire.jac` are not shown to be held to their code (GAP-056), and are not in the picture (GAP-058).
+- **No duplicate implementations remain: not met.** Found by the S6 audit (read, not run), real second implementations:
+  1. profile to list filter (`legacy`, `lax`) in `web_list` and `rest_bookmarks`;
+  2. the offset and limit slice in `rest_bookmarks`, `rest_tags`, `rest_assets`;
+  3. the profile lookup written twice in `profiles` (`profile_of`, `find_profile`);
+  4. the "Are you sure?" dialog in `ui/bookmark_list` and `ui/tag_table`;
+  5. build, start and token in `parity/run.sh` and `tools/check_persistence.sh`;
+  6. the JSON reply and "Not found." in the bridge and in `rest_reply` (across packages, GAP-037);
+  7. the `/static/` prefix written in `rest`, `rest_static`, `rest_forms` and `jac.toml`;
+  8. "find bookmark, else 404" three times in `rest_bookmarks`;
+  9. in the checks: the two Netscape fixtures and three token clients in `parity/conftest.py`.
+  Judged similar shape only: the `find_*` scans over different node types, the `next_*_id` counters, `find_favicon` and `find_favicon_of_site`.
 
 ## Port usage
 
@@ -292,6 +309,8 @@ Where the port differs from linkding or has no proof yet. The final report (M8) 
   - **Sign-up (GAP-046): closed in M6** (2026-11-26) by `plugins/linkauth`; the standard plugin still cannot turn it off.
 - **M4 text differences (text sweep, 2026-11-23):** the list of what the port's pages say differently from the original is in `KNOWN` of `parity/test_text_sweep.py` and in "Text sweep and importer sweep" under M4 above; it is not repeated here.
 - **Sign-in and API tokens (M6):** through `plugins/linkauth`, an `auth` plugin of our own. Differences: tokens are made and removed by `POST /__jac/auth/create_token` and `delete_token` with the user's name and password, not on a settings page, and cannot be listed (GAP-053); an account is made by a superuser through `add_user`, not by Django's admin pages, `createsuperuser` or `ensure_superuser`; not ported: the password change page, `/login/` and `/logout/` as pages, OIDC, the auth proxy, `LD_DISABLE_LOGIN_FORM`, `LD_SESSION_COOKIE_AGE` (the setting is `session_seconds`), feed tokens, password validators; a session is a token the browser keeps in `localStorage`, not a cookie. API keys are kept as they are in the plugin's JSON file (linkding keeps them readable in its database too), session tokens as digests, passwords as PBKDF2-SHA256 (600000 rounds); the file is readable by its owner only. Neither app limits sign-in attempts (the standard `accounts` plugin the port used until M5 did). Accounts made under the old plugin (`accounts.db`) are not carried over. One server per file. `is_active` is honoured but nothing sets it (unit test only).
+- **API tokens open more than the API (GAP-059):** an API token is accepted by every `:protect` endpoint (the pages' calls, the profile setting, import and export); in linkding it opens the REST API only. Run 2026-11-26 on the export endpoint. No check. A leaked token therefore does what a signed-in user can, and there is no password change.
+- **Bad requests to the bridge (run 2026-11-26, not fixed):** a body that is not UTF-8, or a `Content-Length` that is not a number, closes the connection with no reply; the body size is not bounded (GAP-037). A token with non-ASCII bytes gets "Invalid token."; linkding's code has its own message for it ("...should not contain invalid characters.", read in `api/auth.py`, not run).
 - **Smaller:** `date_added` and `date_modified` sent on create are ignored; the profile `version` is the constant `1.47.0`; the bridge stands in for the standard transport (GAP-037).
 
 ## Refactor backlog
@@ -310,6 +329,6 @@ Left open, with the reason:
 - The JSON body is encoded twice (envelope, then the bridge); `json_reply` in the bridge duplicates `reply_json` because a plugin cannot import the app (GAP-037).
 - `parity/run.sh` and `tools/check_persistence.sh` both build, start and register; share one script. `check_persistence.sh` reads JSON with `sed`.
 - `read_tag_names` uses `str(n)` after `all([isinstance(n, str) ...])`; whether `isinstance` in a comprehension narrows is unchecked.
-- The bridge's outbound `send` (GAP-039) has no test of its own (`bridge.test.jac` covers the reply guard only) and returns no response headers; only the CLI checks reach it.
+- The bridge's outbound `send` (GAP-039) has no test of its own (`bridge.test.jac` covers the reply guard, the header refusals and the unclaimed requests) and returns no response headers; only the CLI checks reach it.
 - The conditional elements in `ui/` are written `{[<x key=.. /> for _ in range(1) if cond]}`. `neojac docs apps/components` shows `{<b>yes</b> if cond else <i>no</i>}`; tried in a scratch copy for the missing-bookmark message of the edit page: it checks and runs in the browser (the edit checks pass on the port). So the one-item comprehension is not a workaround for a neojac limit; replace it with the documented form in the next refactor pass (found by the M4 gap audit).
 - The bridge keeps its settings and the app's handler in module `glob`s because the handler class is built by the library.

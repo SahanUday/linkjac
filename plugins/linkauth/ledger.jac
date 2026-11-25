@@ -7,6 +7,7 @@ import secrets;
 import threading;
 
 """An account, with the fields linkding's user has; `password` is a hash, "" for none usable."""
+# WORKAROUND(GAP-027): users cannot be kept under root, so the plugin keeps them.
 obj User {
     has username: str,
         password: str = "",

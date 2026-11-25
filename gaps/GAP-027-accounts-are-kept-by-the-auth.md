@@ -3,7 +3,7 @@ id: GAP-027
 title: Accounts are kept by the auth plugin in accounts.db, not under root, so users cannot be stored through root
 kind: limitation
 severity: minor
-status: open
+status: worked-around
 area: auth
 milestone: M1
 found: 2026-11-23
@@ -25,7 +25,7 @@ neojac docs apps/data | sed -n '/## Where it is kept/,/^They are/p'
 Documented, so kind is limitation: `neojac docs apps/data`, "Where it is kept": `accounts.db` holds "Accounts and sessions", beside `graph.db`. `neojac docs apps/server`, "The accounts plugin": "keeps accounts of a username and a password"; it lists a username, an email and a password, and no other field. linkding's user model has first and last name, is_staff and is_superuser, which `accounts` has no field for.
 
 ## Workaround
-None yet. M1 stores a `UserProfile` node under each caller's `root`; M2 runs per-caller roots under the `accounts` plugin; accounts as linkding has them are M6.
+M1 stores a `UserProfile` node under each caller's `root`. Since M6 the account and linkding's user fields are kept by `plugins/linkauth` in its own file (`WORKAROUND(GAP-027)`).
 
 M6 note (2026-11-26): the port now keeps linkding's user fields in its own auth plugin's file (`plugins/linkauth`), still outside `root` (GAP-051); the app cannot read them (GAP-052, GAP-053).
 

@@ -46,5 +46,7 @@ Major, not blocker. A blocker means the milestone's work cannot be done at all; 
 ## Workaround
 `plugins/rest_bridge` (see `WORKAROUND(GAP-030)` to `GAP-033` in its `bridge.jac`). M6 should decide whether the bridge stays, or the app moves to what neojac gives by then.
 
+M6 note (2026-11-26), our own faults in the stand-in, run on the served app: a request body that is not UTF-8 and a `Content-Length` that is not a number each close the connection with no reply (`curl` exit 52); the server goes on answering. Not run against linkding.
+
 ## Cause
 Unknown.
