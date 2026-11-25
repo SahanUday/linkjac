@@ -14,7 +14,8 @@ trap '[ -n "$pid" ] && kill "$pid" 2>/dev/null || true; rm -rf "$work"' EXIT
 
 cd "$root/app"
 capped --mem 4G -- neojac build api > "$work/build.log" 2>&1 || { cat "$work/build.log"; exit 1; }
-bin="$(ls "$root"/app/dist/api-*-* 2>/dev/null | head -1)"
+bin="$(ls -d "$root"/app/dist/api-*-* 2>/dev/null | head -1)"
+[ -d "$bin" ] && bin="$bin/api" # an app that serves pages is built as a directory
 [ -x "$bin" ] || { echo "no binary under app/dist"; exit 1; }
 
 start() {
