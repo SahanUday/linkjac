@@ -4,6 +4,7 @@ name = "linkjac"
 [check.lint]
 ignore = ["strip-comments", "strip-docstrings"]
 
+# WORKAROUND(GAP-038): run `capped --mem 4G -- neojac test -j 3`; the default of one build per core is killed for memory and reported as "failed to build".
 [test]
 directories = ["."]
 

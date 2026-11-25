@@ -20,6 +20,7 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 
 - Work in slices that can be shown in one sitting: one endpoint group, one page, one job.
 - A slice is done when its parity check passes and its gaps are logged. Polish waits for the refactor pass.
+- Tests run as `capped --mem 4G -- neojac test -j 3` (GAP-038).
 - A full parity run is two suites on each target: `parity/run.sh` and `PARITY_SUITE=guard parity/run.sh` (the address guard, in its own network namespace).
 - Stuck after three different approaches: log the gap, mark the slice `blocked`, move to the next slice.
 - Start each milestone by listing its slices here, under the table, as a short checklist. Tick them as they land.
