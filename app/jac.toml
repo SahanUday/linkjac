@@ -10,8 +10,13 @@ directories = ["."]
 
 [packages]
 rest_bridge = { path = "../plugins/rest_bridge" }
+linkauth = { path = "../plugins/linkauth" }
 
-# WORKAROUND(GAP-037, GAP-039): one project-wide transport that stands in for the standard one and also carries the CLI's calls.
+# WORKAROUND(GAP-034, GAP-046, GAP-050, GAP-051, GAP-053, GAP-055): the standard accounts plugin cannot be made to behave as linkding's sign-in.
+[auth]
+plugin = "linkauth"
+
+# WORKAROUND(GAP-037, GAP-039, GAP-054, GAP-057): one project-wide transport that stands in for the standard one and also carries the CLI's calls.
 [transport]
 plugin = "rest_bridge"
 

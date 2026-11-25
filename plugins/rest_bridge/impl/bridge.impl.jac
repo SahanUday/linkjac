@@ -15,7 +15,12 @@ impl Gateway.relay(method: str) {
         client=self.client_address[0],
     );
     if sent.path.startswith(prefix_now) or is_static(sent.path) {
-        reply = rest_reply_from(answer(rest_call_for(sent)));
+        fault = header_fault(sent.headers.get("authorization", ""));
+        reply = json_reply(401, {"detail": fault})
+            if fault and not is_static(sent.path)
+            else rest_reply_from(answer(rest_call_for(sent)));
+    } elif takes_nothing(sent, prefix_now) {
+        reply = json_reply(404, {"detail": "Not found."});
     } else {
         reply = answer(sent);
     }
@@ -53,6 +58,13 @@ impl Gateway.do_DELETE {
 
 impl Gateway.log_message(format: str, *args: any) {}
 
+# WORKAROUND(GAP-057): the app would answer a POST to a page's path with the page.
+impl takes_nothing(sent: Request, api_prefix: str) -> bool {
+    return sent.method != "GET"
+        and not sent.path.startswith(api_prefix)
+        and not sent.path.startswith("/__jac/");
+}
+
 impl answer(sent: Request) -> Response {
     handle = handler_now;
     return handle(sent);
@@ -62,25 +74,36 @@ def is_static(path: str) -> bool {
     return bool(static_now) and path.startswith(static_now);
 }
 
-# WORKAROUND(GAP-034): the standard auth plugin reads only `Bearer`, linkding's clients send `Token`.
-impl rest_call_for(sent: Request) -> Request {
-    headers = dict(sent.headers);
-    given = headers.get("authorization", "");
-    if given.lower().startswith("token ") {
-        headers["authorization"] = "Bearer " + given[6:];
+def token_keyword(words: list[str]) -> bool {
+    return bool(words) and words[0].lower() in ["token", "bearer"];
+}
+
+# WORKAROUND(GAP-054): the auth plugin cannot say why it refuses a header, so the transport does.
+impl header_fault(header: str) -> str {
+    words = header.split();
+    if not token_keyword(words) or len(words) == 2 {
+        return "";
     }
+    if len(words) == 1 {
+        return "Invalid token header. No credentials provided.";
+    }
+    return "Invalid token header. Token string should not contain spaces.";
+}
+
+impl rest_call_for(sent: Request) -> Request {
     arguments = {
         "method": sent.method,
         "path": sent.path,
         "query": sent.query,
         "body": sent.body.decode("utf-8"),
-        "origin": "http://" + headers.get("host", ""),
+        "origin": "http://" + sent.headers.get("host", ""),
     };
+    carries_token = token_keyword(sent.headers.get("authorization", "").split());
     return Request(
         method="POST",
-        path=call_now if given and not is_static(sent.path) else public_call_now,
+        path=call_now if carries_token and not is_static(sent.path) else public_call_now,
         query="",
-        headers=headers,
+        headers=dict(sent.headers),
         body=json.dumps({"args": arguments}).encode("utf-8"),
         client=sent.client,
     );
@@ -97,7 +120,9 @@ def json_reply(status: int, value: any) -> Response {
 }
 
 def file_reply(kept: dict[str, str]) -> Response {
-    named = {"Content-Disposition": f'attachment; filename="{kept["name"]}"'} if kept["name"] else {};
+    named = {"Content-Disposition": f'attachment; filename="{kept["name"]}"'}
+        if kept["name"]
+        else {};
     return Response(
         status=200,
         ctype=kept["type"],
@@ -107,7 +132,7 @@ def file_reply(kept: dict[str, str]) -> Response {
     );
 }
 
-# WORKAROUND(GAP-034): the app's auth answers a Token it cannot read in its own form; linkding's clients expect {"detail": "Invalid token."}.
+# WORKAROUND(GAP-054): a refused token is answered in the runtime's words; linkding's clients expect {"detail": "Invalid token."}.
 impl rest_reply_from(inner: Response) -> Response {
     if inner.status == 401 {
         return json_reply(401, {"detail": "Invalid token."});

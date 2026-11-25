@@ -34,7 +34,7 @@ kill %1
 `neojac docs apps/server`, "Who is calling": the only credential header is `Authorization: Bearer <token>`; so documented, and kind is limitation. The `Auth` interface (`neojac docs apps/stdjac-server`) gives a plugin `caller(headers)`, so another plugin could read `Token`, but a plugin cannot be a change to the standard one. The same accounts also differ from linkding's tokens: a token is made by each `register` or `login` and is not a stable per-user key (a second `login` made a second token; not checked whether the first still works), and linkding allows several named tokens per user. That is M6's.
 
 ## Workaround
-The REST bridge (see PLAN.md, M2 S0) turns `Authorization: Token <t>` into `Bearer <t>` before the request reaches the app, marked `WORKAROUND(GAP-034)`. M6 replaces it with an `auth` plugin that reads both keywords and stable per-user tokens, or with parity checks that use one keyword.
+Since M6 (2026-11-26): the project binds its own auth plugin, `plugins/linkauth`, whose `caller` reads `Token` and `Bearer` in any case (`WORKAROUND(GAP-034)`). The bridge no longer rewrites the header. Shown by `parity/test_api_auth.py` on both apps. In M2 to M5 the bridge turned `Token` into `Bearer`. Writing a plugin for this is GAP-050.
 
 ## Cause
 Unknown.

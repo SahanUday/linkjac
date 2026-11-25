@@ -2,6 +2,7 @@
 
 import json
 import os
+import re
 import time
 import subprocess
 import uuid
@@ -146,6 +147,60 @@ def netscape_jobs(tmp_path):
         driver = WebNetscape("parity3")
         yield driver
         driver.http.close()
+
+
+class Made:
+    """A token a check made: its key, and what removes it."""
+
+    def __init__(self, key, handle):
+        self.key = key
+        self.handle = handle
+
+
+class WebTokens:
+    """The original's API tokens, made and removed on its integrations page by the signed-in user."""
+
+    def __init__(self):
+        self.web = WebNetscape()
+
+    def page(self):
+        return self.web.http.get("/settings/integrations")
+
+    def create(self, name):
+        token = WebNetscape.csrf(self.page().text)
+        made = self.web.http.post("/settings/integrations/create-api-token", data={"csrfmiddlewaretoken": token, "name": name})
+        assert made.status_code == 302, made.text
+        page = self.page().text
+        key = re.search(r'value="([0-9a-f]{40})"\s[^>]*id="new-token-key"', page).group(1)
+        # The newest token is listed first.
+        ident = re.search(r'name="token_id"\s+value="(\d+)"', page).group(1)
+        return Made(key, ident)
+
+    def delete(self, made):
+        token = WebNetscape.csrf(self.page().text)
+        self.web.http.post("/settings/integrations/delete-api-token", data={"csrfmiddlewaretoken": token, "token_id": made.handle})
+
+
+class PortTokens:
+    """The port's API tokens, made and removed through its auth plugin with the user's name and password."""
+
+    def ask(self, action, **given):
+        return httpx.post(f"{BASE_URL}/__jac/auth/{action}", json={"username": "parity", "password": "parity-pass", **given}, timeout=20)
+
+    def create(self, name):
+        response = self.ask("create_token", name=name)
+        assert response.status_code == 200, response.text
+        key = response.json()["data"]["token"]
+        return Made(key, key)
+
+    def delete(self, made):
+        self.ask("delete_token", key=made.handle)
+
+
+@pytest.fixture(scope="session")
+def tokens():
+    """Makes and removes API tokens of the parity user the way the target lets a user do it."""
+    return PortTokens() if os.environ.get("PARITY_TARGET") == "port" else WebTokens()
 
 
 @pytest.fixture(scope="session")

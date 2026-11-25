@@ -3,7 +3,7 @@ id: GAP-046
 title: The accounts plugin has no setting to turn off public sign-up: the sign-in dialog offers Create account and register works for anyone
 kind: gap
 severity: major
-status: open
+status: worked-around
 area: auth
 milestone: M4
 found: 2026-11-23
@@ -27,7 +27,7 @@ neojac docs apps/server               # section "The accounts plugin": the setti
 The original has no sign-up: linkding's accounts are made by an admin, and its login page offers no way to create one. The port must behave the same, so `register` must be closed to a caller with no credentials. neojac side: a setting such as "registration off", or a page saying how an app that makes its accounts itself closes `register`. `neojac docs search "registration sign up create account"` found only the rate-limit line of `apps/server`.
 
 ## Workaround
-None yet. The parity runner uses the open `register` to make its two users. M6 must close this (sign-in and API tokens through `auth`): the port is not equivalent to the original while anyone can register.
+Since M6 (2026-11-26): `plugins/linkauth` offers `login` alone and refuses `register` (`WORKAROUND(GAP-046)`); the first account comes from `LD_SUPERUSER_NAME` and `LD_SUPERUSER_PASSWORD` as in linkding, and a superuser makes the others (action `add_user`, GAP-053). Shown by `parity/test_ui_accounts.py` on both apps. The standard plugin still has no setting for it (GAP-050).
 
 ## Cause
 Unknown.

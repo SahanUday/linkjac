@@ -38,10 +38,16 @@ class Gateway(BaseHTTPRequestHandler) {
     override def log_message(format: str, *args: any);
 }
 
+"""Whether nothing of the app takes this request: not a GET, and neither under the API nor one of the runtime's own paths."""
+def takes_nothing(sent: Request, api_prefix: str) -> bool;
+
 """The app's own handler for a request."""
 def answer(sent: Request) -> Response;
 
-"""The request for the app's one REST endpoint that stands for `sent`, with `Token` keyword turned into `Bearer`."""
+"""What linkding says of a `Token` or `Bearer` header that has no key or has spaces in it, or "" for any other header."""
+def header_fault(header: str) -> str;
+
+"""The request for the app's one REST endpoint that stands for `sent`: the guarded one when it carries a token, else the public one."""
 def rest_call_for(sent: Request) -> Request;
 
 """The reply a client of the REST API sees for what the app's REST endpoint answered; a refused token is linkding's "Invalid token."; a file (`__file__` in the body: content type, base64 bytes, a name) is sent as its bytes."""

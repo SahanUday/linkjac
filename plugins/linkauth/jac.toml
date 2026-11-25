@@ -1,0 +1,11 @@
+[project]
+name = "linkauth"
+kind = "plugin"
+
+[plugin]
+fills = "auth"
+interface_ver = 1
+class = "linkauth.keyring.LinkAuth"
+
+[check.lint]
+ignore = ["strip-comments", "strip-docstrings"]

@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 # Saves through /api/ of the served app, restarts the binary, and reads the data back with the same token.
 # Why the REST path and not a function endpoint: that is how a client reaches the data, and it also proves
-# that accounts, per-caller roots and the transport plugin survive a restart together.
+# that accounts, API tokens, per-caller roots and the transport plugin survive a restart together.
 # Needs: neojac, curl, capped. Uses a throwaway data directory and port 8301.
 set -euo pipefail
 
@@ -19,7 +19,8 @@ bin="$(ls -d "$root"/app/dist/api-*-* 2>/dev/null | head -1)"
 [ -x "$bin" ] || { echo "no binary under app/dist"; exit 1; }
 
 start() {
-  JAC_API_DATA="$work/data" JAC_API_LISTEN="127.0.0.1:$port" "$bin" > "$work/server.log" 2>&1 &
+  LD_SUPERUSER_NAME=keeper LD_SUPERUSER_PASSWORD=keeper-pass \
+    JAC_API_DATA="$work/data" JAC_API_LISTEN="127.0.0.1:$port" "$bin" > "$work/server.log" 2>&1 &
   pid=$!
   for _ in $(seq 1 30); do grep -q "listening on" "$work/server.log" && return 0; sleep 1; done
   echo "server did not start"; cat "$work/server.log"; exit 1
@@ -32,9 +33,9 @@ expect() { # name, actual, wanted
 failed=0
 
 start
-token="$(curl -s -X POST "$base/__jac/auth/register" -d '{"username":"keeper","email":"k@example.com","password":"keeper-pass"}' \
+token="$(curl -s -X POST "$base/__jac/auth/create_token" -d '{"username":"keeper","password":"keeper-pass","name":"persistence"}' \
   | sed -n 's/.*"token": *"\([0-9a-f]*\)".*/\1/p')"
-[ -n "$token" ] || { echo "FAIL could not register"; exit 1; }
+[ -n "$token" ] || { echo "FAIL could not make a token"; exit 1; }
 api POST bookmarks/ '{"url":"https://keep.example/a","title":"Kept","tag_names":["alpha","beta"]}' > /dev/null
 api POST tags/ '{"name":"loose"}' > /dev/null
 expect "before restart: one bookmark" "$(api GET 'bookmarks/?q=%23alpha' | sed -n 's/.*"count": *\([0-9]*\).*/\1/p')" 1

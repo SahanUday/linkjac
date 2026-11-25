@@ -87,19 +87,23 @@ elif [ -z "${LINKDING_URL:-}" ] && [ "$target" = "port" ]; then
   bin="$(ls -d "$here"/../app/dist/api-*-* | head -1)"
   [ -d "$bin" ] && bin="$bin/api"
   export PARITY_CLI="$(ls "$here"/../app/dist/cli-*-* | head -1)"
+  # The first account, made as linkding makes it; it makes the three parity accounts.
+  export LD_SUPERUSER_NAME=parity-admin LD_SUPERUSER_PASSWORD=parity-admin-pass
   JAC_API_DATA="$work/data" JAC_API_LISTEN="127.0.0.1:$port" setsid "$bin" > "$work/server.log" 2>&1 &
   server_pid=$!
   export LINKDING_URL="http://127.0.0.1:$port"
   wait_for "$LINKDING_URL/__jac/auth/"
-  register() { # username
-    curl -s -X POST "$LINKDING_URL/__jac/auth/register" \
-      -d "{\"username\":\"$1\",\"email\":\"$1@example.com\",\"password\":\"parity-pass\"}" \
+  register() { # username: the account, then an API token of it
+    curl -s -o /dev/null -X POST "$LINKDING_URL/__jac/auth/add_user" \
+      -d "{\"admin\":\"$LD_SUPERUSER_NAME\",\"admin_password\":\"$LD_SUPERUSER_PASSWORD\",\"username\":\"$1\",\"password\":\"parity-pass\"}"
+    curl -s -X POST "$LINKDING_URL/__jac/auth/create_token" \
+      -d "{\"username\":\"$1\",\"password\":\"parity-pass\",\"name\":\"parity\"}" \
       | sed -n 's/.*"token": *"\([0-9a-f]*\)".*/\1/p'
   }
   LINKDING_TOKEN="$(register parity)"
   LINKDING_TOKEN_OTHER="$(register parity2)"
   LINKDING_TOKEN_JOBS="$(register parity3)"
-  [ -n "$LINKDING_TOKEN" ] && [ -n "$LINKDING_TOKEN_OTHER" ] && [ -n "$LINKDING_TOKEN_JOBS" ] || { echo "could not register the parity users on the port"; exit 1; }
+  [ -n "$LINKDING_TOKEN" ] && [ -n "$LINKDING_TOKEN_OTHER" ] && [ -n "$LINKDING_TOKEN_JOBS" ] || { echo "could not make the parity users on the port"; exit 1; }
   export LINKDING_TOKEN LINKDING_TOKEN_OTHER LINKDING_TOKEN_JOBS
   # The profile has no API in either app: the original's accounts were set up by its shell script, these by the port's own settings function.
   change_profile() { # token favicons snapshots

@@ -12,7 +12,7 @@ Update the Status column as work moves: `todo`, `doing`, `done`, `blocked`, `ski
 | M3 | Import, export, CLI | done | a Netscape bookmark file round-trips; admin commands run from a CLI app |
 | M4 | Web UI | closed with exceptions (judged 2026-11-23; see Known deviations: 40 of 41 UI checks pass on the port and 1 is `expected_gap` GAP-045; S7 to S9 not built; sign-up cannot be disabled, GAP-046) | list, search, add, edit, tags pages work in a browser; the same browser checks pass on both apps (checkpoint) |
 | M5 | Background work | done (judged 2026-11-23, see M5 below) | page snapshot and favicon jobs run and a scheduled job fires |
-| M6 | Sign-in and architecture review | todo | sign-in and API tokens work through the `auth` plugin; the architecture picture matches the code and no duplicate implementations remain |
+| M6 | Sign-in and architecture review | doing | sign-in and API tokens work through the `auth` plugin; the architecture picture matches the code and no duplicate implementations remain |
 | M7 | Optional extras | todo | any of: desktop window, Android app on the Pixel 6a, `by llm()` tag suggestions |
 | M8 | Final report | todo | gap list complete and triaged; summary page on the site; team handover |
 
@@ -224,6 +224,7 @@ Per unit of the original: what `neojac port --check` said, and what the app's co
 | M3 | `services/parser.py` | refused: class attributes, class decorator, `with`, `super()` | by hand (`netscape_parse.jac`) | at the time | GAP-007, 008, 010, 011 |
 | M3 | `services/importer.py` | refused: class attributes, class decorators, `try`, module-level `logger` | by hand (`netscape_import.jac`) | at the time | GAP-008, 009, 011, 015 |
 | M3 | `management/commands/import_netscape.py` | refused: class attribute, `with`, `*args`/`**kwargs` | by hand (`cli.jac`, `admin.jac`) | at the time | GAP-007, 012, 040 |
+| M6 | `api/auth.py`, `views/auth.py`, `views/settings.py`, `models.ApiToken` (excerpt), `create_initial_superuser`, `ensure_superuser` | 6 of 6 refused (counts of `E4001`/`E4005`: 3/0, 7/0, 12/0, 10/1, 2/1, 2/0) | none used; by hand (`plugins/linkauth`) | before the work, 2026-11-26 | GAP-006 to 012 |
 | M5 (guard) | `services/http_client.py` | refused: 1 of 1 source (23 `E4001`, 5 `E4005`: `super()`, class decorator and attributes, `try`, `functools.cache`, class statements, `**kwargs`) | none used; by hand (`address_guard.jac`) | before the work, 2026-11-26 | GAP-006 to 012 |
 | M5 | `website_loader`, `favicon_loader`, `http_client`, `assets`, `tasks`, `singlefile` (`bookmarks/services/`) | 6 of 6 refused (61 lines: try, decorator, class attribute, with, `**`, `*args`, super) | none used; by hand | only afterwards, 2026-11-23 | GAP-006 (note), 007 to 012 |
 

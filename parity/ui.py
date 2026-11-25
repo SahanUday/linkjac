@@ -25,7 +25,7 @@ def submit_credentials(page, username, password):
     """Fills the target's own sign-in form and presses its button."""
     page.get_by_label("Username").fill(username)
     page.get_by_label("Password").fill(password)
-    page.get_by_role("button", name="Login" if TARGET == "original" else "Sign in").click()
+    page.get_by_role("button", name="Login").click()
 
 
 def sign_in(page):
