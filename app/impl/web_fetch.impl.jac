@@ -4,30 +4,6 @@ glob user_agent: str = "Mozilla/5.0 (X11; Linux x86_64; rv:128.0) Gecko/20100101
      seconds_to_wait: float = 10.0,
      most_redirects: int = 5;
 
-def allowed_hosts -> list[str] {
-    named = os.getenv("LD_ALLOWED_INTERNAL_HOSTS", "");
-    return [each.strip() for each in named.split(",") if each.strip()];
-}
-
-impl may_connect(host: str) -> bool {
-    allowed = allowed_hosts();
-    if "*" in allowed or host in allowed {
-        return True;
-    }
-    try {
-        found = socket.getaddrinfo(host, None);
-    } except OSError {
-        return False;
-    }
-    for each in found {
-        address = str(each[4][0]);
-        if address not in allowed and not ipaddress.ip_address(address).is_global {
-            return False;
-        }
-    }
-    return True;
-}
-
 def read_body(response: HTTPResponse, head_only: bool) -> bytes {
     content = b"";
     while len(content) <= longest_page {
@@ -43,19 +19,48 @@ def read_body(response: HTTPResponse, head_only: bool) -> bytes {
     return content;
 }
 
-def get_once(current: str, head_only: bool) -> tuple[int, str, bytes] | None {
-    parts = urlsplit(current);
-    if parts.scheme not in ["http", "https"]
-        or not parts.hostname
-        or not may_connect(parts.hostname)
-    {
+# The socket is opened to an address that was checked, never to the name again: a second lookup could give another answer.
+def open_to(addresses: list[str], port: int) -> socket.socket {
+    for address in addresses[:-1] {
+        try {
+            return socket.create_connection((address, port), timeout=seconds_to_wait);
+        } except OSError {
+            continue;
+        }
+    }
+    return socket.create_connection((addresses[-1], port), timeout=seconds_to_wait);
+}
+
+def connect_checked(host: str, port: int, secure: bool) -> HTTPConnection | None {
+    addresses = checked_addresses(host, port);
+    if not addresses {
         return None;
     }
-    path = (parts.path or "/") + ("?" + parts.query if parts.query else "");
-    connection = HTTPSConnection(parts.hostname, parts.port, timeout=seconds_to_wait)
-        if parts.scheme == "https"
-        else HTTPConnection(parts.hostname, parts.port, timeout=seconds_to_wait);
+    if secure {
+        connection: HTTPConnection = HTTPSConnection(host, port);
+        connection.sock = ssl.create_default_context().wrap_socket(
+            open_to(addresses, port), server_hostname=host
+        );
+        return connection;
+    }
+    plain = HTTPConnection(host, port);
+    plain.sock = open_to(addresses, port);
+    return plain;
+}
+
+def get_once(current: str, head_only: bool) -> tuple[int, str, bytes] | None {
+    connection: HTTPConnection | None = None;
     try {
+        parts = urlsplit(current);
+        if parts.scheme not in ["http", "https"] or not parts.hostname {
+            return None;
+        }
+        secure = parts.scheme == "https";
+        connection = connect_checked(parts.hostname, parts.port or (443 if secure else 80), secure);
+        if connection is None {
+            return None;
+        }
+        path = (parts.path or "/") + ("?" + parts.query if parts.query else "");
         connection.request("GET", path, headers={"User-Agent": user_agent});
         response = connection.getresponse();
         where = response.getheader("Location") or "";
@@ -63,7 +68,9 @@ def get_once(current: str, head_only: bool) -> tuple[int, str, bytes] | None {
     } except Exception {
         return None;
     } finally {
-        connection.close();
+        if connection is not None {
+            connection.close();
+        }
     }
 }
 

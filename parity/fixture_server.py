@@ -1,9 +1,13 @@
 """A local web site the parity checks point both apps at, so no check touches the internet: pages with metadata, a favicon, a redirect, an error."""
 
 import json
+import os
+import socket
+import ssl
 import sys
 import threading
 from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+from urllib.parse import unquote
 
 PNG = bytes.fromhex("89504e470d0a1a0a0000000d49484452000000010000000108060000001f15c4890000000d49444154789c6360000002000001e221bc330000000049454e44ae426082")
 PAGES = {
@@ -40,6 +44,10 @@ class Fixture(BaseHTTPRequestHandler):
             return self.reply(200, "text/html; charset=utf-8", PAGES[path])
         if path == "/gone":
             return self.reply(410, "text/html; charset=utf-8", b"<html><head><title>Gone page</title></head></html>")
+        if path.startswith("/guard/"):  # one path for each address a guard check tries, so the check can see which were asked for
+            return self.reply(200, "text/html; charset=utf-8", PAGES["/page"])
+        if path == "/redirect-to":
+            return self.reply(302, "text/plain", b"", [("Location", unquote(self.path.split("url=", 1)[1]))])
         if path == "/redirect":
             return self.reply(302, "text/plain", b"", [("Location", "/page")])
         if path == "/image.png":
@@ -49,8 +57,24 @@ class Fixture(BaseHTTPRequestHandler):
         return self.reply(404, "text/plain", b"not here")
 
 
+class SixServer(ThreadingHTTPServer):
+    address_family = socket.AF_INET6
+
+    def server_bind(self):
+        self.socket.setsockopt(socket.IPPROTO_IPV6, socket.IPV6_V6ONLY, 1)
+        super().server_bind()
+
+
 if __name__ == "__main__":
     port = int(sys.argv[1]) if len(sys.argv) > 1 else 9100
+    if os.environ.get("FIXTURE_EVERY_ADDRESS"):  # the guard suite's own network namespace, where private addresses are on the loopback device
+        threading.Thread(target=SixServer(("::", port), Fixture).serve_forever, daemon=True).start()
+        secure = ThreadingHTTPServer(("0.0.0.0", port + 43), Fixture)
+        context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+        context.load_cert_chain(os.environ["FIXTURE_CERT"], os.environ["FIXTURE_KEY"])
+        secure.socket = context.wrap_socket(secure.socket, server_side=True)
+        threading.Thread(target=secure.serve_forever, daemon=True).start()
+        ThreadingHTTPServer(("0.0.0.0", port), Fixture).serve_forever()
     # The same site on a second loopback address, which an app that allows only 127.0.0.1 must refuse to fetch from.
     threading.Thread(target=ThreadingHTTPServer(("127.0.0.2", port), Fixture).serve_forever, daemon=True).start()
     ThreadingHTTPServer(("127.0.0.1", port), Fixture).serve_forever()

@@ -18,6 +18,7 @@ node Bookmark {
 }
 
 """A file kept for a bookmark: today the snapshot of its page, `pending` until background work fills it in."""
+# WORKAROUND(GAP-049): no file storage, so the file is base64 text in the node.
 node Asset {
     has id: int,
         date_created: datetime,

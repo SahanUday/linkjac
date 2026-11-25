@@ -6,6 +6,7 @@ import mimetypes;
 import from urllib.parse { urlsplit }
 
 """A kept icon: its file name, its content type and its bytes as base64 text."""
+# WORKAROUND(GAP-049): no file storage, so the icon is base64 text in the node.
 node Favicon {
     has file: str,
         content_type: str,

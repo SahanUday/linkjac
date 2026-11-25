@@ -31,7 +31,7 @@ graph layers {
     layer pages { pages.*; }
 
     """Reading web pages: fetching one and what it says about itself."""
-    layer net { web_fetch | website; }
+    layer net { address_guard | web_fetch | website; }
 
     """Work done apart from requests: icons fetched by jobs and kept, started by one scheduled function."""
     layer background { favicons | favicon_job | snapshot_job | assets | background; }
@@ -66,6 +66,7 @@ graph spaces {
             | netscape_parse
             | netscape_export
             | netscape_import
+            | address_guard
             | web_fetch
             | website
             | favicons
@@ -230,6 +231,7 @@ graph import {
     rest_reply ++> rest_static { ApiReply, reply_not_allowed, reply_detail, reply_file }
     rest_static ++> rest { static_route }
     profiles ++> web_settings { profile_of }
+    address_guard ++> web_fetch { checked_addresses }
     web_fetch ++> website { fetch_head }
     website ++> rest_check { load_website_metadata }
     website ++> rest_bookmarks { enhance_with_website_metadata }
